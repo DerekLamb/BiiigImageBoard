@@ -10,9 +10,17 @@
 <body>
     <div class="header"> 2kammaki </div>
     <div class="body"> 
-        <div class="flexTop"> banner? </div>
+        <div class="flexTop"> 
+            <a href="">Home</a>
+            <a href="">Posts</a>
+            <a href="">Tags</a>
+            <a href="">Search</a>
+            <a href="">Settings</a>       
+        </div>
         <div class="flexMiddle"> 
             <div class="tagblock">
+                <input type="text" class="search" value="search">
+                <p>tags</p>
                 <ul class="tags">
                     <li class="tag"><a href="">clickme! 1</a></li>
                     <li class="tag"><a href="">clickme! 2</a></li>
@@ -27,7 +35,7 @@
                 </ul>
             </div>
             <div class="imageContainer">
-                <div class="image"> Image Here I guess</div>
+                <div class="image"><img id="imageView" src="https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png"></div>
             </div>
         </div>
         <div class="flexBottom">
@@ -49,6 +57,23 @@
     <div class="footer"> boxboxbox</div>
     <script>
         function imageSizeChange(selection){
+            imageViewer = document.getElementById("imageView")
+            switch(selection){
+                case 1:
+                    imageViewer.style.width= null;
+                    imageViewer.style.height= null;
+                break;
+            
+                case 2:
+                    imageViewer.style.width= "100%";
+                    imageViewer.style.height= null;
+                break;
+
+                case 3:
+                    imageViewer.style.width= null;
+                    imageViewer.style.height= "100%";
+                break;
+            }
             alert(selection)
         }
     </script>
