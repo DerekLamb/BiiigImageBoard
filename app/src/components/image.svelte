@@ -1,17 +1,18 @@
 
 <script>
     export const size = "default";
-    let imageSource = "";
 	export let src = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
-	let height;
-	let width = "250px";
+    export let image = "";
+    export let link = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
+	// export let height;
+	export let width = "250px";
     let upScore = "100"
     let downScore = "20"
     // margin calculated based on viewport width
 </script>
 
 
-<a href={src}><img {src} alt = "Test" style = "width:{width}"></a>
+<a href={link}><img {src} alt = "Err" style = "width:{width}"></a>
 
 
 <style>

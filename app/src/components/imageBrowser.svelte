@@ -3,17 +3,16 @@
 import Image from "./image.svelte";
 
 export let images = [{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1}];
-
-for (let i = 0; i > 100; i++){
-    images.push({test:i});
-}
+// export let images
+// structure is [{imgdata: xx, imgname: xx, imgthumb: xx, imgpage: xx}, ...]
 console.log(images)
 
 </script>
 
 <div class = "imageBrowser">
     {#each images as image}
-        <Image ></Image>
+        <Image link = image.imgPage  image = image.imgData ></Image>
+        <!-- <Image > </Image > -->
     {/each}
 </div>
 
