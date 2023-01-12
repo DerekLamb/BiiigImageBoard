@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - 8800:8800
+      - 8801:8801
+    # volumes:
+      # - /app/app:stuff here
