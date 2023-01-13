@@ -5,9 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: production
+      # target: production
     ports:
-      - 8800:8800
-      - 8801:8801
+      - 27017:27017
     # volumes:
       # - /app/app:stuff here
