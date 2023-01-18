@@ -1,9 +1,9 @@
 <script>
-import ImageBrowser from "../components/imageBrowser.svelte"
-import Tagbar from "../components/tagbar.svelte";
-
-//set tag to specific size or move based on screen size
-//decide image browser size 
+import ImageBrowser from "$lib/imageBrowser.svelte";
+import Tagbar from "$lib/tagbar.svelte"
+    
+    //set tag to specific size or move based on screen size
+    //decide image browser size 
 </script>
 
 <h1>b..d</h1>
