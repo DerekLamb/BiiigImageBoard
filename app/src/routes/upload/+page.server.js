@@ -1,4 +1,3 @@
-// import { invalid } from "@sveltejs/kit";
 import fs from "fs";
 
 /** @type {import('./$types').Actions} */
