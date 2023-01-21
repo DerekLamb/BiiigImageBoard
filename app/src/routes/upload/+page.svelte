@@ -1,24 +1,18 @@
 <script>
-// import ImageBrowser from "../../components/imageBrowser.svelte"
-// import Tagbar from "../../components/tagbar.svelte";
+import { browser } from "$app/environment";
 
-//set tag to specific size or move based on screen size
-//decide image browser size 
+
 </script>
 
 <h1>b..d</h1>
 <p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
 <div class = midContainer>
-    <div></div>
     <form method="POST" enctype="multipart/form-data">
-        <label for="imageName">Name</label>
-        <input id = "imageName" type="text">
-        <label>
-            Upload Image
-            <input name="image" type="file" required>
-        </label>
+        <label for="image">Upload Image </label>
+            <input name="image" id = "image" type="file" multiple required>
+        
         <button type="submit">Submit</button>
-
+        </form>
 </div>
 
 <style>

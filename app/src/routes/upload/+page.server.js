@@ -1,23 +1,23 @@
 import fs from "fs";
+import db from "$lib/db"
 
 /** @type {import('./$types').Actions} */
 export const actions = {
   default: async ({ request }) => {
-    const formdata = await request.formData();
+    const formdata = await request.formData(); // paused here until done? 
+    const files = formdata.getAll("image");
+    for (let i = 0; i < files.length; i++){
 
-    const file = formdata.get("image");
-
-    if (!(file instanceof Object) || !file.name) {
-    //   return invalid(400, { missing: true });
-
-        console.log("Issue with file uploaded");
-        return { success : false };
+      if (!(files[i] instanceof Object) || !files[i].name){
+        console.log("Error with file");
+      } else {
+        const buffer = Buffer.from(await files[i].arrayBuffer());
+        const fsName = `${Date.now()}.${files[i].name.split('.').pop()}`
+        fs.writeFileSync(`images/${fsName}`, buffer, "base64");
+        db.collection('testimages').insertOne({name: files[i].name, fsName:fsName, imagePath: `images/${fsName}`, tags: files[i].tags });
+      }
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    fs.writeFileSync(`uploads/${Date.now()}.png`, buffer, "base64");
-    //call function to upload to database here 
-    console.log(buffer);
-    return { filename: file.name };
-  },
+    return { sucess: true, submitted: files.length };
+  }
 };
