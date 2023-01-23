@@ -7,16 +7,23 @@
     // calculate common tags?
 </script>
 
-<ul >
+<ul>
+    <p>Tags</p>
     {#each response as tag }
         <Tag name = {tag.name} link = {tag.link}></Tag>
     {/each}
 </ul>
 
 <style>
+    p{
+        size: 20%;
+        margin:0;
+    }
     ul{
         padding: 10px 10px 10px 10px;
-        background-color: rgb(213, 213, 252);
+        background-color: #45542d;
         max-height: 5%;
+        margin: 0 .5% 0;
+        border-radius: 5px;
     }
 </style>
