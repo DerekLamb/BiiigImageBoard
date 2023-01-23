@@ -11,10 +11,13 @@ export const actions = {
       if (!(files[i] instanceof Object) || !files[i].name){
         console.log("Error with file");
       } else {
+        console.log(files[i]);
         const buffer = Buffer.from(await files[i].arrayBuffer());
-        const fsName = `${Date.now()}.${files[i].name.split('.').pop()}`
+        const genName = Date.now().toString()
+        const fsName = `${genName}.${files[i].name.split('.').pop()}`
         fs.writeFileSync(`images/${fsName}`, buffer, "base64");
-        db.collection('testimages').insertOne({name: files[i].name, fsName:fsName, imagePath: `images/${fsName}`, tags: files[i].tags });
+        console.log(`${fsName}, ${files[i]}`)
+        db.collection('testimages').insertOne({name: files[i].name, fsName:fsName, genName:genName, imagePath: `images/${fsName}`, tags: files[i].tags, embPrompt:""});
       }
     }
 

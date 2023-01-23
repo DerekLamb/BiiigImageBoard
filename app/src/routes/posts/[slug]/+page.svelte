@@ -1,19 +1,25 @@
 <script>
-    import ImageBrowser from "../../../components/imageBrowser.svelte"
-    import Tagbar from "../../../components/tagbar.svelte";
+    import ImageBrowser from "$lib/imageBrowser.svelte"
+    import Tagbar from "$lib/tagbar.svelte";
+    import NavBar from "$lib/navBar.svelte";
+	import Image from "$lib/image.svelte";
     
-    //set tag to specific size or move based on screen size
-    //decide image browser size 
+    /** @type {import('./$types').PageData} */ 
+    export let data;
 </script>
 
 <h1>b..d</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<p>Yeah... </p>
+<NavBar></NavBar>
 <div class = midContainer>
     <Tagbar ></Tagbar>
-    <ImageBrowser></ImageBrowser>
+    <Image width = "100%" src = "../../{data.image.imagePath}" imageName={data.image.name}></Image>
 </div>
 
 <style>
+    :global(body){
+        background-color: #6c6c6c;
+    }
     .midContainer{
         display:flex;
     }
