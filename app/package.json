@@ -1,5 +1,5 @@
 {
-	"name": "frontend",
+	"name": "bib",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
@@ -24,7 +24,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"mongodb": "^4.13.0",
-		"multer": "^1.4.5-lts.1"
+		"mongodb": "^4.13.0"
 	}
 }

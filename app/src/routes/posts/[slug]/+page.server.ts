@@ -17,3 +17,10 @@ export const load: PageServerLoad = async ({ params }) => {
         image: image
     }
 }
+
+export const actions = {
+    default: async ({ request }) => {
+        
+    }
+}
+
