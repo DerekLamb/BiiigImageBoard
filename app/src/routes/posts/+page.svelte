@@ -10,9 +10,6 @@
     
 </script>
 
-<h1>b..d</h1>
-<p>Yeah... </p>
-<NavBar></NavBar>
 <div class = midContainer>
     <Tagbar ></Tagbar>
     <div class = "imageBrowser">
@@ -21,6 +18,7 @@
         {/each}
     </div>
 </div>
+
 <style>
     :global(body){
         background-color: #6c6c6c;
@@ -37,11 +35,5 @@
         border-radius: 5px;
         flex-grow: 1;
         
-    }
-    h1{
-        color:azure;
-    }
-    p{
-        color:azure;
     }
 </style>
