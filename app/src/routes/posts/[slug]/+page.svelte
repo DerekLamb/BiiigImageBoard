@@ -8,12 +8,14 @@
     export let data;
 </script>
 
-<h1>b..d</h1>
-<p>Yeah... </p>
-<NavBar></NavBar>
 <div class = midContainer>
     <Tagbar ></Tagbar>
-    <Image width = "100%" src = "../../{data.image.imagePath}" imageName={data.image.name}></Image>
+    <Image width = "100%" src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
+    <form method="Post" action="?/delete">
+        <button type="submit">Delete</button>
+        <input type="hidden" name="imageName" value="{data.image.genName}">
+        <input type="hidden" name="fileName" value="{data.image.imagePath}">
+    </form>
 </div>
 
 <style>

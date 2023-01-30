@@ -2,9 +2,13 @@ import db from '$lib/db';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ( url ) => {
-    // console.log(url);
-    const images = await db.collection('testimages').find().sort({ length:-1 }).skip(0).limit(50).toArray();
-    
+    const searchParams = url.url.searchParams
+    const currPage = ((searchParams.get("page") * 1) >= 1)?(searchParams.get("page")):1;
+    const pageLength = (searchParams.get("len"))?(searchParams.get("len") * 1):30;
+    const startInd = (currPage - 1) * pageLength;
+
+    const images = await db.collection('testimages').find().sort({ length:-1 }).skip(startInd).limit(pageLength).toArray();
+    const numPages = Math.ceil(await db.collection('testimages').countDocuments() / pageLength);
     const rawImages = images.map(({ name, fsName, genName, imagePath, tags}) => ({
         name,
         fsName,
@@ -13,10 +17,11 @@ export const load: PageServerLoad = async ( url ) => {
         tags
     }))
 
-    console.log(rawImages)
 
     return{
         status: 200,
-        images: rawImages
+        images: rawImages,
+        pageNum: numPages,
+        currPage: currPage
     }
 }
