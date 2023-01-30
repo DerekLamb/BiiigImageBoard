@@ -5,7 +5,7 @@
     export let imageName = "";
     export let link = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
 	// export let height;
-	export let width = "150px";
+	export let width = "75px";
     let upScore = -1
     let downScore = -1
     // margin calculated based on viewport width

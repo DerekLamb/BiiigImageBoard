@@ -10,6 +10,9 @@
 <slot></slot>
 
 <style>
+    :global(body){
+        background-color:#6c6c6c;
+    }
     h1{
         color:azure;
     }

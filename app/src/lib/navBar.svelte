@@ -32,4 +32,8 @@
     a:visited{
         color: white;
     }
+    a:hover{
+        color:lightgreen;
+        transition:.2s;
+    }
 </style>

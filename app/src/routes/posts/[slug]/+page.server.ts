@@ -1,26 +1,43 @@
 import db from '$lib/db';
+import fs from "fs";
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
     params.slug
     const image = await db.collection('testimages').findOne({genName:params.slug});
+    if(!image){
+        return{
+            status: 200,
+            image: null,
+        }
+    }
     delete image._id;
 
-    console.log(image);
-    console.log(params.slug);
-
-
-    // console.log(rawImages)
 
     return{
         status: 200,
-        image: image
+        image: image,
     }
 }
 
+/** @type {import('./$types').Actions} */
 export const actions = {
-    default: async ({ request }) => {
+    delete: async ({ request }) => {
+        const data = await request.formData();
+        const gName = data.get("imageName");
+        const fName = data.get("fileName");
+        console.log(gName);
+        console.log(fName);
+        if(gName){
+        db.collection('testimages').deleteOne({genName:gName} )
+        }
+        fs.unlink(`${fName}`, (err) => {
+            console.log(`${fName}`)
+            if(err) throw err;
+            console.log(`deleted ${fName}`)
+        });
         
+        throw redirect(303,"/posts");
     }
 }
-
