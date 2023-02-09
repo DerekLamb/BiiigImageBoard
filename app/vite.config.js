@@ -6,7 +6,8 @@ const config = {
 	server: {
 		fs: {
 			allow: ['./images']
-		}
+		},
+		host: true
 	}
 };
 
