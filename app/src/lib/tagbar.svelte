@@ -24,6 +24,12 @@
 </ul>
 
 <style>
+    @media (max-width:767px) {
+        ul{
+            display:none;
+        }
+    }
+
     .wrapper {
         width:100%;
         max-width:31.25rem;
@@ -74,5 +80,6 @@
         margin: 0 .5% 0;
         border-radius: 5px;
     }
+
 
 </style>

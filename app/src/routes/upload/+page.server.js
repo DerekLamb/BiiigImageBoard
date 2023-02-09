@@ -14,7 +14,7 @@ export const actions = {
       } else {
         // console.log(files[i]);
         const buffer = Buffer.from(await files[i].arrayBuffer());
-        console.log(promptDecode(buffer))
+        //console.log(promptDecode(buffer))
         const genName = Date.now().toString()
         const fsName = `${genName}.${files[i].name.split('.').pop()}`
         fs.writeFileSync(`images/${fsName}`, buffer, "base64");
