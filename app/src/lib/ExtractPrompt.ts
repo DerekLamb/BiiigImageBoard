@@ -4,14 +4,14 @@ export default function promptDecode(data:Buffer) {
     let text = '';
     let name = '';
     let param = false;
-    let debugLim = 1024;
+    let debugLim = 2048;
     let i = promptIndex(data)
     console.log(i);
 
     if (i){
         while(!param){
             let code = data[i]
-            console.log(code)
+            console.log(code.toString(16))
             if( code == 0 && !param){
                 console.log("found 00 char")
                 param = true;
@@ -25,7 +25,6 @@ export default function promptDecode(data:Buffer) {
         while(param){
             let code = data[i]
             text += String.fromCharCode(code);
-            
             
             if(code == 73 ){
                 console.log("found code == 73");
@@ -47,8 +46,12 @@ export default function promptDecode(data:Buffer) {
         }
     }
     else{
-        console.log("Not this image")
-        return undefined;
+        // 
+        console.log("found none")
+        return {
+            prop:'',
+            prompt: "No Prompt Found" 
+        };
     }
 }
 
