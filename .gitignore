@@ -4,3 +4,9 @@
 *.gif
 *.mp4
 *.webm
+/app/images
+/app/images/*
+/app/upload
+/app/upload/*
+/app/node_modules
+/app/node_modules/*

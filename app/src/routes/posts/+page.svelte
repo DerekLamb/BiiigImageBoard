@@ -19,7 +19,7 @@
         </div>
         <div class = "imageCont">
         {#each data.images as image}
-            <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} size = "50px"></Image>
+            <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "180px"></Image>
         {/each}
         </div>
         <div class = "pgnumCont">
@@ -53,6 +53,7 @@
         display:flex;
         flex-wrap:wrap;
         margin: 0 .5% 0;
+        
     }
     .pgnumCont{
         margin: 12px;
