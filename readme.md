@@ -19,3 +19,4 @@
 ### future ideas
 - Tighter integration with Automatic1111? 
 - File management automation (dropbuckets and like) 
+- Multimode(Hosted standalone, imagefolder frontend)
