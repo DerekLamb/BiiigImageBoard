@@ -49,8 +49,8 @@ export default function promptDecode(data:Buffer) {
         // 
         console.log("found none")
         return {
-            prop:'',
-            prompt: "No Prompt Found" 
+            prop: null,
+            prompt: null 
         };
     }
 }
