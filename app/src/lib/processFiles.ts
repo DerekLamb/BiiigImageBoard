@@ -7,19 +7,23 @@ const imgCol = db.collection('testimages')
 const remCol = db.collection('remedialImages')
 
 export async function checkFiles(dirPath: string){
+    
     const result = await refreshFiles(dirPath);
+
     cleanupDB(dirPath, result.missingFiles);
+    // TODO compare img to db based on hash 
     addNewFiles(dirPath, result.newFiles);
+
     embPromptGrab(dirPath);
 }
 
 export async function refreshFiles(dirPath: string){
     // compare file dir to db 
     // returns {"_id":_id, "fsName":fsName } from database
-    const imageNames = await imgCol.find({}).project(projection).toArray(); // returns {"_id":_id, "fsName":fsName } from database
+    const fileNames = await imgCol.find({}).project({_id:0, fsName:1}).toArray(); // returns {"_id":_id, "fsName":fsName } from database
     
     // grabs just fsName from returned mongo find query
-    const fileNames = imageNames.map((document) => document.fsName)
+    //const fileNames = imageNames.map((document) => document.fsName)
 
     // reads all file names in said directory
     const dirFiles = await fs.promises.readdir(dirPath);
@@ -29,8 +33,6 @@ export async function refreshFiles(dirPath: string){
 
     // filters based on missing matches from filename perspective
     const newFiles = dirFiles.filter((dirFile) => !fileNames.includes(dirFile));
-
-    // TODO compare based on hash 
 
     console.log( missingFiles );
     console.log( newFiles );
@@ -42,11 +44,11 @@ export async function refreshFiles(dirPath: string){
 
 export async function embPromptGrab(dirPath: string, forceRecheck?: boolean){
 
-    const noPromptQuery = (forceRecheck) ? { embPropmt:"" } : {}
+    const noPromptQuery = (forceRecheck) ? { embPropmt:"" } : {};
 
     const noPromptReturn = await imgCol.find(noPromptQuery).project(projection).toArray();
     
-    const noPromptFiles = noPromptReturn.map((document) => document.fsName)
+    const noPromptFiles = noPromptReturn.map((document) => document.fsName);
 
     for(const filename in noPromptFiles){
 
@@ -58,13 +60,13 @@ export async function embPromptGrab(dirPath: string, forceRecheck?: boolean){
                 const file = await fs.promises.readFile(`images/${filename}`);
                 
                 // file for expected prompt
-                const embPrompt  = promptDecode(filename)?.prompt;
+                const embPrompt  = promptDecode(file)?.prompt;
         
                 console.log(embPrompt);
                 console.log(filename);
 
                 // add found embedded prompt to imageDB if one exists
-                if(embPrompt){ imgCol.updateOne({ fsName: filename }, {$set:{ embPrompt: embPrompt }}, { upsert: false}); }
+                if(embPrompt){ imgCol.updateOne({ fsName: filename }, { $set:{ embPrompt: embPrompt } }, { upsert: false}); }
 
             } catch (error) {
 
@@ -88,7 +90,6 @@ export async function cleanupDB(dirPath: string, missingFiles : Array<string>){
         // per filename in missingFiles, add imagedoc to remedial db. 
         // TODO in future add ability to decide whether to keep data or delete?
         const document = await db.collection('testimage').find({fsname:filename}).toArray();
-        
         remCol.insertOne({name: document.name, fsName:filename, genName:document.genName, imagePath: `images/${filename}`, tags: document.tags, embPrompt:""});
         console.log(document);
         const result = await db.collection('testimage').deleteOne({fsName:filename});
@@ -105,17 +106,45 @@ export async function addNewFiles(dirPath: string, newFiles : Array<string>, fil
     }
 }
 
-export async function addNewFile(dirPath: string, newFile: string, fsName?: string, tags?: Array<string>, chkEmbPrompt?: boolean){
+export async function addNewFile(dirPath: string, newFile: string, destPath?:string, tags?: Array<string>){
     const genName = Date.now().toString();
-    const imageName = fsName ?? `${genName}.${newFile.split('.').pop()}`;
+    const imageName = `${genName}.${newFile.split('.').pop()}`;
+
     // const storeDir = ;
     // if(chkEmbPrompt){
     //     embPromptGrab(dirPath)
     // }
-    const result = await imgCol.insertOne({name: imageName, fsName:fsName, genName:genName, imagePath: `images/${fsName}`, tags: tags, embPrompt:""});
+
+    if(destPath){
+        fs.rename(`${dirPath}/${newFile}`, `images/${imageName}`, () => {
+            console.log(`new file added at images/${imageName}`);
+        });
+    }
+    const result = await imgCol.insertOne({name: newFile, fsName:imageName, genName:genName, imagePath: `images/${imageName}`, tags: tags, embPrompt:""});
 
     fs.rename(`${dirPath}/${newFile}`, `images/${imageName}`, () => {
         console.log(`new file added at images/${imageName}`);
     });
+}
+
+export async function moveFile(movePath: string, fileName: string, tags?: Array<string>){
+
+    const genName = Date.now().toString();
+
+    const imageName = `${genName}.${newFile.split('.').pop()}`;
+
+    try{
+
+        const result = await imgCol.insertOne({name: newFile, fsName:imageName, genName:genName, imagePath: `images/${imageName}`, tags: tags, embPrompt:""});
+
+        fs.rename(`${movePath}/${fileName}`, `images/${fileName}`, () => {
+            console.log(`new file added at images/${imageName}`);
+        });
+
+    } catch(error) {
+
+        console.log("Error encountered while moving file")
+    
+    }
 
 }
