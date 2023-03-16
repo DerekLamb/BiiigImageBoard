@@ -106,14 +106,10 @@ export async function addNewFiles(dirPath: string, newFiles : Array<string>, fil
     }
 }
 
-export async function addNewFile(dirPath: string, newFile: string, destPath?:string, tags?: Array<string>){
+export async function addNewFile(dirPath: string, newFile: string, fileData: buffer ,  destPath?:string, tags?: Array<string>){
+
     const genName = Date.now().toString();
     const imageName = `${genName}.${newFile.split('.').pop()}`;
-
-    // const storeDir = ;
-    // if(chkEmbPrompt){
-    //     embPromptGrab(dirPath)
-    // }
 
     if(destPath){
         fs.rename(`${dirPath}/${newFile}`, `images/${imageName}`, () => {
@@ -122,9 +118,8 @@ export async function addNewFile(dirPath: string, newFile: string, destPath?:str
     }
     const result = await imgCol.insertOne({name: newFile, fsName:imageName, genName:genName, imagePath: `images/${imageName}`, tags: tags, embPrompt:""});
 
-    fs.rename(`${dirPath}/${newFile}`, `images/${imageName}`, () => {
-        console.log(`new file added at images/${imageName}`);
-    });
+    fs.writeFileSync(`images/${fsName}`, buffer, "base64");
+    db.collection('testimages').insertOne({name: files[i].name, fsName:fsName, genName:genName, imagePath: `images/${fsName}`, tags: files[i].tags, embPrompt:""});
 }
 
 export async function moveFile(movePath: string, fileName: string, tags?: Array<string>){
