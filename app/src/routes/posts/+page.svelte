@@ -35,14 +35,14 @@
 
 <style>
     :global(body){
-        background-color: #6c6c6c;
+        background-color: #e3feff;
     }
     .midContainer{
         display:flex;
         min-height:100%;
     }
     .imageBrowser{
-        background-color: #45542d;
+        background-color: #BAE7F0;
         display:flex;
         flex-wrap:wrap;
         margin: 0 .5% 0;
@@ -67,13 +67,13 @@
 
     }
     .pageNum:link{
-        color: white;
+        color: #808080;
     }
     .pageNum:visited{
-        color: white;
+        color: #808080;
     }
     .pageNum:hover{
-        color:lightgreen;
+        color: #FFCEB0;
         transition:.2s;
     }
 </style>
