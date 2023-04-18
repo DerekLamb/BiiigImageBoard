@@ -11,12 +11,14 @@
 
 <style>
     :global(body){
-        background-color:#6c6c6c;
+        background-color:#ADD8E6;
     }
     h1{
-        color:azure;
+        font-family: 'Orbitron', sans-serif;
+        color:#37b4b4;
     }
     p{
-        color:azure;
+        font-family: 'Orbitron', sans-serif;
+        color:#339999;
     }
 </style>

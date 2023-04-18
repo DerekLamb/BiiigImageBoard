@@ -14,8 +14,8 @@
     <Tagbar ></Tagbar>
     <div class = "imageBrowser">
         <div class = "pgnumCont">
-            <a href="/posts?page={data.currPage - 1}"class="pageNum">&lt&lt&lt</a>
-            <a href="/posts?page={data.currPage - -1}" class="pageNum">&gt&gt&gt</a>
+            <a href="/posts?page={data.currPage - 1}"class="pageNum">prev</a>
+            <a href="/posts?page={data.currPage - -1}" class="pageNum">next</a>
         </div>
         <div class = "imageCont">
         {#each data.images as image}
@@ -23,8 +23,8 @@
         {/each}
         </div>
         <div class = "pgnumCont">
-            <a href="/posts?page={data.currPage - 1}"class="pageNum">&lt&lt&lt</a>
-            <a href="/posts?page={data.currPage - -1}" class="pageNum">&gt&gt&gt</a>
+            <a href="/posts?page={data.currPage - 1}"class="pageNum">prev</a>
+            <a href="/posts?page={data.currPage - -1}" class="pageNum">next</a>
         <!-- {#each Array(data.pageNum) as _, i }
             <a href="/posts?page={i+1}" class="pageNum">{i+1}</a>
         {/each} -->
@@ -35,25 +35,15 @@
 
 <style>
     .midContainer{
-        display:grid;
-        grid-template-columns: min-content, 1fr;
-
-        gap:40px;
-        height:100%;
-        padding: 10px;
-    
-        grid-template-areas:
-            "sidebar main";
+        display:flex;
+        min-height:100%;
     }
-
     .imageBrowser{
-        background-color: #9ac7d6;
-        border: 2px solid #65ccc744;
-        border-radius: 8px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.205);
-
+        background-color: #BAE7F0;
         display:flex;
         flex-wrap:wrap;
+        margin: 0 .5% 0;
+        border-radius: 5px;
         flex-grow: 1;
     }
     .imageCont{
