@@ -1,6 +1,6 @@
 version: "3.7"
 
-name: Biiig-DB-Dev
+name: biiig-db-dev
 
 services:
 #   biiig-image-app:

@@ -9,13 +9,13 @@ const remCol = db.collection('remedialImages')
 export async function checkFiles(dirPath: string){
     
     const result = await refreshFiles(dirPath);
-    console.log("Missing Files: ");
-    console.log(result.missingFiles);
+    // console.log("Missing Files: ");
+    // console.log(result.missingFiles);
     console.log("New Files: ");
     console.log(result.newFiles);
     cleanupDB(dirPath, result.missingFiles);
     // TODO compare img to db based on hash 
-    // addNewFiles(dirPath, result.newFiles);
+    moveFiles(dirPath, result.newFiles);
 
     // embPromptGrab(dirPath);
 }
@@ -23,13 +23,12 @@ export async function checkFiles(dirPath: string){
 export async function refreshFiles(dirPath: string){
     // compare file dir to db 
     // returns {"_id":_id, "fsName":fsName } from database
-    const fileNames = await imgCol.find({}).project({_id:0, fsName:1}).toArray(); // returns {"_id":_id, "fsName":fsName } from database
-    
+    const imageNames = await imgCol.find({}).project({fsName:1}).toArray(); // returns {"fsName":fsName } from database
     // grabs just fsName from returned mongo find query
-    //const fileNames = imageNames.map((document) => document.fsName)
+    const fileNames = imageNames.map((document) => document.fsName)
 
     // reads all file names in said directory
-    const dirFiles = await fs.promises.readdir(dirPath);
+    const dirFiles = fs.readdirSync(dirPath);
 
     // filters based on missing matches from database perspective
     const missingFiles = fileNames.filter((fileName) => !dirFiles.includes(fileName));
@@ -37,8 +36,6 @@ export async function refreshFiles(dirPath: string){
     // filters based on missing matches from filename perspective
     const newFiles = dirFiles.filter((dirFile) => !fileNames.includes(dirFile));
 
-    console.log( missingFiles );
-    console.log( newFiles );
     return { 
         missingFiles,
         newFiles
@@ -64,12 +61,12 @@ export async function embPromptGrab(dirPath: string, forceRecheck? : boolean){
                 
                 // file for expected prompt
                 const embPrompt  = promptDecode(file)?.prompt;
-        
-                console.log(embPrompt);
-                console.log(filename);
 
                 // add found embedded prompt to imageDB if one exists
-                if(embPrompt){ imgCol.updateOne({ fsName: filename }, { $set:{ embPrompt: embPrompt } }, { upsert: false}); }
+                if(embPrompt){ 
+                    imgCol.updateOne({ fsName: filename }, { $set:{ embPrompt: embPrompt } }, { upsert: false}); 
+                    console.log("embPrompt found for image: " + filename)
+                }
 
             } catch (error) {
 
@@ -90,58 +87,66 @@ export async function embPromptGrab(dirPath: string, forceRecheck? : boolean){
 
 export async function cleanupDB(dirPath: string, missingFiles : Array<string>){
     for( const filename of missingFiles ){
-        // per filename in missingFiles, add imagedoc to remedial db. 
-        // TODO in future add ability to decide whether to keep data or delete?
-        const document = await db.collection('testimage').find({fsname:filename}).toArray();
-        remCol.insertOne({name: document.name, fsName:filename, genName: document.genName, imagePath: `images/${filename}`, tags: document.tags, embPrompt:""});
-        console.log(document);
-        const result = await db.collection('testimage').deleteOne({fsName:filename});
-        // if(result.deletedCount === 1){
-        //     console.log(`Sucessfully deleted ${filename}`);
-        // }
+        // per filename in missingFiles, move imagedoc to remedial db. 
+
+        console.log("filename is " + filename);
+        // console.log((await db.collection('testimages').find().toArray()).map(document => document.fsName));
+        const document = await imgCol.findOne({ fsName:filename });
+        remCol.insertOne(document);
+        console.log("document is " + document);
+        const result = await imgCol.deleteOne({ name:document.name });
+        if(result.deletedCount === 1){
+            console.log(`Sucessfully deleted ${filename}`);
+        }
+        else{
+            console.log(`Failed to delete ${filename}`);
+        }
     }
 }
 
-export async function addNewFiles(dirPath: string, newFiles : Array<string>, fileData? : File){
+export async function moveFiles(dirPath: string, newFiles : Array<string>, fileData? : File){
     for( const filename of newFiles ){
-        addNewFile(dirPath, filename)
-        console.log(filename)
+        moveFile(dirPath, filename, dirPath);
+        console.log(filename);
     }
 }
 
-export async function addNewFile(dirPath: string, newFile: string, fileData: Buffer,  destPath?:string, tags?: Array<string>){
+export async function moveFile(dirPath: string, fileName: string, destPath: string, tags?: Array<string>) {
+    const [ base, ext ] = fileName.split('.');
+    const timestamp = base.match(/\b\d{13}\b/) ? base : `${Date.now().toString()}`;
+    const imageName = `${timestamp}.${ext}`;
 
-    const genName = Date.now().toString();
-    const imageName = `${genName}.${newFile.split('.').pop()}`;
+    
+    fs.renameSync(`${dirPath}/${fileName}`, `${destPath}/${imageName}`)
+    console.log(`file ${fileName} moved to ${destPath}/${imageName}`);
 
-    if(destPath){
-        fs.rename(`${dirPath}/${newFile}`, `images/${imageName}`, () => {
-            console.log(`new file added at images/${imageName}`);
-        });
-    }
-    const dbResult = await imgCol.insertOne({name: newFile, fsName:imageName, genName:genName, imagePath: `images/${imageName}`, tags: tags, embPrompt:""});
+    const dbResult = await imgCol.insertOne({ // Insert the file metadata into the database.
+        name: fileName, 
+        fsName: imageName, 
+        genName: timestamp, 
+        imagePath: `${destPath}/${imageName}`, 
+        tags: tags, 
+        embPrompt: ""
+    });
 
-    const fsResult = fs.writeFileSync(`images/${fsName}`, buffer, "base64");
-    db.collection('testimages').insertOne({name: files[i].name, fsName:fsName, genName:genName, imagePath: `images/${fsName}`, tags: files[i].tags, embPrompt:""});
 }
 
-export async function moveFile(movePath: string, fileName: string, tags?: Array<string>){
-
-    const genName = Date.now().toString();
-
-    const imageName = `${genName}.${newFile.split('.').pop()}`;
+export async function addFile(fileStream: Buffer, fileName:string, imagePath:string, tags?:Array<string>){
+    const [ base, ext ] = fileName.split('.');
+    const timestamp = base.match(/\b\d{13}\b/) ? base : `${Date.now().toString()}`;
+    const fsName = `${timestamp}.${ext}`
 
     try{
+        const result = await imgCol.insertOne({name: fileName, fsName:fsName, genName:timestamp, imagePath: `${imagePath}/${fsName}`, tags: tags, embPrompt:""});
 
-        const result = await imgCol.insertOne({name: newFile, fsName:imageName, genName:genName, imagePath: `images/${imageName}`, tags: tags, embPrompt:""});
+        fs.writeFileSync(`${imagePath}/${fsName}`, fileStream, 'base64');
+        
+        console.log(`File ${fileName} written to DB and filesystem`)
+    } 
+    catch(error) {
 
-        fs.rename(`${movePath}/${fileName}`, `images/${fileName}`, () => {
-            console.log(`new file added at images/${imageName}`);
-        });
-
-    } catch(error) {
-
-        console.log("Error encountered while moving file")
+        console.error(`Error encountered writing file ${fileName} to DB and filesystem`);
+        console.error(error);
     
     }
 

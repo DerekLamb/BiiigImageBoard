@@ -19,9 +19,7 @@
 </div>
 
 <style>
-    :global(body){
-        background-color: #6c6c6c;
-    }
+
     .midContainer{
         display:flex;
     }
