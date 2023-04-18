@@ -15,5 +15,7 @@ services:
 
   biiig-image-db:
       image: mongo:latest
+      volumes: 
+      - ./mongodb:/data/db
       # ports:
       #   - "27017:27017"
