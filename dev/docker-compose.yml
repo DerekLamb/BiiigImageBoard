@@ -1,0 +1,19 @@
+version: "3.7"
+
+name: biiig-db-dev
+
+services:
+#   biiig-image-app:
+#       build: ./app
+#       environment:
+#       - DB_URI=mongodb://biiig-image-db:27017
+#       ports: 
+#       - "5173:5173"
+#       volumes: 
+#       - ./app/images:/biiib/images
+
+
+  biiig-image-db:
+      image: mongo:latest
+      ports:
+        - "27017:27017"

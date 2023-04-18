@@ -41,24 +41,28 @@ export default function promptDecode(data:Buffer) {
             }
             if(i >= debugLim){
                 param = false;
+                console.log("hit debuglim while searching for embedded text");
+                console.log(`prop:${name}`);
+                console.log(`propmt:${text}`);
             }
             i++;
         }
     }
     else{
-        // 
-        console.log("found none")
-        return {
-            prop:'',
-            prompt: "No Prompt Found" 
-        };
+        
+        console.log("no embedded text found")
     }
+    
+    return {
+        prop: null,
+        prompt: null 
+    };
 }
 
 
 function promptIndex(dataBuff:Buffer){
     const checkRange = 48;
-    let checkBuff = dataBuff.slice(0,checkRange)
+    const checkBuff = dataBuff.slice(0,checkRange)
 
     for(let j = 0; j < checkRange; j++){
         if(checkBuff[j] == 116){
