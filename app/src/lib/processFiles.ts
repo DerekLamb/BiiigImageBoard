@@ -23,7 +23,7 @@ export async function checkFiles(dirPath: string){
 export async function refreshFiles(dirPath: string){
     // compare file dir to db 
     // returns {"_id":_id, "fsName":fsName } from database
-    const imageNames = await imgCol.find({}).project({fsName:1}).toArray(); // returns {"fsName":fsName } from database
+    const imageNames = await imgCol.find({}).project(projection).toArray(); // returns {"fsName":fsName } from database
     // grabs just fsName from returned mongo find query
     const fileNames = imageNames.map((document) => document.fsName)
 
@@ -57,7 +57,7 @@ export async function embPromptGrab(dirPath: string, forceRecheck? : boolean){
             try {
 
                 //read file data
-                const file = await fs.promises.readFile(`images/${filename}`);
+                const file = await fs.promises.readFile(`${dirPath}/${filename}`);
                 
                 // file for expected prompt
                 const embPrompt  = promptDecode(file)?.prompt;
