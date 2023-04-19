@@ -1,10 +1,14 @@
+import { page } from '$app/stores';
 import db from '$lib/db';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ( url ) => {
-    const searchParams = url.url.searchParams
-    const currPage = ((searchParams.get("page") * 1) >= 1)?(searchParams.get("page")):1;
-    const pageLength = (searchParams.get("len"))?(searchParams.get("len") * 1):30;
+    const searchParams = new URLSearchParams(url.search);
+    const pageNum = parseInt(searchParams.get("page"));
+    const currPage = (pageNum > 0) ? (pageNum) : 1;
+    const lengthNum = parseInt(searchParams.get("len"));
+
+    const pageLength = (searchParams.get("len"))?(lengthNum * 1):30;
     const startInd = (currPage - 1) * pageLength;
 
     const images = await db.collection('testimages').find().sort({ genName:-1 }).skip(startInd).limit(pageLength).toArray();
