@@ -92,17 +92,28 @@ export async function cleanupDB(dirPath: string, missingFiles : Array<string>){
         console.log("filename is " + filename);
         // console.log((await db.collection('testimages').find().toArray()).map(document => document.fsName));
         const document = await imgCol.findOne({ fsName:filename });
-        remCol.insertOne(document);
-        console.log("document is " + document);
-        const result = await imgCol.deleteOne({ name:document.name });
-        if(result.deletedCount === 1){
-            console.log(`Sucessfully deleted ${filename}`);
+        if(document){
+            remCol.insertOne(document);
+            console.log("document is " + document);
+            const result = await imgCol.deleteOne({ name:document.name });
+            if(result.deletedCount === 1){
+                console.log(`Sucessfully deleted ${filename}`);
+            }
+            else{
+                console.log(`Failed to delete ${filename}`);
+            }
+        } 
+        else{ 
+            `${filename} not found inside DB`
         }
-        else{
-            console.log(`Failed to delete ${filename}`);
-        }
+
     }
 }
+
+//TODO:
+// 1. **Batch database operations `bulkWrite`
+
+// 2. **Error handling
 
 export async function moveFiles(dirPath: string, newFiles : Array<string>, fileData? : File){
     for( const filename of newFiles ){
@@ -128,7 +139,6 @@ export async function moveFile(dirPath: string, fileName: string, destPath: stri
         tags: tags, 
         embPrompt: ""
     });
-
 }
 
 export async function addFile(fileStream: Buffer, fileName:string, imagePath:string, tags?:Array<string>){
