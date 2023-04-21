@@ -4,20 +4,20 @@
 </script>
 
 <h1>b..d</h1>
-<p>Yeah... </p>
+<h3>Yeah... </h3>
 <NavBar></NavBar>
 
 <slot></slot>
 
 <style>
     :global(body){
-        background-color:#ADD8E6;
+        background-color:#cbe9f4;
     }
     h1{
         font-family: 'Orbitron', sans-serif;
         color:#37b4b4;
     }
-    p{
+    h3{
         font-family: 'Orbitron', sans-serif;
         color:#339999;
     }
