@@ -1,6 +1,7 @@
 import fs from "fs";
 import db from "$lib/db";
 import promptDecode from "$lib/ExtractPrompt";
+import sharp from "sharp";
 
 const projection = { fsName:1 }
 const imgCol = db.collection('testimages')
@@ -150,4 +151,10 @@ export async function addFile(fileStream: Buffer, fileName:string, imagePath:str
     
     }
 
+}
+
+export async function createThumbnail(dirPath: string, imageName: string, outputPath: string){
+    await sharp(`${dirPath}/${imageName}`)
+        .resize(400)
+        .toFile(`${outputPath}/${imageName}`)
 }
