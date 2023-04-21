@@ -24,6 +24,7 @@
 	"type": "module",
 	"dependencies": {
 		"mongodb": "^4.13.0",
+		"sharp": "^0.32.0",
 		"ts-node": "^10.9.1"
 	}
 }
