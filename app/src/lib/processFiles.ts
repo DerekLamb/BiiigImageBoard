@@ -153,8 +153,23 @@ export async function addFile(fileStream: Buffer, fileName:string, imagePath:str
 
 }
 
-export async function createThumbnail(dirPath: string, imageName: string, outputPath: string){
-    await sharp(`${dirPath}/${imageName}`)
-        .resize(400)
-        .toFile(`${outputPath}/${imageName}`)
+//TODO need to add into file processing chain
+
+export async function createThumbnail(dirPath: string, imageName: string, outputPath: string, thumbWidth: number, thumbHeight: number){
+        const thumbName = `${imageName}_thmb`;
+        const inputPath = `${dirPath}/${imageName}`;
+        const thumbPath = `${outputPath}/${thumbName}`;
+      
+        // Resize image to fit within specified dimensions with crop to fill
+        await sharp(inputPath)
+            .resize({
+            width: thumbWidth,
+            height: thumbHeight,
+            fit: 'cover',
+            position: 'center'
+            })
+            .toFile(thumbPath);      
+        // Update image document with thumbnail path
+        await imgCol.updateOne({ imageName }, { $set: { thumbPath } }, { upsert: true });
 }
+      
