@@ -1,7 +1,7 @@
 <script>
 	import Tag from "./tag.svelte";
 
-    let response = [{name: "Enderman", link:"https://www.google.com"},{name: "Enderman", link:"www.google.com"},{name: "Enderman", link:"www.google.com"},{},{}];
+    export let response = ["Test_tag","Test_tag","Test_tag","Test_tag","Test_tag","Test_tag"];
     // Get response and bulid tags based on response
     // Using a  test response for now
     // calculate common tags?
@@ -18,7 +18,7 @@
             <p>Tags</p>
             <ul>
                 {#each response as tag }
-                    <Tag name = {tag.name} link = {tag.link}></Tag>
+                    <Tag name = {tag} link = "/{tag}"></Tag>
                 {/each}
             </ul>
         </div>
@@ -28,13 +28,20 @@
 
 
     .wrapper {
-        width:100%;
-        max-width:31.25rem;
-        margin: 0 .5% 0 .5%;
-        padding: 5px;
-        background-color: #001F3F;
-        min-width: 10%;
+        display:grid;
+        
+        grid-template-areas: 
+            "searchbar"
+            "title"
+            "tags";
 
+        grid-template-rows: 40px 80px 1fr;
+
+        max-width: 31.25rem;
+        min-width: 10%;
+        width: 100%;
+        margin: 0 .5%;
+        padding: 5px;
         background-color: #9ac7d6;
         border: 2px solid #65ccc744;
         border-radius: 8px;
@@ -48,6 +55,7 @@
     }
 
     .searchBar {
+        grid-area: searchbar;
     width: 95%;
     display: flex;
     flex-direction: row;

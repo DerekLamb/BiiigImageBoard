@@ -19,7 +19,7 @@
         </div>
         <div class = "imageCont">
         {#each data.images as image}
-            <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "180px"></Image>
+            <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "150px" width = "80px"></Image>
         {/each}
         </div>
         <div class = "pgnumCont">
@@ -36,16 +36,20 @@
 <style>
     .midContainer{
         display:grid;
-        grid-template-columns: min-content, 1fr;
-
         gap:40px;
         height:100%;
-        padding: 10px;
-    
-        grid-template-areas:
-            "sidebar main";
-    }
+        margin: 10px .5%;
 
+    }
+    
+    @media (min-width:767px) {
+
+        .midContainer{
+            grid-template-columns: min-content, 1fr;
+            grid-template-areas:
+            "sidebar main";
+        }
+    }
     .imageBrowser{
         background-color: #9ac7d6;
         border: 2px solid #65ccc744;

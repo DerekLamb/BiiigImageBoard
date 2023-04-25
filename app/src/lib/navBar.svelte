@@ -22,7 +22,8 @@
         text-decoration: none;
     }
     li{
-
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.2rem;
         margin:5px 10px ;
     }
     a{
