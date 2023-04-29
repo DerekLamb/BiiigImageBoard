@@ -153,7 +153,7 @@ export async function addFile(fileStream: Buffer, fileName:string, imagePath:str
 
 }
 
-//TODO need to add into file processing chain
+//TODO need to add createThumbnail into file processing chain
 
 export async function createThumbnail(dirPath: string, imageName: string, outputPath: string, thumbWidth: number, thumbHeight: number){
         const thumbName = `${imageName}_thmb`;

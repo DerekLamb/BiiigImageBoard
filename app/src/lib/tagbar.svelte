@@ -1,10 +1,7 @@
 <script>
-	import Tag from "./tag.svelte";
-
+    import Tag from "./tag.svelte";
     export let response = ["Test_tag","Test_tag","Test_tag","Test_tag","Test_tag","Test_tag"];
-    // Get response and bulid tags based on response
-    // Using a  test response for now
-    // calculate common tags?
+
 </script>
 
 
