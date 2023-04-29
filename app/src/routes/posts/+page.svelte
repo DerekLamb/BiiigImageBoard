@@ -1,12 +1,12 @@
 <script>
-    import Image from "$lib/image.svelte";
-    import Tagbar from "$lib/tagbar.svelte";
-    import { page } from '$app/stores';
-	import NavBar from "$lib/navBar.svelte";
+import Image from "$lib/image.svelte";
+import Tagbar from "$lib/tagbar.svelte";
+import { page } from '$app/stores';
+import NavBar from "$lib/navBar.svelte";
 
-    /** @type {import('./$types').PageData} */ 
-    export let data;
-    let url = $page.url;
+/** @type {import('./$types').PageData} */ 
+export let data;
+let url = $page.url;
     
 </script>
 
@@ -55,7 +55,6 @@
         border: 2px solid #65ccc744;
         border-radius: 8px;
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.205);
-
         display:flex;
         flex-wrap:wrap;
         flex-grow: 1;

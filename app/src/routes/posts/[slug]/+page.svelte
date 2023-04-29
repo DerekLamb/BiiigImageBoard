@@ -1,20 +1,25 @@
 <script>
-    import ImageBrowser from "$lib/imageBrowser.svelte"
-    import Tagbar from "$lib/tagbar.svelte";
-    import NavBar from "$lib/navBar.svelte";
-	import Image from "$lib/image.svelte";
-	import { redirect } from "@sveltejs/kit";
-    
+import ImageBrowser from "$lib/imageBrowser.svelte"
+import Tagbar from "$lib/tagbar.svelte";
+import Tag from "$lib/tag.svelte";
+import SearchBar from "$lib/searchBar.svelte";
+import TagSection from "$lib/tagSection.svelte";
+import SideBar from "$lib/sideBar.svelte";
+import NavBar from "$lib/navBar.svelte";
+import Image from "$lib/image.svelte";
+import { redirect } from "@sveltejs/kit";
 
 
-    /** @type {import('./$types').PageData} */ 
-    export let data;
-    let tags = (data.image.tags.length > 0) ? data.image.tags : "NA";
+/** @type {import('./$types').PageData} */ 
+export let data;
+let tags = (data.image.tags.length > 0) ? data.image.tags : "NA";
 </script>
 
 <div class = midContainer>
-    <Tagbar response = {tags}>
-    </Tagbar>
+    <SideBar>
+        <SearchBar></SearchBar>
+        <TagSection></TagSection>
+    </SideBar>
     <div class="imageWindow">
         <Image width = "100%" src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
         <div class="imageInfo">
@@ -50,15 +55,15 @@
 
     .midContainer{
         display:grid;
-        gap:40px;
+        gap:25px;
         height:100%;
-        padding: 10px;
+        padding: 0px 8px;
     
     }
     @media (min-width:767px) {
 
         .midContainer{
-            grid-template-columns: min-content, 1fr;
+            grid-template-columns: 12rem 1fr;
             grid-template-areas:
             "sidebar main";
         }
