@@ -1,17 +1,23 @@
 <script>
-    import Image from "$lib/image.svelte";
-    import Tagbar from "$lib/tagbar.svelte";
-    import { page } from '$app/stores';
-	import NavBar from "$lib/navBar.svelte";
+import Image from "$lib/image.svelte";
+import Tagbar from "$lib/tagbar.svelte";
+import TagSection from "$lib/tagSection.svelte";
+import SideBar from "$lib/sideBar.svelte";
+import SearchBar from "$lib/searchBar.svelte";
+import { page } from '$app/stores';
+import NavBar from "$lib/navBar.svelte";
 
-    /** @type {import('./$types').PageData} */ 
-    export let data;
-    let url = $page.url;
+/** @type {import('./$types').PageData} */ 
+export let data;
+let url = $page.url;
     
 </script>
 
 <div class = midContainer>
-    <Tagbar ></Tagbar>
+    <SideBar>
+        <SearchBar></SearchBar>
+        <TagSection ></TagSection>
+    </SideBar>
     <div class = "imageBrowser">
         <div class = "pgnumCont">
             <a href="/posts?page={data.currPage - 1}"class="pageNum">&lt&lt&lt</a>
@@ -19,7 +25,7 @@
         </div>
         <div class = "imageCont">
         {#each data.images as image}
-            <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "180px"></Image>
+            <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "150px" width = "80px"></Image>
         {/each}
         </div>
         <div class = "pgnumCont">
@@ -36,22 +42,25 @@
 <style>
     .midContainer{
         display:grid;
-        grid-template-columns: min-content, 1fr;
-
         gap:40px;
         height:100%;
-        padding: 10px;
-    
-        grid-template-areas:
-            "sidebar main";
-    }
+        margin: 10px .5%;
 
+    }
+    
+    @media (min-width:767px) {
+
+        .midContainer{
+            grid-template-columns: min-content, 1fr;
+            grid-template-areas:
+            "sidebar main";
+        }
+    }
     .imageBrowser{
         background-color: #9ac7d6;
         border: 2px solid #65ccc744;
         border-radius: 8px;
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.205);
-
         display:flex;
         flex-wrap:wrap;
         flex-grow: 1;
