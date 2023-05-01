@@ -1,7 +1,10 @@
 <script>
-    import Tag from "./tag.svelte";
-    export let response = ["Test_tag","Test_tag","Test_tag","Test_tag","Test_tag","Test_tag"];
+	import Tag from "./tag.svelte";
 
+    export let response = ["Test_tag","Test_tag","Test_tag","Test_tag","Test_tag","Test_tag"];
+    // Get response and bulid tags based on response
+    // Using a  test response for now
+    // calculate common tags?
 </script>
 
 
@@ -26,14 +29,12 @@
 
     .wrapper {
         display:grid;
-        
         grid-template-areas: 
             "searchbar"
             "title"
             "tags";
 
         grid-template-rows: 40px 80px 1fr;
-
         max-width: 31.25rem;
         min-width: 10%;
         width: 100%;

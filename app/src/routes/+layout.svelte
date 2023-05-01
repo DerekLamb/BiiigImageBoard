@@ -6,7 +6,7 @@
 
 <div class="boxContainer">
     <h1>b..d</h1>
-    <h3>Yeah... </h3>
+    <h3>Something to be proud of ❤</h3>
     <NavBar></NavBar>
     <div class="flexContainer"><slot></slot></div>
 </div>
@@ -17,19 +17,26 @@
         background-color:#cbe9f4;
     }
     h1{
-        flex:1;
+        margin: 20px 140px;
         font-family: 'Orbitron', sans-serif;
         color:#37b4b4;
     }
     h3{
-        flex: 1;
+        margin: 0px 180px 10px;
         font-family: 'Orbitron', sans-serif;
         color:#339999;
     }
     .boxContainer{
         display:flex;
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
+        margin: 0px 120px;
+    }
+        /* remove margin when screen size reaches 800px */
+    @media (max-width:1350px) {
+        .boxContainer {
+            margin: 0;
+        }
     }
     .flexContainer{
         display:flex;

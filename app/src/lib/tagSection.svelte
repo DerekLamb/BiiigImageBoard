@@ -1,7 +1,35 @@
 <script>
     import Tag from "./tag.svelte";
     export let tags  = ["test","test", "test"];
-    export let edit = true;
+    let editable = true;
+
+    function addTag(tag) {
+    // send tag to backend
+    console.log(`Adding tag ${tag} to backend`);
+    }
+
+    function handleKeyDown(event) {
+    if (event.key === "Enter") {
+        const newTag = event.target.value.trim();
+        if (newTag !== "") {
+            tags = [...tags, newTag];
+            addTag(newTag);
+            event.target.value = "";
+            }
+        }
+    }
+    
+    function deleteTag(index) {
+    tags = tags.filter((_, i) => i !== index);
+    // delete tag from backend
+    console.log(`Deleting tag at index ${index} from backend`);
+    }
+
+    function handleDeleteTag(event){ 
+        tags = tags.filter((tag) => tag !== event.detail.deletedTag);
+    }
+
+
 </script>
 
 
@@ -10,23 +38,24 @@
             <div class="tags-input">
             <ul>
                 {#each tags as tag }
-                    <Tag tag = {tag} edit = {edit}></Tag>
+                    <Tag tag = {tag} edit = {editable} on:message = {handleDeleteTag} ></Tag>
                 {/each}
             </ul>
-            {#if edit}
-                <input type="text">
+            {#if editable}
+                <input type="text" on:keydown={handleKeyDown}>
             {/if}
             </div>
-            {#if edit}
-                <button>Edit</button>
-            {/if}
 
+        <button on:click ={() => editable = !editable}>Edit</button>
+        {#if editable}
+            <button on:click = { () => console.log("testing this out ")}>Save</button>
+        {/if}
     </div>
     
 <style>
     .TagSection{
         display: grid;
-        grid-template-rows: 2rem 1fr;
+        grid-template-rows: 2rem 2fr 25px 25px 25px 2fr;
 
         background-color: #c9e1ea;
         border-radius: 5px;
