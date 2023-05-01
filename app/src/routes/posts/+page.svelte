@@ -1,6 +1,9 @@
 <script>
 import Image from "$lib/image.svelte";
 import Tagbar from "$lib/tagbar.svelte";
+import TagSection from "$lib/tagSection.svelte";
+import SideBar from "$lib/sideBar.svelte";
+import SearchBar from "$lib/searchBar.svelte";
 import { page } from '$app/stores';
 import NavBar from "$lib/navBar.svelte";
 
@@ -11,7 +14,10 @@ let url = $page.url;
 </script>
 
 <div class = midContainer>
-    <Tagbar ></Tagbar>
+    <SideBar>
+        <SearchBar></SearchBar>
+        <TagSection ></TagSection>
+    </SideBar>
     <div class = "imageBrowser">
         <div class = "pgnumCont">
             <a href="/posts?page={data.currPage - 1}"class="pageNum">&lt&lt&lt</a>

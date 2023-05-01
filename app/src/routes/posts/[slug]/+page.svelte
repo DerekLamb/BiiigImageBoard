@@ -12,13 +12,13 @@ import { redirect } from "@sveltejs/kit";
 
 /** @type {import('./$types').PageData} */ 
 export let data;
-let tags = (data.image.tags.length > 0) ? data.image.tags : "NA";
+let tags = (data.image.tags) ? data.image.tags : ["no", "tags", "found"];
 </script>
 
 <div class = midContainer>
     <SideBar>
         <SearchBar></SearchBar>
-        <TagSection></TagSection>
+        <TagSection tags = {tags}></TagSection>
     </SideBar>
     <div class="imageWindow">
         <Image width = "100%" src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
@@ -26,10 +26,10 @@ let tags = (data.image.tags.length > 0) ? data.image.tags : "NA";
             <p>{data.image.name}</p>
             <p>{data.image.fsName}</p>
             <p>{data.image.imagePath}</p>
-            {#each tags as tag }
+            <!-- {#each tags as tag }
                 <p>{tag}</p>
             {/each}
-            
+             -->
             <form method="Post" action="?/delete">
                 <button type="submit">Delete</button>
                 <input type="hidden" name="imageName" value="{data.image.genName}">
