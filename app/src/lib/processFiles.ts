@@ -1,6 +1,7 @@
 import fs from "fs";
 import db from "$lib/db";
 import promptDecode from "$lib/ExtractPrompt";
+import sharp from "sharp";
 
 const projection = { fsName:1 }
 const imgCol = db.collection('testimages')
@@ -23,7 +24,7 @@ export async function checkFiles(dirPath: string){
 export async function refreshFiles(dirPath: string){
     // compare file dir to db 
     // returns {"_id":_id, "fsName":fsName } from database
-    const imageNames = await imgCol.find({}).project({fsName:1}).toArray(); // returns {"fsName":fsName } from database
+    const imageNames = await imgCol.find({}).project(projection).toArray(); // returns {"fsName":fsName } from database
     // grabs just fsName from returned mongo find query
     const fileNames = imageNames.map((document) => document.fsName)
 
@@ -57,7 +58,7 @@ export async function embPromptGrab(dirPath: string, forceRecheck? : boolean){
             try {
 
                 //read file data
-                const file = await fs.promises.readFile(`images/${filename}`);
+                const file = await fs.promises.readFile(`${dirPath}/${filename}`);
                 
                 // file for expected prompt
                 const embPrompt  = promptDecode(file)?.prompt;
@@ -161,3 +162,24 @@ export async function addFile(fileStream: Buffer, fileName:string, imagePath:str
     }
 
 }
+
+//TODO need to add createThumbnail into file processing chain
+
+export async function createThumbnail(dirPath: string, imageName: string, outputPath: string, thumbWidth: number, thumbHeight: number){
+        const thumbName = `${imageName}_thmb`;
+        const inputPath = `${dirPath}/${imageName}`;
+        const thumbPath = `${outputPath}/${thumbName}`;
+      
+        // Resize image to fit within specified dimensions with crop to fill
+        await sharp(inputPath)
+            .resize({
+            width: thumbWidth,
+            height: thumbHeight,
+            fit: 'cover',
+            position: 'center'
+            })
+            .toFile(thumbPath);      
+        // Update image document with thumbnail path
+        await imgCol.updateOne({ imageName }, { $set: { thumbPath } }, { upsert: true });
+}
+      

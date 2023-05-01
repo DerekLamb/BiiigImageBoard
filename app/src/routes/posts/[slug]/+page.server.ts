@@ -14,7 +14,6 @@ export const load: PageServerLoad = async ({ params, url }) => {
     }
     delete image._id;
 
-
     return{
         status: 200,
         image: image,
