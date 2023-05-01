@@ -9,20 +9,24 @@
     <li><a href="/config">Config</a></li>
 </ul>
 <style>
+
     ul{
+        align-self: stretch;
         background-color: #9ac7d6;
         border: 2px solid #65ccc744;
         border-radius: 8px;
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.205);
         display: flex;
         flex-direction: row;
+        justify-content: flex-start;
         list-style-type: none;
-        margin:.5%;
+        margin: 1%;
         padding:0;
         text-decoration: none;
     }
     li{
-
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.2rem;
         margin:5px 10px ;
     }
     a{
