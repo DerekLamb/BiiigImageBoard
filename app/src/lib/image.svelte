@@ -13,37 +13,44 @@
 </script>
 
 <div class = "imgContainer">
-<a href={link} style="max-height:{maxHeight}"><img {src} alt = "Err" style = "width:{width}"></a>
-{#if upScore == -1 && downScore == -1}
+    <a href={link} style="max-height:{maxHeight}"><img {src} alt = "Err" style = "width:{width}"></a>
+    {#if upScore == -1 && downScore == -1}
 <div class = "imgName" style = "width:{width}">{imageName}</div>
 {:else}
 <div class = "imgName" style = "width:{width}">{imageName}</div>
-<span>{upScore} ^ {downScore} v</span>
+<span class = "score">{upScore} ^ {downScore} v</span>
 {/if}
 
 </div>
 
 <style>
-    img{
-        min-width: 65px;
-        min-height: 120px;
-        
-    }
     .imgContainer{
         display:flex;
         flex-direction: column;
         margin: 15px;
         color: white;
+        border-radius: 10px; /* set the border radius for the container */
+        overflow: hidden; /* hide the sharp corners of the image */
+        box-shadow: 5px -5px 10px rgba(0, 0, 0, 0.3);
+        filter:opacity(90%);
     }
+    img{
+        border-radius: 10px;
+        min-width: 65px;
+        min-height: 120px;
+        filter: blur(0px);
+    }
+
     .imgContainer a{
         overflow:hidden
     }
     .imgName {
+        padding: 2px 5px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipse;
     }
-    span{
+    .score{
         color:white;
     }
 </style>
