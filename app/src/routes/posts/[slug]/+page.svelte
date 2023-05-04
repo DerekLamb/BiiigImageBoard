@@ -1,11 +1,7 @@
 <script>
-import ImageBrowser from "$lib/imageBrowser.svelte"
-import Tagbar from "$lib/tagbar.svelte";
-import Tag from "$lib/tag.svelte";
 import SearchBar from "$lib/searchBar.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
-import NavBar from "$lib/navBar.svelte";
 import Image from "$lib/image.svelte";
 import { redirect } from "@sveltejs/kit";
 
@@ -18,7 +14,7 @@ let tags = (data.image.tags) ? data.image.tags : ["no", "tags", "found"];
 <div class = midContainer>
     <SideBar>
         <SearchBar></SearchBar>
-        <TagSection tags = {tags}></TagSection>
+        <TagSection tags = {tags} genImage = {data.image.genName}></TagSection>
     </SideBar>
     <div class="imageWindow">
         <Image width = "100%" src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
@@ -57,8 +53,7 @@ let tags = (data.image.tags) ? data.image.tags : ["no", "tags", "found"];
         display:grid;
         gap:25px;
         height:100%;
-        padding: 0px 8px;
-    
+        align-self: stretch;
     }
     @media (min-width:767px) {
 

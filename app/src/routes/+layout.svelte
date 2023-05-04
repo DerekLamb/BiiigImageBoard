@@ -7,8 +7,11 @@
 <div class="boxContainer">
     <h1>b..d</h1>
     <h3>Something to be proud of ❤</h3>
-    <NavBar></NavBar>
-    <div class="flexContainer"><slot></slot></div>
+    
+    <div class="flexContainer">
+        <NavBar></NavBar>
+        <slot></slot>
+    </div>
 </div>
 
 
@@ -40,9 +43,8 @@
     }
     .flexContainer{
         display:flex;
+        flex-direction: column;
         justify-content: center;
-    }
-    ul{
-        flex:1;
+        align-self: stretch;
     }
 </style>

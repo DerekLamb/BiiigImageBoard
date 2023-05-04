@@ -44,7 +44,6 @@ let url = $page.url;
         display:grid;
         gap:40px;
         height:100%;
-        margin: 10px .5%;
 
     }
     

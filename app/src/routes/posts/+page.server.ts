@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ( url ) => {
     const pageNum = parseInt(searchParams.get("page"));
     const currPage = (pageNum > 0) ? (pageNum) : 1;
     const lengthNum = parseInt(searchParams.get("len"));
-
+    console.log(pageNum);
     const pageLength = (searchParams.get("len"))?(lengthNum * 1):30;
     const startInd = (currPage - 1) * pageLength;
 

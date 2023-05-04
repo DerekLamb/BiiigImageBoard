@@ -1,7 +1,8 @@
 <script>
     import Tag from "./tag.svelte";
     export let tags  = ["test","test", "test"];
-    let editable = true;
+    export let genImage = ''
+    let editable = false;
 
     function addTag(tag) {
     // send tag to backend
@@ -19,11 +20,30 @@
         }
     }
     
-    function deleteTag(index) {
-    tags = tags.filter((_, i) => i !== index);
-    // delete tag from backend
-    console.log(`Deleting tag at index ${index} from backend`);
-    }
+    async function updateTags(event) {
+        event.preventDefault();
+
+        try {
+        // send a POST request to the server with the user input as the payload
+        const response = await fetch('?/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 'tags':tags, 'genImage': genImage }),
+        });
+
+        // throw an error if the response status is not in the 200-299 range
+        if (!response.ok) {
+            throw new Error('Error submitting form');
+        }
+
+        // show a success message if the request was successful
+        alert('Form submitted successfully!');
+        
+        } catch (error) {
+        // show an error message if the request failed
+        alert(`Error: ${error.message}`);
+        }
+    };
 
     function handleDeleteTag(event){ 
         tags = tags.filter((tag) => tag !== event.detail.deletedTag);
@@ -48,14 +68,15 @@
 
         <button on:click ={() => editable = !editable}>Edit</button>
         {#if editable}
-            <button on:click = { () => console.log("testing this out ")}>Save</button>
+            
+            <button on:click = {updateTags}>Save</button>
         {/if}
     </div>
     
 <style>
     .TagSection{
         display: grid;
-        grid-template-rows: 2rem 2fr 25px 25px 25px 2fr;
+        grid-template-rows: 2rem 2fr 25px 25px 25px 1fr;
 
         background-color: #c9e1ea;
         border-radius: 5px;
