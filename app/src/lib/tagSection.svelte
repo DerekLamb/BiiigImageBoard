@@ -1,7 +1,7 @@
 <script>
     import Tag from "./tag.svelte";
     export let tags  = ["test","test", "test"];
-    export let genImage = ''
+    export let imageID = ''
     let editable = false;
 
     function addTag(tag) {
@@ -49,20 +49,40 @@
         tags = tags.filter((tag) => tag !== event.detail.deletedTag);
     }
 
+    async function sendDataToBackend() {
+    try {
+      const response = await fetch(`/api/tags?image_id=${imageId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(tags)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send data to the server');
+      }
+
+      // Do something with success response
+    } catch (error) {
+      console.error(error);
+      // Handle error
+    }
+  }
 
 </script>
 
 
     <div class="TagSection">
         <h3>Tags</h3>
-            <div class="tags-input">
+            <div class="tagsContainer">
             <ul>
                 {#each tags as tag }
                     <Tag tag = {tag} edit = {editable} on:message = {handleDeleteTag} ></Tag>
                 {/each}
             </ul>
             {#if editable}
-                <input type="text" on:keydown={handleKeyDown}>
+                <input class = "tagInput" type="text" on:keydown={handleKeyDown}>
             {/if}
             </div>
 
@@ -76,7 +96,7 @@
 <style>
     .TagSection{
         display: grid;
-        grid-template-rows: 2rem 2fr 25px 25px 25px 1fr;
+        grid-template-rows: 2rem 2fr 1.5rem 1.5rem 1.5rem 1fr;
 
         background-color: #c9e1ea;
         border-radius: 5px;
@@ -94,7 +114,7 @@
         padding: 0px;
         margin: 0px;
     }
-    .tags-input{
+    .tagsContainer{
         padding-left:10px;
         display:flex;
         flex-direction: column;
