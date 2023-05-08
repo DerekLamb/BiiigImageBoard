@@ -3,29 +3,29 @@ import Image from "$lib/image.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import SearchBar from "$lib/searchBar.svelte";
+import { onMount, beforeUpdate } from "svelte";
 
 /** @type {import('./$types').PageData} */ 
 export let data;
 
+let nextPage = null;
+let prevPage = null;
 
 function calculateNextPrevPages() {
     const numImages = Number(data.lengthNum);
-    const numImageParam = (numImages === 30 || !numImages) ? "" : `&len=${numImages}`;
-    const nextPage = (data.currPage > 1) ? `/posts?page=${data.currPage - 1}${numImageParam}` : null;
-    const prevPage = (data.currPage < data.pageNum) ? `/posts?page=${data.currPage + 1}${numImageParam}` : null;
-    return {
-      nextPage: nextPage,
-      prevPage: prevPage
-    }
+    const numImageParam = (numImages === 50 || !numImages) ? "" : `&len=${numImages}`;
+    nextPage = (data.currPage > 1) ? `/posts?page=${data.currPage - 1}${numImageParam}` : null;
+    prevPage = (data.currPage < data.pageNum) ? `/posts?page=${data.currPage + 1}${numImageParam}` : null;
   }
 
-  const { nextPage, prevPage } = calculateNextPrevPages();
+onMount(() => {
+    calculateNextPrevPages();
+    });
 
-// const numImages = Number(data.lengthNum);
-// const numImageParam = (numImages === 30 || !numImages) ? "" : `&len=${numImages}`;
-// const nextPage = `/posts?page=${data.currPage - 1}${numImageParam}`;
-// const prevPage = `/posts?page=${data.currPage + 1}${numImageParam}`;
-console.log(nextPage + '/n' + prevPage);
+beforeUpdate(() => {
+    calculateNextPrevPages();
+    });
+
 </script>
 
 <div class = midContainer>

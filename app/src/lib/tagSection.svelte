@@ -2,73 +2,42 @@
     import Tag from "./tag.svelte";
     export let tags  = ["test","test", "test"];
     export let imageID = ''
-    let editable = false;
-
-    function addTag(tag) {
-    // send tag to backend
-    console.log(`Adding tag ${tag} to backend`);
-    }
+    export const editable = true;
+    let editing = false;
 
     function handleKeyDown(event) {
     if (event.key === "Enter") {
         const newTag = event.target.value.trim();
         if (newTag !== "") {
             tags = [...tags, newTag];
-            addTag(newTag);
+            sendTagsToBackend();
             event.target.value = "";
             }
         }
     }
-    
-    async function updateTags(event) {
-        event.preventDefault();
-
-        try {
-        // send a POST request to the server with the user input as the payload
-        const response = await fetch('?/update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 'tags':tags, 'genImage': genImage }),
-        });
-
-        // throw an error if the response status is not in the 200-299 range
-        if (!response.ok) {
-            throw new Error('Error submitting form');
-        }
-
-        // show a success message if the request was successful
-        alert('Form submitted successfully!');
-        
-        } catch (error) {
-        // show an error message if the request failed
-        alert(`Error: ${error.message}`);
-        }
-    };
 
     function handleDeleteTag(event){ 
         tags = tags.filter((tag) => tag !== event.detail.deletedTag);
+        sendTagsToBackend()
     }
 
-    async function sendDataToBackend() {
+    async function sendTagsToBackend() {
     try {
-      const response = await fetch(`/api/tags?image_id=${imageId}`, {
+      const response = await fetch(`/api/tags?image_id=${imageID}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(tags)
-      });
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tags : tags , imageID: imageID})
+        });
 
       if (!response.ok) {
         throw new Error('Failed to send data to the server');
-      }
-
+        }
       // Do something with success response
     } catch (error) {
       console.error(error);
       // Handle error
     }
-  }
+    }
 
 </script>
 
@@ -78,18 +47,16 @@
             <div class="tagsContainer">
             <ul>
                 {#each tags as tag }
-                    <Tag tag = {tag} edit = {editable} on:message = {handleDeleteTag} ></Tag>
+                    <Tag tag = {tag} edit = {editing} on:message = {handleDeleteTag} ></Tag>
                 {/each}
             </ul>
-            {#if editable}
-                <input class = "tagInput" type="text" on:keydown={handleKeyDown}>
+            {#if editing}
+                <input class = "tagInput" type="text" placeholder="Add a tag..." on:keydown = {handleKeyDown}>
             {/if}
             </div>
-
-        <button on:click ={() => editable = !editable}>Edit</button>
-        {#if editable}
-            
-            <button on:click = {updateTags}>Save</button>
+        
+        {#if editable}   
+            <button on:click ={() => editing = !editing}>Edit</button>
         {/if}
     </div>
     

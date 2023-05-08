@@ -14,7 +14,7 @@ let tags = (data.image.tags) ? data.image.tags : ["no", "tags", "found"];
 <div class = midContainer>
     <SideBar>
         <SearchBar></SearchBar>
-        <TagSection tags = {tags} genImage = {data.image.genName}></TagSection>
+        <TagSection editable = {true} tags = {tags} imageID = {data.image.genName}></TagSection>
     </SideBar>
     <div class="imageWindow">
         <Image width = "100%" src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
