@@ -1,61 +1,69 @@
 <script>
     import Tag from "./tag.svelte";
     export let tags  = ["test","test", "test"];
-    let editable = true;
-
-    function addTag(tag) {
-    // send tag to backend
-    console.log(`Adding tag ${tag} to backend`);
-    }
+    export let imageID = ''
+    export const editable = true;
+    let editing = false;
 
     function handleKeyDown(event) {
     if (event.key === "Enter") {
         const newTag = event.target.value.trim();
         if (newTag !== "") {
             tags = [...tags, newTag];
-            addTag(newTag);
+            sendTagsToBackend();
             event.target.value = "";
             }
         }
     }
-    
-    function deleteTag(index) {
-    tags = tags.filter((_, i) => i !== index);
-    // delete tag from backend
-    console.log(`Deleting tag at index ${index} from backend`);
-    }
 
     function handleDeleteTag(event){ 
         tags = tags.filter((tag) => tag !== event.detail.deletedTag);
+        sendTagsToBackend()
     }
 
+    async function sendTagsToBackend() {
+    try {
+      const response = await fetch(`/api/tags?image_id=${imageID}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tags : tags , imageID: imageID})
+        });
+
+      if (!response.ok) {
+        throw new Error('Failed to send data to the server');
+        }
+      // Do something with success response
+    } catch (error) {
+      console.error(error);
+      // Handle error
+    }
+    }
 
 </script>
 
 
     <div class="TagSection">
         <h3>Tags</h3>
-            <div class="tags-input">
+            <div class="tagsContainer">
             <ul>
                 {#each tags as tag }
-                    <Tag tag = {tag} edit = {editable} on:message = {handleDeleteTag} ></Tag>
+                    <Tag tag = {tag} edit = {editing} on:message = {handleDeleteTag} ></Tag>
                 {/each}
             </ul>
-            {#if editable}
-                <input type="text" on:keydown={handleKeyDown}>
+            {#if editing}
+                <input class = "tagInput" type="text" placeholder="Add a tag..." on:keydown = {handleKeyDown}>
             {/if}
             </div>
-
-        <button on:click ={() => editable = !editable}>Edit</button>
-        {#if editable}
-            <button on:click = { () => console.log("testing this out ")}>Save</button>
+        
+        {#if editable}   
+            <button on:click ={() => editing = !editing}>Edit</button>
         {/if}
     </div>
     
 <style>
     .TagSection{
         display: grid;
-        grid-template-rows: 2rem 2fr 25px 25px 25px 2fr;
+        grid-template-rows: 2rem 2fr 1.5rem 1.5rem 1.5rem 1fr;
 
         background-color: #c9e1ea;
         border-radius: 5px;
@@ -73,7 +81,7 @@
         padding: 0px;
         margin: 0px;
     }
-    .tags-input{
+    .tagsContainer{
         padding-left:10px;
         display:flex;
         flex-direction: column;

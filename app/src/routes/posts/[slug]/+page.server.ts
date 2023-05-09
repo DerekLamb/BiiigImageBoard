@@ -38,5 +38,13 @@ export const actions = {
         });
         
         throw redirect(303,"/posts");
+    },
+
+    update: async ({ request }) => {
+        const data = await request.json();
+        const genName = data.genName;
+        const tags = data.tags;
+        console.log(genName);
+        console.log(tags);
     }
 }
