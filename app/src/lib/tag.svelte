@@ -31,7 +31,7 @@
         align-items: center;
         justify-content: flex-start;
         color: #fff;
-        font-size: 1rem;
+        font-size: 1.2rem;
         list-style: none;
         border-radius: 6px;
         margin-bottom: 5px;
@@ -61,5 +61,13 @@
     a:hover{
         color: #5e725e;
         transition: .2s;
+    }
+    .tag-close-icon { 
+        display:inline;
+        background-color: #9ac7d6;
+        color: #fff;
+        border: none;
+        
+        cursor: pointer;
     }
 </style>

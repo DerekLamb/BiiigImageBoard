@@ -27,15 +27,16 @@
     .imgContainer{
         display:flex;
         flex-direction: column;
-        margin: 15px;
+        margin: 10px;
         color: white;
         border-radius: 10px; /* set the border radius for the container */
         overflow: hidden; /* hide the sharp corners of the image */
-        box-shadow: 5px -5px 10px rgba(0, 0, 0, 0.3);
+       
         filter:opacity(90%);
     }
     img{
         border-radius: 10px;
+        box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
         min-width: 65px;
         min-height: 120px;
         filter: blur(0px);
