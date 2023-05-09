@@ -12,3 +12,4 @@
 /app/node_modules/*
 /app/.svelte-kit/generated/*
 /app/.svelte-kit/types/*
+/mongodb/*

@@ -1,27 +1,42 @@
 <script>
 import Image from "$lib/image.svelte";
-import Tagbar from "$lib/tagbar.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import SearchBar from "$lib/searchBar.svelte";
-import { page } from '$app/stores';
-import NavBar from "$lib/navBar.svelte";
+import { onMount, beforeUpdate } from "svelte";
 
 /** @type {import('./$types').PageData} */ 
 export let data;
-let url = $page.url;
-    
+
+let nextPage = null;
+let prevPage = null;
+
+function calculateNextPrevPages() {
+    const numImages = Number(data.lengthNum);
+    const numImageParam = (numImages === 50 || !numImages) ? "" : `&len=${numImages}`;
+    nextPage = (data.currPage > 1) ? `/posts?page=${data.currPage - 1}${numImageParam}` : null;
+    prevPage = (data.currPage < data.pageNum) ? `/posts?page=${data.currPage + 1}${numImageParam}` : null;
+  }
+
+onMount(() => {
+    calculateNextPrevPages();
+    });
+
+beforeUpdate(() => {
+    calculateNextPrevPages();
+    });
+
 </script>
 
 <div class = midContainer>
     <SideBar>
-        <SearchBar></SearchBar>
-        <TagSection ></TagSection>
+        <SearchBar />
+        <TagSection />
     </SideBar>
     <div class = "imageBrowser">
         <div class = "pgnumCont">
-            <a href="/posts?page={data.currPage - 1}"class="pageNum">&lt&lt&lt</a>
-            <a href="/posts?page={data.currPage - -1}" class="pageNum">&gt&gt&gt</a>
+            <a href={nextPage} class="pageNum">&lt&lt&lt</a>
+            <a href={prevPage} class="pageNum">&gt&gt&gt</a>
         </div>
         <div class = "imageCont">
         {#each data.images as image}
@@ -29,8 +44,8 @@ let url = $page.url;
         {/each}
         </div>
         <div class = "pgnumCont">
-            <a href="/posts?page={data.currPage - 1}"class="pageNum">&lt&lt&lt</a>
-            <a href="/posts?page={data.currPage - -1}" class="pageNum">&gt&gt&gt</a>
+            <a href={nextPage} class="pageNum">&lt&lt&lt</a>
+            <a href={prevPage} class="pageNum">&gt&gt&gt</a>
         <!-- {#each Array(data.pageNum) as _, i }
             <a href="/posts?page={i+1}" class="pageNum">{i+1}</a>
         {/each} -->
@@ -44,14 +59,13 @@ let url = $page.url;
         display:grid;
         gap:40px;
         height:100%;
-        margin: 10px .5%;
 
     }
     
     @media (min-width:767px) {
 
         .midContainer{
-            grid-template-columns: min-content, 1fr;
+            grid-template-columns: 1fr 5fr;
             grid-template-areas:
             "sidebar main";
         }
