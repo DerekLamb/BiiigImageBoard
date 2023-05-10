@@ -45,13 +45,13 @@ export async function refreshFiles(dirPath: string){
 
 export async function embPromptGrab(dirPath: string, forceRecheck? : boolean){
 
-    const noPromptQuery = (forceRecheck) ? { embPropmt:"" } : {};
+    const noPromptQuery = (!forceRecheck) ? { embPrompt:"" } : {};
 
     const noPromptReturn = await imgCol.find(noPromptQuery).project(projection).toArray();
-    
-    const noPromptFiles = noPromptReturn.map((document) => document.fsName);
 
-    for(const filename in noPromptFiles){
+    const noPromptFiles = noPromptReturn.map((document) => document.fsName);
+    
+    for(const filename of noPromptFiles){
 
         console.log(`Looking for prompt in ${filename}`);
 
@@ -75,7 +75,7 @@ export async function embPromptGrab(dirPath: string, forceRecheck? : boolean){
                 if(error.code === 'ENOENT'){
 
                     //Catch error and continue with next file
-                    console.log(`Missing file with filename ${filename}`);
+                    console.log(`Missing file with filename ${dirPath}/${filename}`);
                 } else {
 
                     //Throw unexpected error
