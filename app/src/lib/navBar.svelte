@@ -7,6 +7,7 @@
     <li><a href="/upload">Upload</a></li>
     <li><a href="/posts">Tags</a></li>
     <li><a href="/config">Config</a></li>
+    <li><a href="">Testing</a></li>
 </ul>
 <style>
 
@@ -28,7 +29,8 @@
         font-size: 1.2rem;
         margin:5px 10px ;
     }
-    a{
+    a{  
+        display:inline;
         text-decoration: none;
         margin:.5%;
     }

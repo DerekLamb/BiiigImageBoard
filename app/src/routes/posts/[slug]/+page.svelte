@@ -3,18 +3,21 @@ import SearchBar from "$lib/searchBar.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import Image from "$lib/image.svelte";
+import PromptSection from "$lib/promptSection.svelte";
 import { redirect } from "@sveltejs/kit";
 
 
 /** @type {import('./$types').PageData} */ 
 export let data;
-let tags = (data.image.tags) ? data.image.tags : ["no", "tags", "found"];
+let tags = (data.image.tags) ? data.image.tags : [];
+let embPrompt = (data.image.embPrompt) ? data.image.embPrompt : [];
 </script>
 
 <div class = midContainer>
     <SideBar>
         <SearchBar></SearchBar>
         <TagSection editable = {true} tags = {tags} imageID = {data.image.genName}></TagSection>
+        <PromptSection items = {data.image.embPrompt}></PromptSection>
     </SideBar>
     <div class="imageWindow">
         <Image width = "100%" src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
@@ -22,10 +25,17 @@ let tags = (data.image.tags) ? data.image.tags : ["no", "tags", "found"];
             <p>{data.image.name}</p>
             <p>{data.image.fsName}</p>
             <p>{data.image.imagePath}</p>
-            <!-- {#each tags as tag }
-                <p>{tag}</p>
-            {/each}
-             -->
+
+            <table>
+                <tbody>
+                  {#each embPrompt as item}
+                    <tr>
+                      <td>{item},</td>
+                    </tr>
+                  {/each}
+                </tbody>
+              </table>
+
             <form method="Post" action="?/delete">
                 <button type="submit">Delete</button>
                 <input type="hidden" name="imageName" value="{data.image.genName}">
@@ -72,5 +82,17 @@ let tags = (data.image.tags) ? data.image.tags : ["no", "tags", "found"];
         display:flex;
         flex-wrap:wrap;
         flex-grow: 1;
+    }
+
+    table tbody{
+        width: 100%;
+        border-collapse: collapse;
+        overflow-y: scroll;
+        height: 200px;
+    }
+
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
     }
 </style>
