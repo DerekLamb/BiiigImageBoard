@@ -1,11 +1,11 @@
 export default function promptDecode(data:Buffer) {
     let prompt = '';
+    let promptParts = [];
     let name = '';
     let foundPrompt = false;
     const limit = Math.min(data.length, 2048);
-    let i = promptIndex(data)
     const startIndex = promptIndex(data);
-    console.log(i);
+    console.log(startIndex);
 
     if (startIndex){
         for( let i = startIndex; i < limit; i +=1){
@@ -15,7 +15,6 @@ export default function promptDecode(data:Buffer) {
                 //looking for end of 'name'
                 if(currentByte === 0){
                     foundPrompt = true;
-                    i += 1; //skipping null char
                 }
                 else {
                     name += String.fromCharCode(currentByte);
@@ -25,7 +24,8 @@ export default function promptDecode(data:Buffer) {
                 prompt += String.fromCharCode(currentByte);
             
                 if(prompt.endsWith('IDAT')){
-                    return { prop: name, prompt };
+                  promptParts = prompt.split(',');
+                    return { prop: name, prompt: promptParts };
                 }
             }
         }
@@ -34,15 +34,14 @@ export default function promptDecode(data:Buffer) {
 
 
 function promptIndex(dataBuff:Buffer){
-    const checkRange = 48;
-    const checkBuff = dataBuff.subarray(0,checkRange)
-    const uint32Arr = new Uint32Array(checkBuff.buffer);
+  const checkRange =  Math.min(48, dataBuff.length - 4);
 
-    for (let j = 0; j < checkRange / Uint32Array.BYTES_PER_ELEMENT; j += 1) {
-        if (uint32Arr[j] === 0x54784574 /* 'tEXT' */) {
-          return j * Uint32Array.BYTES_PER_ELEMENT + 4;
-        }
+  for(let j = 0; j < checkRange; j++){
+      if(dataBuff[j] == 116 && dataBuff[j+1] == 69 && dataBuff[j+2] == 88 && dataBuff[j+3] == 116){
+          return j + 4;
+          
       }
+  }
 
-    return 0;
+  return 0;
 }

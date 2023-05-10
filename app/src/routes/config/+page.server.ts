@@ -1,27 +1,33 @@
-import db from '$lib/db';
-import type { PageServerLoad } from './$types';
+import { embPromptGrab } from "$lib/processFiles";
+import db from "$lib/db";
+import { trusted } from "svelte/internal";
 
-export const load: PageServerLoad = async ( url ) => {
-    const searchParams = url.url.searchParams
-    const currPage = ((searchParams.get("page") * 1) >= 1)?(searchParams.get("page")):1;
-    const pageLength = (searchParams.get("len"))?(searchParams.get("len") * 1):30;
-    const startInd = (currPage - 1) * pageLength;
+/** @type {import('./$types').Actions} */
 
-    const images = await db.collection('testimages').find().sort({ genName:1 }).skip(startInd).limit(pageLength).toArray();
-    const numPages = Math.ceil(await db.collection('testimages').countDocuments() / pageLength);
-    const rawImages = images.map(({ name, fsName, genName, imagePath, tags}) => ({
-        name,
-        fsName,
-        genName,
-        imagePath,
-        tags
-    }))
+export const actions = {
 
-
-    return{
+  default: async ({ request }) => {
+    try {
+        const body = request.body;
+        console.log("stuff");
+        embPromptGrab('images');
+    } 
+    catch (error) {
+        console.error(error);
+        return {
+            status: 500,
+            headers: {
+                'content-type': 'application/json'
+                },
+            error: 'Internal server error'
+        }
+    }
+  
+  
+    return {
         status: 200,
-        images: rawImages,
-        pageNum: numPages,
-        currPage: currPage
+        headers: {'content-type': 'application/json'},
+        body: { message: "Images Checked!" }
+    };
     }
 }
