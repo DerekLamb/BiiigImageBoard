@@ -1,17 +1,22 @@
 <script>
-import Image from "./image.svelte";
-export let images = [];
+    import Image from "./image.svelte";
+    export let images = [];
+    export let spacing = 20;
+    export let imgWidth = 0;
 
-
-let containerWidth;
-    let columns;
-    let columnWidth;
-    let gaps;
-  
+    function calculateLayout() {
+        const container = document.querySelector('.waterfall-container');
+        containerWidth = container.clientWidth;
+        const columnCount = Math.floor(containerWidth / 300);
+        columns = new Array(columnCount).fill(0);
+        columnWidth = (containerWidth - (columnCount + 1) * 5) / columnCount;
+        gaps = new Array(columnCount).fill(5);
+    }
 </script>
 
 <div class="waterfallContainer" style="position:relative">
-    <img src="{images[0]}" alt="Err">
+    
+    <img src="{}" alt="Err">
 </div>
 
 <style>
