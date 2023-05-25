@@ -7,7 +7,7 @@
     <li><a href="/upload">Upload</a></li>
     <li><a href="/posts">Tags</a></li>
     <li><a href="/config">Config</a></li>
-    <li><a href="">Testing</a></li>
+    <li><a href="/testing">Testing</a></li>
 </ul>
 <style>
 
