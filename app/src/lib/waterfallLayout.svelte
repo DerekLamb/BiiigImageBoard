@@ -7,7 +7,8 @@
 
 
     let containerWidth;
-    let columns = [10, 10];
+    let columns;
+    let adjustRatios = [1.5, .75] //element aspect ratio snap points for fitting
     let columnWidth;
     let gaps;
     let container;
