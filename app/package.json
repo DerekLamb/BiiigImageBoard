@@ -23,6 +23,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@egjs/svelte-infinitegrid": "^4.10.0",
 		"mongodb": "^4.13.0",
 		"sharp": "^0.32.0",
 		"ts-node": "^10.9.1"
