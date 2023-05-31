@@ -1,58 +1,96 @@
 <script>
-	import { GridFSBucket } from "mongodb";
     import Image from "./image.svelte";
     import { onMount } from 'svelte';
 
 
-    export let images = [];
+    export let images = ["test", "test", "test", "test"];
     export let spacing = 20;
-    export let imgWidth = 0; // Unsure I actually need this but we will see
+    export let imgWidth = 10; // Unsure I actually need this but we will see
 
-    const container = document.querySelector('.waterfallContainer');
+    let loading = true;
+    let container;
     const breakpointRange = [.75, 1.5] //images that fall in range set to 1:1 ratio, Faster way of checking?  
     const columnBlockWidth = 300;
-    let grid
     let columnWidth;
-    let columns:[number];
+    let columns;
+    let currColumns; 
     let gaps;
 
 
     function calculateColumns() {
-        let containerWidth = container.clientWidth;
-        let columnCount = Math.floor(containerWidth / columnBlockWidth);
-        let columns = new Array(columnCount).fill(0);
-        let columnWidth = (containerWidth - (columnCount + 1) * spacing) / columnCount;
-        let gaps = new Array(columnCount).fill(spacing);
+        let containerWidth = loading ? 900 : container.clientWidth;
+        columns = Math.floor(containerWidth / (imgWidth + spacing));
+        console.log(containerWidth, columns, loading);
     }
 
-    function generateGrid() {
-        while(imgLeft){ //Don't like the name but can't beat it right now 
-            
+    function generateGrid2() {
+        let colIndex = 0; 
+        let rowIndex = 0;
+        let lastImage = images.length - 1;
+        let i = 0;
+        let grid = [];
+
+        while( i < images.length){
+            let childElement = "<img src={images[i]} />";
+            if (!grid[rowIndex]) grid[rowIndex] = [];
+            grid[rowIndex][colIndex] = childElement;
+
+            // Increase index and row/column counters
+            i++;
+            colIndex++;
+            if (colIndex > 2) {
+                colIndex = 0;
+                rowIndex++;
+            }
         }
+
+        return grid;
     }
     
+    function generateGrid() {
+        grid = [];
+
+        let x = spacing;
+        let y = spacing;
+
+        for (let i = 0; i < images.length; i++) {
+            let position = `top:${y}px;left:${x}px`;
+            grid.push({ src: images[i], position });
+
+            if ((i + 1) % columns === 0) {
+            x = spacing;
+            y += imgWidth + spacing;
+            } else {
+            x += imgWidth + spacing;
+            }
+        }
+    }
+
+
     let promise = calculateColumns();
 
-     onMount(() => {
+    onMount(() => {
+        loading = false;
+        calculateColumns();
         window.addEventListener('resize', calculateColumns);
-     });
+
+    });
 
 </script>
 
 <div class="waterfallContainer" style="position:relative" bind:this={container}>
-    {#await calculateColumns()}
-    <p>...waiting</p>
-    {:then columns} 
-    <p>{columns}</p>
-    {/await}
-    <img src="" alt="Err">
-</div>
+    {#each grid as item}
+        <div class="placeholder" style="{item.position}">
+        <img src="{item.src}" style="width:{imgWidth}px">
+        </div>
+    {/each}
+    </div>
 
-<style>
+    <style>
     .waterfallContainer {
-        display: flex;
-        flex-wrap: wrap;
-        margin: 0 -5px;
+        position: relative;
     }
-
-</style>
+    .placeholder {
+        position: absolute;
+    }
+  </style>
