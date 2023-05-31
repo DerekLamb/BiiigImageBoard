@@ -1,7 +1,6 @@
 <script>
 import { browser } from "$app/environment";
 
-
 </script>
 
 <div class = midContainer>

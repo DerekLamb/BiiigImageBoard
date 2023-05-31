@@ -5,7 +5,19 @@ import db from '$lib/db'
 
 export async function GET({ request } : Request){
     try{
-        throw "ErrorHere";
+
+        interface Filter {
+            tags?: { $all: string[]} | { $not: {$in: string[] } };
+          }
+    
+            // Create a filter object to pass to the MongoDB 'find' method
+            let filter:Filter = {};
+            if (tags.length > 0) {
+                filter.tags = { $all: tags };
+            }
+            if (notag) {
+                filter.tags = { $not: { $in: [notag] } };
+            }
 
         const images = await db.collection('testimages')
         .find(filter)
