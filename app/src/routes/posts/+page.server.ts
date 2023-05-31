@@ -10,13 +10,11 @@ export const load = (async ({ url }) => {
     const currPage = Math.max(pageNum, 1);
     const lengthNum = parseInt(searchParams.get('len') || '50');
 
+    // Extract the 'tag' query parameter as an array of strings
+    const tags = searchParams.getAll('tag');
 
-        // Extract the 'tag' query parameter as an array of strings
-        const tags = searchParams.getAll('tag');
-
-        // Extract the 'notag' query parameter as a string
-        const notag = searchParams.get('notag');
-
+    // Extract the 'notag' query parameter as a string
+    const notag = searchParams.get('notag');
 
     const pageLength = lengthNum || 30;
     const startInd = (currPage - 1) * pageLength;
