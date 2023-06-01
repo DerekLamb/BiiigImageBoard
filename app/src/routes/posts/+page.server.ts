@@ -10,17 +10,19 @@ export const load = (async ({ url }) => {
     const currPage = Math.max(pageNum, 1);
     const lengthNum = parseInt(searchParams.get('len') || '50');
 
-    // Extract the 'tag' query parameter as an array of strings
+    // Extract the 'tag' query parameter as an array
     const tags = searchParams.getAll('tag');
 
-    // Extract the 'notag' query parameter as a string
-    const notag = searchParams.get('notag');
+    // Extract the 'notag' query parameter as an array
+    const notag = searchParams.getAll('notag');
 
     const pageLength = lengthNum || 30;
     const startInd = (currPage - 1) * pageLength;
 
     interface Filter {
-        tags?: { $all: string[]} | { $not: {$in: string[] } };
+        $and?:{ 
+            tags?: {$all: string[]},
+            tags?: {$nin: string[]}}
       }
 
         // Create a filter object to pass to the MongoDB 'find' method
