@@ -31,7 +31,7 @@ beforeUpdate(() => {
 <div class = midContainer>
     <SideBar>
         <SearchBar />
-        <TagSection />
+        <TagSection editable={false}/>
     </SideBar>
     <div class = "imageBrowser">
         <div class = "pgnumCont">

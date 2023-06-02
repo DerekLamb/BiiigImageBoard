@@ -13,3 +13,4 @@
 /app/.svelte-kit/generated/*
 /app/.svelte-kit/types/*
 /mongodb/*
+app/.svelte-kit/ambient.d.ts

@@ -2,7 +2,7 @@
     import Tag from "./tag.svelte";
     export let tags  = ["test","test", "test"];
     export let imageID = ''
-    export const editable = true;
+    export let editable = true;
     let editing = false;
 
     function handleKeyDown(event) {
