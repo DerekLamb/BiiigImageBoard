@@ -1,57 +1,74 @@
 
 <script>
     export const size = "default";
-	export let src = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
+    export let src = '';
+	export let alt = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
     export let imageName = "";
     export let link = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
 	// export let height;
-	export let width = "100px";
+	export let width = "100%";
     export let maxHeight = "100%";
-    let upScore = -1
-    let downScore = -1
-    // margin calculated based on viewport width
+    let upScore = 1
+    let downScore = 1
 </script>
 
-<div class = "imgContainer">
-    <a href={link} style="max-height:{maxHeight}"><img {src} alt = "Err" style = "width:{width}"></a>
+<div class="image-container" style={`width: ${width}`}>
+    <a href={link}> <img src={src} alt={alt} style={`max-height: ${maxHeight}; width:{width};`} /> </a>
     {#if upScore == -1 && downScore == -1}
-<div class = "imgName" style = "width:{width}">{imageName}</div>
-{:else}
-<div class = "imgName" style = "width:{width}">{imageName}</div>
-<span class = "score">{upScore} ^ {downScore} v</span>
-{/if}
-
+        <div class = "metadata">
+            <div class = "imgName" style = "width:{width}">{imageName}</div>
+        </div>
+    {:else}
+        <div class = "metadata">
+            <p class = "imgName">{imageName}</p>
+            <p class = "score">{upScore} &#x1F446 {downScore} &#x1F447 </p>
+        </div>
+    {/if}
+    
 </div>
 
 <style>
-    .imgContainer{
+    .image-container{
         display:flex;
         flex-direction: column;
-        margin: 10px;
-        color: white;
-        border-radius: 10px; /* set the border radius for the container */
-        overflow: hidden; /* hide the sharp corners of the image */
-       
+        align-items: center;
+        background-color: #162524;
+        font-family: 'Montserrat', sans-serif;
+        padding: 2px; 
         filter:opacity(90%);
     }
-    img{
-        border-radius: 10px;
-        box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
-        min-width: 65px;
-        min-height: 120px;
+
+    img {
+        object-fit: contain;
         filter: blur(0px);
+        width: 100%;
+        height: auto;
     }
 
-    .imgContainer a{
+    .image-container a{
         overflow:hidden
     }
+    
+    .metadata { 
+        width: 100%;
+    }
+
     .imgName {
-        padding: 2px 5px;
+        display:block;
+        font-size: 1.15rem;
+        background-color: #d6f8ef;
+        margin: 5px 0 0 0;
+        padding: 4px 15px;
         white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipse;
+        text-overflow: ellipsis;
     }
+
     .score{
-        color:white;
+        margin: 0;
+        font-size: 1.15rem;
+        padding: 5px 15px;
+        background-color:#d6f8ef;
+        color:#162524;
     }
 </style>

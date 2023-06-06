@@ -20,12 +20,12 @@ let embPrompt = (data.image.embPrompt) ? data.image.embPrompt : [];
         <PromptSection items = {data.image.embPrompt}></PromptSection>
     </SideBar>
     <div class="imageWindow">
-        <Image width = "100%" src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
+        <Image width = "40vw" src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
         <div class="imageInfo">
             <p>{data.image.name}</p>
             <p>{data.image.fsName}</p>
             <p>{data.image.imagePath}</p>
-
+<!-- 
             <table>
                 <tbody>
                   {#each embPrompt as item}
@@ -34,7 +34,7 @@ let embPrompt = (data.image.embPrompt) ? data.image.embPrompt : [];
                     </tr>
                   {/each}
                 </tbody>
-              </table>
+              </table> -->
 
             <form method="Post" action="?/delete">
                 <button type="submit">Delete</button>

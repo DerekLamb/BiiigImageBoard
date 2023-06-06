@@ -64,28 +64,41 @@
     .TagSection{
         display: grid;
         grid-template-rows: 2rem 2fr 1.5rem 1.5rem 1.5rem 1fr;
-
-        background-color: #c9e1ea;
-        border-radius: 5px;
+        background-color: #d6f8ef;
+        border-radius: 15px;
     }
+
     .TagSection h3{
         font-family: 'Montserrat', sans-serif;
         margin:.2rem;
         text-align:center;
     }
-    ul{ 
-        width:100%;
+
+    ul{
+        box-sizing: border-box; 
         display:flex;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
         padding: 0px;
-        margin: 0px;
+        margin: 2px;
     }
+
     .tagsContainer{
-        padding-left:10px;
         display:flex;
         flex-direction: column;
-        align-items: flex-start;
-        max-width: 80%;
+        align-items: stretch;
     }
+
+    .tagInput{
+        font-size:1.25rem;
+        width:85%;
+        font-family: 'Montserrat', sans-serif;
+        background: #b4e7d6;
+        outline: none;
+        border: none;
+        border-radius: 6px;
+        padding-left: 5%;
+        margin-left: 5%;
+    }
+    
 </style>
