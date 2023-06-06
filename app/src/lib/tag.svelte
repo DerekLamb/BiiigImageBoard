@@ -19,34 +19,34 @@
     {/if}
     <span class = 'tag-title'><a href="{tag}">{tag}</a></span>   
     {#if edit}
-    <button class = 'tag-close-icon' on:click={deleteTagMessage}>x</button>
+    <div class = 'delete-flex'>
+        <button class = 'tag-close-icon' on:click={deleteTagMessage}>x</button>
+    </div>
+    
     {/if}
 
 </li>
 
 <style>
     .tag {
-        width: 100%;
         display: flex;
         align-items: center;
         justify-content: flex-start;
         color: #fff;
-        font-size: 1.2rem;
+        font-size: 1.25rem;
         list-style: none;
         border-radius: 6px;
-        margin-bottom: 5px;
-        padding: 0 8px;
-        background: #9ac7d6;
+        margin: 0 10px 5px 10px;
+        background-color: #b4e7d6;
     }
     .tag:hover{ 
         color: #5e725e;
         transition: .2s;
     }
-    .tag-title{
-        flex: 5;
-    }
-    .tag-close-icon{
-        justify-self: flex-end;
+
+    .tag span{
+        padding-left: 10px
+
     }
     li{
         font-family: 'Montserrat', sans-serif;
@@ -54,20 +54,30 @@
     }
 
     a{
-        color: #fff;
+        color: #162524;
         text-decoration: none;
         padding-right: 10px;
     }
+    
     a:hover{
         color: #5e725e;
         transition: .2s;
     }
+
     .tag-close-icon { 
         display:inline;
-        background-color: #9ac7d6;
-        color: #fff;
+        background-color: #b4e7d6;
+        color: #162524;
         border: none;
-        
         cursor: pointer;
+        margin: 0 5px;
+        font-size: 1rem;
+    }
+
+    .delete-flex{
+        display:flex;
+        flex: 1;
+        justify-content: flex-end;
+        align-items: center;
     }
 </style>

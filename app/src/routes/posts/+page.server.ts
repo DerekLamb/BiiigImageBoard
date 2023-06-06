@@ -9,14 +9,14 @@ export const load = (async ({ url }) => {
     const { searchParams } = url;
     const pageNum = parseInt(searchParams.get('page') || '1');
     const currPage = Math.max(pageNum, 1);
-    const lengthNum = parseInt(searchParams.get('len') || '50');
+    const lengthNum = parseInt(searchParams.get('len') || '24');
 
     // Extract the 'search' query parameter as an array
     const tags = searchParams.getAll('search');
     const filter = txtToSearchParam(tags[0]);
 
 
-    const pageLength = lengthNum || 30;
+    const pageLength = lengthNum || 20;
     const startInd = (currPage - 1) * pageLength;
 
     const images = await db.collection('testimages')

@@ -2,7 +2,6 @@
     import { search } from '$lib/stores/searchStore';
 
     function onSubmit(e) {
-        console.log("got here")
         const formData = new FormData(e.target);
         const data = {};
 
@@ -27,35 +26,35 @@
 
 <style>
     .searchBar {
-    grid-area: searchbar;
-    width: 95%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding-left: 4px;
+        grid-area: searchbar;
+        width:95%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding-left: 4px;
     }
 
     #searchQueryInput {
-    width: 100%;
-    height: 2rem;
-    background: #ADD8E6;
-    outline: none;
-    border: none;
-    border-radius: 1.625rem;
-    padding: 0 0 0 1rem;
-    font-size: .88rem;
+        width: 100%;
+        height: 2.5rem;
+        background: #d6f8ef;
+        outline: none;
+        border: none;
+        border-radius: 1.625rem;
+        padding: 0 50px 0 1rem;
+        font-size: .88rem;
     }
 
     #searchQuerySubmit {
-    width: 3.5rem;
-    height: 2.8rem;
-    margin-left: -3.5rem;
-    background: none;
-    border: none;
-    outline: none;
+        width: 3.5rem;
+        height: 2.8rem;
+        margin-left: -3.5rem;
+        background: none;
+        border: none;
+        outline: none;
     }
 
     #searchQuerySubmit:hover {
-    cursor: pointer;
+        cursor: pointer;
     }
 </style>
