@@ -13,7 +13,7 @@ let prevPage = null;
 
 function calculateNextPrevPages() {
     const numImages = Number(data.lengthNum);
-    const numImageParam = (numImages === 50 || !numImages) ? "" : `&len=${numImages}`;
+    const numImageParam = (numImages === 24 || !numImages) ? "" : `&len=${numImages}`;
     nextPage = (data.currPage > 1) ? `/posts?page=${data.currPage - 1}${numImageParam}` : null;
     prevPage = (data.currPage < data.pageNum) ? `/posts?page=${data.currPage + 1}${numImageParam}` : null;
   }
@@ -40,7 +40,9 @@ beforeUpdate(() => {
         </div>
         <div class = "imageCont">
         {#each data.images as image}
-            <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "150px" width = "80px"></Image>
+            <div class = "imageBox">
+                <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "480px" width = "17vw"></Image>
+            </div>
         {/each}
         </div>
         <div class = "pgnumCont">
@@ -62,48 +64,54 @@ beforeUpdate(() => {
 
     }
     
-    @media (min-width:767px) {
-
+    @media (min-width:820px) {
         .midContainer{
-            grid-template-columns: 1fr 5fr;
+            grid-template-columns: 2fr 9fr;
             grid-template-areas:
             "sidebar main";
         }
     }
+
     .imageBrowser{
-        background-color: #9ac7d6;
-        border: 2px solid #65ccc744;
-        border-radius: 8px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.205);
-        display:flex;
-        flex-wrap:wrap;
+        display: flex;
+        flex-wrap: wrap;
         flex-grow: 1;
     }
+
     .imageCont{
-        display:flex;
-        flex-wrap:wrap;
-        margin: 0 .5% 0;
-        
+        display: grid;
+        grid-template-columns:  repeat( auto-fit, minmax(17vw, 3fr));
+        gap: 10px;
+        width: 100%;
+    }
+    .imageBox{ 
+        overflow:hidden;
+        padding: 8px;
     }
     .pgnumCont{
         margin: 12px;
-        width:100%;
+        width: 100%;
     }
+
     .pageNum{
-        width:100%;
+        width: 100%;
         font-size: 2rem;
         text-decoration: none;
         margin: .2em;
+        color: #808080;
 
     }
+
     .pageNum:link{
         color: #808080;
     }
+
     .pageNum:visited{
         color: #808080;
     }
+
     .pageNum:hover{
-        color: #FFCEB0;
+        color: #7bb7a2;
         transition:.2s;
     }
 </style>

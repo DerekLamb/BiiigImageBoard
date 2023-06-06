@@ -40,7 +40,7 @@
         width: 100%;
         margin: 0 .5%;
         padding: 5px;
-        background-color: #9ac7d6;
+        background-color: #b0f2e2;
         border: 2px solid #65ccc744;
         border-radius: 8px;
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.205);

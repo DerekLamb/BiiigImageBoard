@@ -13,10 +13,6 @@
 
     ul{
         align-self: stretch;
-        background-color: #9ac7d6;
-        border: 2px solid #65ccc744;
-        border-radius: 8px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.205);
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
@@ -35,13 +31,13 @@
         margin:.5%;
     }
     a:link{
-        color: white;
+        color: #162524;
     }
     a:visited{
-        color: white;
-    }
+        color: #162524;
+    } 
     a:hover{
-        color:lightgreen;
+        color:#7bb7a2;
         transition:.2s;
     }
 </style>
