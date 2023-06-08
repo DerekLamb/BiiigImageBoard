@@ -13,7 +13,7 @@ export const load = (async ({ url }) => {
 
     // Extract the 'search' query parameter as an array
     const tags = searchParams.getAll('search');
-    const filter = txtToSearchParam(tags[0]);
+    const filter = tags ? txtToSearchParam(tags[0]) : {};
 
 
     const pageLength = lengthNum || 20;
