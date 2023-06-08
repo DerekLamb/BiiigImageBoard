@@ -1,10 +1,7 @@
 interface Filter {
-        $and?: { tags: {$regex: string, $options: string}}
-        $nor?: {$regex: string, $options: string}
-        tags?: {$all: string[]} | {$nin:string[]},
-        embPrompt?: {$all:string[]} | {$nin:string[]} 
+        $and?: { tags: {$regex: string, $options: string} }[]
+        $nor?: { tags: {$regex: string, $options: string} }[]
     } 
-  
 
 
 export default function txtToSearchParam(searchTerm : string){
@@ -13,9 +10,9 @@ export default function txtToSearchParam(searchTerm : string){
     }
 
     let filter : Filter = {}
-    let keywords = ["order:","emb*:","type:","name:","-"]
+    let keywords = ["order:","emb*:","type:","name:","-"] //yet to implement TODO 
 
-    //V2 using regex ( so much easier to build, hopefully is performant )
+    //V2 using regex ( so much easier to build, hopefully is performant as well )
 
     const tags = searchTerm.split(" ");
     const positiveTags : string[] = [];
@@ -30,10 +27,10 @@ export default function txtToSearchParam(searchTerm : string){
     });
 
     if (positiveTags.length > 0){
-      filter.$and = positiveTags.map(tag => ({ tags: { $regex: tag, $options: 'i' }}))
+      filter.$and = positiveTags.map(tag => ({ tags: { $regex: tag, $options: 'i' }}));
     }
     if (negativeTags.length > 0){
-      filter.$nor = negativeTags.map(tag => ({ tags: {$regex: tag.substring(1), $options:1}}))
+      filter.$nor = negativeTags.map(tag => ({ tags: {$regex: tag.substring(1), $options:'1'}}));
     }
 
     console.log(filter.$and);
