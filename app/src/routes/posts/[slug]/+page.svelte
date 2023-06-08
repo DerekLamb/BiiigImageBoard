@@ -20,7 +20,7 @@ let embPrompt = (data.image.embPrompt) ? data.image.embPrompt : [];
         <PromptSection items = {data.image.embPrompt}></PromptSection>
     </SideBar>
     <div class="imageWindow">
-        <Image width = "40vw" src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
+        <Image maxHeight = "100vh" width = "100vw" src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
         <div class="imageInfo">
             <p>{data.image.name}</p>
             <p>{data.image.fsName}</p>
