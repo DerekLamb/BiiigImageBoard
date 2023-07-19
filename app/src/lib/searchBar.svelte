@@ -12,7 +12,6 @@
         console.log(data);
     }
 
-
 </script>
 
 <form action="/posts" >

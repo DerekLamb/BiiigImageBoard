@@ -30,10 +30,10 @@ export default function txtToSearchParam(searchTerm : string){
       filter.$and = positiveTags.map(tag => ({ tags: { $regex: tag, $options: 'i' }}));
     }
     if (negativeTags.length > 0){
-      filter.$nor = negativeTags.map(tag => ({ tags: {$regex: tag.substring(1), $options:'1'}}));
+      filter.$nor = negativeTags.map(tag => ({ tags: {$regex: tag, $options:'1'}}));
     }
 
-    console.log(filter.$and);
+    console.log(filter.$nor);
 
     return filter
     

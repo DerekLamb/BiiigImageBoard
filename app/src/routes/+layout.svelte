@@ -18,6 +18,7 @@
 <style>
     :global(body){
         background-color:#faeaeb;
+        height:100%;
     }
     h1{
         margin: 20px 140px;
@@ -34,6 +35,7 @@
         flex-direction: column;
         align-items: flex-start;
         margin: 0px 100px;
+        height:100%;
     }
         /* remove margin when screen size reaches 800px */
     @media (max-width:1730px) {

@@ -5,9 +5,9 @@
 <ul>
     <li><a href="/posts">Posts</a></li>
     <li><a href="/upload">Upload</a></li>
-    <li><a href="/posts">Tags</a></li>
+    <li><a href="/tags">Tags</a></li>
     <li><a href="/config">Config</a></li>
-    <li><a href="/testing">Testing</a></li>
+    <li><a href="/">Home</a></li>
 </ul>
 <style>
 
