@@ -12,7 +12,7 @@ A web image board for users to upload and tag images designed to be easily deplo
 
 ## Planning
 ### done ✔️
-- viable server and client side built
+- basic server and client side built
 - image storage and viewing
 - Stable diffusion prompt extraction
 - Prompt and tag searching
@@ -28,7 +28,6 @@ A web image board for users to upload and tag images designed to be easily deplo
 - tags, and search function
 - efficient management of images (mass deletion and tagging)
 - login and user system
-- clean up work
 
 ### future ideas
 - Tight integration with Automatic1111? 
