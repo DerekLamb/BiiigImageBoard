@@ -1,11 +1,30 @@
 import fs from "fs";
 import db from "$lib/db";
+import {ObjectId} from 'mongodb';
 import promptDecode from "$lib/ExtractPrompt";
 import sharp from "sharp";
+import crypto from "crypto";
+
 
 const projection = { fsName:1 }
 const imgCol = db.collection('testimages')
 const remCol = db.collection('remedialImages')
+
+async function ensureDirExists(dirPath: string) {
+    try {
+        await fs.promises.access(dirPath, fs.constants.F_OK);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            try {
+                await fs.promises.mkdir(dirPath, { recursive: true });
+            } catch (err) {
+                throw err;
+            }
+        } else {
+            throw error;
+        }
+    }
+}
 
 export async function checkFiles(dirPath: string){
     
@@ -14,11 +33,11 @@ export async function checkFiles(dirPath: string){
     // console.log(result.missingFiles);
     console.log("New Files: ");
     console.log(result.newFiles);
-    cleanupDB(dirPath, result.missingFiles);
+    cleanupDB(result.missingFiles);
     // TODO compare img to db based on hash 
     moveFiles(dirPath, result.newFiles);
-
-    // embPromptGrab(dirPath);
+    // search new images for embedded prompts from stable diffusion
+    embPromptGrab(dirPath, false);
 }
 
 export async function refreshFiles(dirPath: string){
@@ -86,7 +105,7 @@ export async function embPromptGrab(dirPath: string, forceRecheck? : boolean){
     }
 }
 
-export async function cleanupDB(dirPath: string, missingFiles : Array<string>){
+export async function cleanupDB( missingFiles : Array<string>){
     for( const filename of missingFiles ){
         // per filename in missingFiles, move imagedoc to remedial db. 
 
@@ -105,16 +124,36 @@ export async function cleanupDB(dirPath: string, missingFiles : Array<string>){
             }
         } 
         else{ 
-            `${filename} not found inside DB`
+            console.log(`${filename} not found inside DB`);
         }
 
     }
 }
 
+export async function hashFile(file: string | Buffer): Promise<string> {
+    let buffer: Buffer;
+
+    if (typeof file === 'string') {
+        buffer = fs.readFileSync(file);
+    } else if (typeof file === 'object' && file instanceof Buffer) {
+        buffer = file;
+    } else {
+        throw new Error('Invalid input. Expecting string or Buffer.');
+    }
+
+    try {
+        const hash = crypto.createHash('sha256');
+        hash.update(buffer);
+        const fsHash = hash.digest('base64').slice(0,12);
+        return fsHash;
+    } catch (error) {
+        throw new Error('Error while hashing file: ' + error.message);
+    }
+}
 //TODO:
 // 1. **Batch database operations `bulkWrite`
 
-// 2. **Error handling
+// 2. **Better Error handling
 
 export async function moveFiles(dirPath: string, newFiles : Array<string>, fileData? : File){
     for( const filename of newFiles ){
@@ -124,62 +163,137 @@ export async function moveFiles(dirPath: string, newFiles : Array<string>, fileD
 }
 
 export async function moveFile(dirPath: string, fileName: string, destPath: string, tags?: Array<string>) {
-    const [ base, ext ] = fileName.split('.');
+    const [ base, ext ] = fileName.split('.'); // could heavily improve... TODO!!
     const timestamp = base.match(/\b\d{13}\b/) ? base : `${Date.now().toString()}`;
     const imageName = `${timestamp}.${ext}`;
-
+    const fileHash = await hashFile(`${dirPath}/${fileName}`);
     
-    fs.renameSync(`${dirPath}/${fileName}`, `${destPath}/${imageName}`)
-    console.log(`file ${fileName} moved to ${destPath}/${imageName}`);
 
-    const dbResult = await imgCol.insertOne({ // Insert the file metadata into the database.
-        name: fileName, 
-        fsName: imageName, 
-        genName: timestamp, 
-        imagePath: `${destPath}/${imageName}`, 
-        tags: tags, 
-        embPrompt: ""
-    });
+
+    try{
+        const dbResult = await imgCol.insertOne({ // Insert the file metadata into the database.
+            _id: new ObjectId(fileHash),
+            name: fileName,
+            fsName: imageName, 
+            genName: timestamp, 
+            imagePath: `${destPath}/${imageName}`, 
+            tags: tags, 
+            embPrompt: ""
+        });
+
+        fs.renameSync(`${dirPath}/${fileName}`, `${destPath}/${imageName}`)
+        console.log(`file ${fileName} moved to ${destPath}/${imageName}`);
+    }
+    catch(error){
+        if(error.code === 11000){
+            console.error("Duplicate file error, file ignored");
+        }else{
+            throw error;
+        }
+    }
+
 }
 
 export async function addFile(fileStream: Buffer, fileName:string, imagePath:string, tags?:Array<string>){
     const [ base, ext ] = fileName.split('.');
     const timestamp = base.match(/\b\d{13}\b/) ? base : `${Date.now().toString()}`;
     const fsName = `${timestamp}.${ext}`
+    const fsHash = await hashFile(fileStream);
 
     try{
-        const result = await imgCol.insertOne({name: fileName, fsName:fsName, genName:timestamp, imagePath: `${imagePath}/${fsName}`, tags: tags, embPrompt:""});
+        const result = await imgCol.insertOne({
+            _id: new ObjectId(fsHash), 
+            name: fileName, 
+            fsName:fsName, 
+            genName:timestamp, 
+            imagePath: `${imagePath}/${fsName}`, 
+            tags: tags, embPrompt:""});
 
         fs.writeFileSync(`${imagePath}/${fsName}`, fileStream, 'base64');
         
         console.log(`File ${fileName} written to DB and filesystem`)
     } 
     catch(error) {
-
-        console.error(`Error encountered writing file ${fileName} to DB and filesystem`);
-        console.error(error);
+        if(error.code === 11000){
+            console.error("Duplicate file error, file ignored");
+        }else{
+            throw error;
+        }
     
     }
 
 }
 
-//TODO need to add createThumbnail into file processing chain
+export async function deleteFile(fileName: string){
+    // switch(typeof file){
+    //     case 'string':
+        
+    //     break;
+    //     case 'buffer':
 
-export async function createThumbnail(dirPath: string, imageName: string, outputPath: string, thumbWidth: number, thumbHeight: number){
-        const thumbName = `${imageName}_thmb`;
-        const inputPath = `${dirPath}/${imageName}`;
+    //     break;
+    //     case 'ObjectId':
+
+    //     break;
+    //     default:
+    //         console.log("Error, type file");
+    // }
+    // I want to deal with this by deleting a file by a unique modifier, possibly by _id. It would be very useful deleteOne would return a document I could then derive a path from.
+
+    // imgCol.deleteOne({genName:fileName} )
+    
+
+    // fs.unlink(`${fName}`, (err) => {
+    //     console.log(`${fName}`)
+    //     if(err) throw err;
+    //     console.log(`deleted ${fName}`)
+    // });
+}
+
+export async function createThumbnail(dirPath: string, image: any, outputPath: string, thumbWidth: number, thumbHeight: number){
+        const thumbName = `${image.genName}_thmb.webp`;
+        const inputPath = `${dirPath}/${image.fsName}`;
         const thumbPath = `${outputPath}/${thumbName}`;
       
         // Resize image to fit within specified dimensions with crop to fill
-        await sharp(inputPath)
-            .resize({
-            width: thumbWidth,
-            height: thumbHeight,
-            fit: 'cover',
-            position: 'center'
-            })
-            .toFile(thumbPath);      
+        try {
+            await sharp(inputPath)
+                .resize({
+                    width: thumbWidth,
+                    height: thumbHeight,
+                    fit: 'cover',
+                    position: 'center'
+                })
+                .webp()
+                .toFile(thumbPath);
+        } catch (error) {
+                console.error(error);
+                console.log(image.genName);
+        }
+        
         // Update image document with thumbnail path
-        await imgCol.updateOne({ imageName }, { $set: { thumbPath } }, { upsert: true });
+        await imgCol.updateOne({ fsName: image.fsName }, { $set:{ thumbPath: thumbPath } }, { upsert: true }); 
 }
       
+export async function createMissingThumbnails(dirPath: string, outputPath: string, thumbWidth: number = 200, thumbHeight: number = 200){
+    ensureDirExists(dirPath)
+    .then(() => console.log('Directory exists or has been created'))
+    .catch(error => console.error(error));
+    //find all images missing thumbnail
+    const results = await imgCol.find({ 
+        $or: [
+        {thumbPath: ""},
+        {thumbPath: {$exists:false}}
+        ]
+    }).toArray()
+
+    for(const image of results){
+        try{
+            createThumbnail(dirPath, image, outputPath, thumbWidth, thumbHeight);
+        }
+        catch(error){
+            console.error(`Error encountered writing file ${image.name} to DB and filesystem`);
+            console.error(error);
+        }
+    }
+}

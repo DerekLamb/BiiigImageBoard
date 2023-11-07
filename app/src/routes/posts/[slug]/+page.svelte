@@ -11,33 +11,39 @@ import { redirect } from "@sveltejs/kit";
 export let data;
 let tags = (data.image.tags) ? data.image.tags : [];
 let embPrompt = (data.image.embPrompt) ? data.image.embPrompt : [];
+
+function copyItems() {
+      const copyText = embPrompt.join(",");
+      navigator.clipboard.writeText(copyText);
+    }
 </script>
 
 <div class = midContainer>
     <SideBar>
         <SearchBar></SearchBar>
         <TagSection editable = {true} tags = {tags} imageID = {data.image.genName}></TagSection>
-        <PromptSection items = {data.image.embPrompt}></PromptSection>
     </SideBar>
     <div class="imageWindow">
         <Image maxHeight = "100vh" width = "100vw" src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
         <div class="imageInfo">
-            <p>{data.image.name}</p>
-            <p>{data.image.fsName}</p>
-            <p>{data.image.imagePath}</p>
-<!-- 
-            <table>
-                <tbody>
-                  {#each embPrompt as item}
-                    <tr>
-                      <td>{item},</td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table> -->
+            <p><span>ImageName: </span>{data.image.name}</p>
+            <p><span>Filename: </span>{data.image.fsName}</p>
+            <p><span>FileLocation: </span>{data.image.imagePath}</p>
+            {#if embPrompt.length != 0}
+                <div>embeddedPrompt:
+                    <p>
+                        {#each embPrompt as item}
+                            <span>
+                            <td>{item},</td>
+                            </span>
+                        {/each}
+                    </p>
+                </div>
+                <button on:click={copyItems}>Copy Prompt</button>
+            {/if}
 
             <form method="Post" action="?/delete">
-                <button type="submit">Delete</button>
+                <button type="submit">Delete Image</button>
                 <input type="hidden" name="imageName" value="{data.image.genName}">
                 <input type="hidden" name="fileName" value="{data.image.imagePath}">
             </form>
@@ -78,17 +84,9 @@ let embPrompt = (data.image.embPrompt) ? data.image.embPrompt : [];
         border: 2px solid #65ccc744;
         border-radius: 8px;
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.205);
-
         display:flex;
         flex-wrap:wrap;
         flex-grow: 1;
-    }
-
-    table tbody{
-        width: 100%;
-        border-collapse: collapse;
-        overflow-y: scroll;
-        height: 200px;
     }
 
     td {

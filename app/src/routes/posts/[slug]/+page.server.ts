@@ -26,6 +26,7 @@ export const actions = {
         const data = await request.formData();
         const gName = data.get("imageName");
         const fName = data.get("fileName");
+        const newRedirect = data.get("redirect"); // not used yet
         console.log(gName);
         console.log(fName);
         if(gName){

@@ -40,9 +40,15 @@ beforeUpdate(() => {
         </div>
         <div class = "imageCont">
         {#each data.images as image}
-            <div class = "imageBox">
-                <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "480px" width = "17vw"></Image>
-            </div>
+            {#if image.thumbPath}
+                <div class = "imageBox">
+                    <Image src = "/{image.thumbPath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "480px" width = "17vw" thumbnail=true></Image>
+                </div>
+            {:else}
+                <div class = "imageBox">
+                    <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "480px" width = "17vw"></Image>
+                </div>
+            {/if}
         {/each}
         </div>
         <div class = "pgnumCont">
