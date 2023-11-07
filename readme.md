@@ -1,7 +1,7 @@
 # BiiigImageBoard 
 A web image board for users to upload and tag images designed to be easily deployed. Built in stable diffuision image prompt extraction. 
 ### Requirements
-- Docker & Docker compose
+- Docker
 - That's it 🙃
 
 ## Installation
