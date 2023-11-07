@@ -5,18 +5,22 @@
 	export let alt = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
     export let imageName = "";
     export let link = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
-	// export let height;
+    export let thumbnail = false;
 	export let width = "100%";
     export let maxHeight = "100%";
     let upScore = 1
     let downScore = 1
+    let imgClass = "full-img"
+    if(thumbnail){
+        imgClass="thumbnail";
+    }
 </script>
 
 <div class="image-container" style={`width: ${width}`}>
-    <a href={link}> <img src={src} alt={alt} style={`max-height: ${maxHeight}; width:{width};`} /> </a>
+    <a href={link}> <img class="{imgClass}" src={src} alt={alt} style={`max-height: ${maxHeight}; width:{width};`} /> </a>
     {#if upScore == -1 && downScore == -1}
         <div class = "metadata">
-            <div class = "imgName" style = "width:{width}">{imageName}</div>
+            <div class = "imgName " style = "width:{width}">{imageName}</div>
         </div>
     {:else}
         <div class = "metadata">
@@ -38,15 +42,19 @@
         filter:opacity(90%);
     }
 
-    img {
+    .full-img {
         object-fit: contain;
         filter: blur(0px);
         width: 100%;
         height: auto;
     }
 
+    .thumbnail{
+        width:17vw;
+    }
+
     .image-container a{
-        overflow:hidden
+        overflow:visible;
     }
     
     .metadata { 

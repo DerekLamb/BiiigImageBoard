@@ -6,6 +6,7 @@
 *.webm
 /app/images
 /app/images/*
+/app/thumb/
 /app/upload
 /app/upload/*
 /app/node_modules
