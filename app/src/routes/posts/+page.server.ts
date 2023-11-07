@@ -28,11 +28,12 @@ export const load = (async ({ url }) => {
 
     const numPages = Math.ceil(await db.collection('testimages').estimatedDocumentCount() / pageLength);
     
-    const rawImages = images.map(({ name, fsName, genName, imagePath, tags}) => ({
+    const rawImages = images.map(({ name, fsName, genName, imagePath, thumbPath, tags}) => ({
         name,
         fsName,
         genName,
         imagePath,
+        thumbPath,
         tags
     }))
 

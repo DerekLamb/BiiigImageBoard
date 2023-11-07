@@ -35,7 +35,7 @@ import Tagbar from "$lib/tagbar.svelte"
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
-        border-radius: 20px;
+        border-radius: 0px;
     }
 
     .Home * {
