@@ -51,12 +51,12 @@
                 {/each}
             </ul>
             {#if editing}
-                <input class = "tagInput" type="text" placeholder="Add a tag..." on:keydown = {handleKeyDown}>
+                <input class = "tagInput" id="tagInput" type="text" placeholder="Type tag here" on:keydown = {handleKeyDown} autofocus>
             {/if}
             </div>
         
         {#if editable}   
-            <button on:click ={() => editing = !editing}>Edit</button>
+            <button on:click = {() => {editing = !editing;}}>Edit</button>
         {/if}
     </div>
     
@@ -75,6 +75,7 @@
     }
 
     ul{
+        width: inherit;
         box-sizing: border-box; 
         display:flex;
         flex-direction: column;
@@ -90,7 +91,7 @@
     }
 
     .tagInput{
-        font-size:1.25rem;
+        font-size:16px;
         width:85%;
         font-family: 'Montserrat', sans-serif;
         background: #b4e7d6;

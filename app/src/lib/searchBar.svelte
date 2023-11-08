@@ -26,20 +26,20 @@
 <style>
     .searchBar {
         grid-area: searchbar;
-        width:95%;
+        width:inherit;
         display: flex;
         flex-direction: row;
         align-items: center;
-        padding-left: 4px;
     }
 
     #searchQueryInput {
-        width: 100%;
+
+        box-sizing: border-box;
         height: 2.5rem;
         background: #d6f8ef;
         outline: none;
         border: none;
-        border-radius: 1.625rem;
+        border-radius: 20px;
         padding: 0 50px 0 1rem;
         font-size: .88rem;
     }
