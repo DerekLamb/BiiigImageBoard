@@ -64,6 +64,9 @@
         transition: .2s;
     }
 
+    button {
+        color: red;
+    }
     .tag-close-icon { 
         display:inline;
         background-color: #b4e7d6;

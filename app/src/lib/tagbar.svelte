@@ -26,7 +26,6 @@
 
 <style>
 
-
     .wrapper {
         display:grid;
         grid-template-areas: 
