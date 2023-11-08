@@ -24,7 +24,7 @@ function copyItems() {
         <TagSection editable = {true} tags = {tags} imageID = {data.image.genName}></TagSection>
     </SideBar>
     <div class="imageWindow">
-        <Image maxHeight = "100vh" width = "100vw" src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
+        <Image maxHeight = "100vh"  src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
         <div class="imageInfo">
             <p><span>ImageName: </span>{data.image.name}</p>
             <p><span>Filename: </span>{data.image.fsName}</p>
@@ -67,16 +67,14 @@ function copyItems() {
 
     .midContainer{
         display:grid;
-        gap:25px;
+        gap:40px;
         height:100%;
         align-self: stretch;
     }
     @media (min-width:767px) {
 
         .midContainer{
-            grid-template-columns: 12rem 1fr;
-            grid-template-areas:
-            "sidebar main";
+            grid-template-columns: 200px 1fr;
         }
     }
     .imageWindow{
