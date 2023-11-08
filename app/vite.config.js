@@ -5,7 +5,7 @@ const config = {
 	plugins: [sveltekit()],
 	server: {
 		fs: {
-			allow: ['./images']
+			allow: ['./images', './thumb']
 		},
 		host: true
 	}
