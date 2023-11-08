@@ -72,9 +72,7 @@ beforeUpdate(() => {
     
     @media (min-width:820px) {
         .midContainer{
-            grid-template-columns: 2fr 9fr;
-            grid-template-areas:
-            "sidebar main";
+            grid-template-columns: 1fr 4fr;
         }
     }
 

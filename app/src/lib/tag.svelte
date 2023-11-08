@@ -33,7 +33,7 @@
         align-items: center;
         justify-content: flex-start;
         color: #fff;
-        font-size: 1.25rem;
+        font-size: 16px;
         list-style: none;
         border-radius: 6px;
         margin: 0 10px 5px 10px;

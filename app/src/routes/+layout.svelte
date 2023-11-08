@@ -34,7 +34,7 @@
         display:flex;
         flex-direction: column;
         align-items: flex-start;
-        margin: 0px 100px;
+        margin: 0px 50px;
         height:100%;
     }
         /* remove margin when screen size reaches 800px */
