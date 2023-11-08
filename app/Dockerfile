@@ -1,5 +1,5 @@
 FROM node:latest
-WORKDIR /biiib
+WORKDIR /playhere
 
 COPY package.json .
 
@@ -9,6 +9,6 @@ COPY . .
 
 CMD ["npm", "run", "dev", "--host"]
 
-EXPOSE 5173
+# EXPOSE PORT
 
 # RUN sed -i -e 's/\r$//' /app/TestServ.sh
