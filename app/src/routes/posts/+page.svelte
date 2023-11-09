@@ -42,7 +42,7 @@ beforeUpdate(() => {
         {#each data.images as image}
             {#if image.thumbPath}
                 <div class = "imageBox">
-                    <Image src = "/{image.thumbPath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "480px" width = "17vw" thumbnail=true></Image>
+                    <Image src = "/{image.thumbPath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "480px" width = "200px" thumbnail=true></Image>
                 </div>
             {:else}
                 <div class = "imageBox">
@@ -84,7 +84,7 @@ beforeUpdate(() => {
 
     .imageCont{
         display: grid;
-        grid-template-columns:  repeat( auto-fit, minmax(17vw, 3fr));
+        grid-template-columns:  repeat( auto-fill, minmax(200px, 1fr));
         gap: 10px;
         width: 100%;
     }
