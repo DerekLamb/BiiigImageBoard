@@ -35,13 +35,14 @@
     #searchQueryInput {
 
         box-sizing: border-box;
-        height: 2.5rem;
+        height: 50px;
         background: #d6f8ef;
         outline: none;
         border: none;
-        border-radius: 20px;
+        border-radius: 25px;
         padding: 0 50px 0 1rem;
-        font-size: .88rem;
+        font-size: 16px;
+        flex-grow:1;
     }
 
     #searchQuerySubmit {

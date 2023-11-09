@@ -16,7 +16,7 @@
         display:grid;
         grid-template-rows: 40px 8fr;
         gap: 20px;
-        max-width: 18rem;
+        max-width: 250px;
         min-width: 10%;
         width: 100%;
         margin: 0 .5%;
