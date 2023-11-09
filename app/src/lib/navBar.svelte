@@ -31,10 +31,10 @@
         margin:.5%;
     }
     a:link{
-        color: #162524;
+        color: #ffffff;
     }
     a:visited{
-        color: #162524;
+        color: #454848;
     } 
     a:hover{
         color:#7bb7a2;

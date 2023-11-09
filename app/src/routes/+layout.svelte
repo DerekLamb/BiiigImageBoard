@@ -17,18 +17,18 @@
 
 <style>
     :global(body){
-        background-color:#faeaeb;
+        background-color:#1C1C1C;
         height:100%;
     }
     h1{
         margin: 20px 140px;
         font-family: 'Orbitron', sans-serif;
-        color:#162524;
+        color:#ffffff;
     }
     h3{
         margin: 0px 180px 10px;
         font-family: 'Orbitron', sans-serif;
-        color:#162524;
+        color:#ffffff;
     }
     .boxContainer{
         display:flex;
