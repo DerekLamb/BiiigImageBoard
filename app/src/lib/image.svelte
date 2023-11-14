@@ -30,12 +30,13 @@
 <style>
 
     .container {
-        width: 100%; /* or any other max-width */
-        padding: 10px; /* Optional, for some spacing around the link */
-        box-sizing: border-box; /* Ensures that padding is included in the width */
+        width: 100%; 
+        padding: 10px;
+        box-sizing: border-box;
         display:flex;
         flex-direction: column;
-        background-color: #162524;
+        border-radius:10px;
+        background-color: #474747;
         color: white;
     }
 
@@ -51,6 +52,7 @@
         width: 100%; /* Makes the image responsive, scales with the width of the parent */
         height: auto; /* Keeps the image aspect ratio */
         max-width: 100%; /* Ensures the image does not grow beyond its natural size */
+        object-fit: cover;
     }
 
     .container span {

@@ -46,7 +46,7 @@ beforeUpdate(() => {
                 </div>
             {:else}
                 <div class = "imageBox">
-                    <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "480px" width = "17vw"></Image>
+                    <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "480px" width = "250px"></Image>
                 </div>
             {/if}
         {/each}
@@ -54,9 +54,6 @@ beforeUpdate(() => {
         <div class = "pgnumCont">
             <a href={nextPage} class="pageNum">&lt&lt&lt</a>
             <a href={prevPage} class="pageNum">&gt&gt&gt</a>
-        <!-- {#each Array(data.pageNum) as _, i }
-            <a href="/posts?page={i+1}" class="pageNum">{i+1}</a>
-        {/each} -->
         </div>
     </div>
         
@@ -65,12 +62,11 @@ beforeUpdate(() => {
 <style>
     .midContainer{
         display:grid;
-        gap:40px;
         height:100%;
 
     }
     
-    @media (min-width:820px) {
+    @media (min-width:960px) {
         .midContainer{
             grid-template-columns: 1fr 4fr;
         }
@@ -84,13 +80,15 @@ beforeUpdate(() => {
 
     .imageCont{
         display: grid;
-        grid-template-columns:  repeat( auto-fill, minmax(200px, 1fr));
-        gap: 10px;
+        grid-template-columns:  repeat(auto-fit, minmax(100px, 1fr));
+        gap:5px;
         width: 100%;
     }
     .imageBox{ 
-        overflow:hidden;
+        display:flex;
+        justify-content: center;
         padding: 8px;
+        width:100%;
     }
     .pgnumCont{
         margin: 12px;

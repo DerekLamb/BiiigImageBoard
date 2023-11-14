@@ -64,8 +64,9 @@
     .TagSection{
         display: grid;
         grid-template-rows: 2rem 2fr 1.5rem 1.5rem 1.5rem 1fr;
-        background-color: #d6f8ef;
+        background-color: #FFFFFF;
         border-radius: 15px;
+        justify-content: center;
     }
 
     .TagSection h3{
