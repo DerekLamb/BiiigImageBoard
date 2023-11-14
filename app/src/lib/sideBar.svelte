@@ -18,11 +18,10 @@
         gap: 20px;
         max-width: 250px;
         min-width: 10%;
-        width: 100%;
         margin: 0 .5%;
     }
 
-    @media (max-width:820px) {
+    @media (max-width:960px) {
         .sideBar{
             display:none;
         }

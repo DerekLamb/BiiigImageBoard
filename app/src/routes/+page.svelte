@@ -28,14 +28,15 @@ import Tagbar from "$lib/tagbar.svelte"
     }
 
     .Home{
-        width: 80%;
+        width:1200px;
+        max-width:70%;
         height: 800px;
-        background-color: #FFFFFF;
+        background-color: #2B4F81;
         display:flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
-        border-radius: 0px;
+        border-radius: 10px;
     }
 
     .Home * {
@@ -46,6 +47,6 @@ import Tagbar from "$lib/tagbar.svelte"
         font-size: 57px;
         margin: 0px 180px 10px;
         font-family: 'Orbitron', sans-serif;
-        color:#B0E0E6;
+        color:#FAFAFA;
     }
 </style>

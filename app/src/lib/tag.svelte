@@ -33,14 +33,16 @@
         align-items: center;
         justify-content: flex-start;
         color: #fff;
-        font-size: 16px;
+        font-size: 20px;
         list-style: none;
         border-radius: 6px;
-        margin: 0 10px 5px 10px;
-        background-color: #b4e7d6;
+        margin: 0 50px 5px 20px;
+        background-color: #E06C75;
+
     }
     .tag:hover{ 
-        color: #5e725e;
+        color: #725e5e;
+        background-color:#ff6666;
         transition: .2s;
     }
 
@@ -53,8 +55,8 @@
         text-decoration: none;
     }
 
-    a{
-        color: #162524;
+    a{  width:100%;
+        color: #2D2D2D;
         text-decoration: none;
         padding-right: 10px;
     }
