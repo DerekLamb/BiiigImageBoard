@@ -2,7 +2,7 @@
 
 </script>
 
-<ul>
+<ul class="navBar">
     <li><a href="/posts">Posts</a></li>
     <li><a href="/upload">Upload</a></li>
     <li><a href="/tags">Tags</a></li>
@@ -25,19 +25,26 @@
         font-size: 1.2rem;
         margin:5px 10px ;
     }
-    a{  
+    .navBar li a{  
+        color: #678c9e;
         display:inline;
         text-decoration: none;
         margin:.5%;
     }
-    a:link{
-        color: #ffffff;
-    }
     a:visited{
-        color: #454848;
+        color: #678c9e;
     } 
-    a:hover{
-        color:#7bb7a2;
-        transition:.2s;
+    .navBar li a:hover{
+
+        animation: blinkFade 0.5s cubic-bezier(0,1,.5,.91) forwards;
     }
+    @keyframes blinkFade {
+        0% {
+            color: #ffffff;
+        }
+        100% {
+            color: #B0E0E6
+        }
+    }
+
 </style>
