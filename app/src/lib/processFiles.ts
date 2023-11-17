@@ -146,7 +146,7 @@ export async function hashFile(file: string | Buffer): Promise<string> {
         hash.update(buffer);
         const fsHash = hash.digest('base64').slice(0,12);
         return fsHash;
-    } catch (error) {
+    } catch (error: any) {
         throw new Error('Error while hashing file: ' + error.message);
     }
 }
@@ -209,7 +209,7 @@ export async function addFile(fileStream: Buffer, fileName:string, imagePath:str
             imagePath: `${imagePath}/${fsName}`, 
             tags: tags, embPrompt:""});
 
-        fs.writeFileSync(`${imagePath}/${fsName}`, fileStream, 'base64');
+
         
         console.log(`File ${fileName} written to DB and filesystem`)
     } 
