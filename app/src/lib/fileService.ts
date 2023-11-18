@@ -1,32 +1,39 @@
 import fs from "fs/promises";
 import { constants } from 'fs';
 
-class ImageFile extends File {
-    private dirPath: string;
+class ImageFile {
+    private dirPath: string | null = null;
     private fileName: string;
-    private buffer: Buffer | null = null;
+    private fileData: Buffer | null;
 
-    constructor(fileName: string, dirPathOrBuffer: string | Blob){
-        var dirPath = ""
-        var data: Blob;
-        if(dirPathOrBuffer instanceof Blob){
-            data = dirPathOrBuffer;
-        } else if(typeof dirPathOrBuffer === 'string') {
-            data = fs.readFile(`${this.dirPath}/${fileName}`)
-            dirPath = dirPathOrBuffer
-        }
-        super(data, fileName);
-        this.dirPath = dirPath;
+    constructor(dirPath: string, fileName: string, data?: Buffer){
+        this.fileData = data ? data : null;
         this.fileName = fileName;
+        this.dirPath = dirPath;
     }
 
-    async create(fileName: string, data: Buffer, dataFormat:string = "base64"): Promise <void>{
-        fs.writeFile(`${this.dirPath}/${fileName}`, data, "base64")
+    async create(): Promise <void>{
+        if (this.fileData instanceof Buffer) {
+            const newFile = await fs.open(`${this.dirPath}/${this.fileName}`)
+            newFile.writeFile(this.fileData);
+            newFile.close();
+        }
+        else {
+            throw(`Data Buffer for ${this.fileName} not defined`)
+        }
     }
 
-    async read(fileName: string): Promise <Buffer | null>{
+    async read(): Promise <Buffer | null>{
         const fileData = await fs.readFile(`${this.dirPath}/${fileName}`);
         return fileData;
+    }
+
+    async update(data: Buffer){
+        this.fileData = data;
+    }
+
+    async delete(): Promise <void>{
+        fs.unlink(`${this.dirPath}/${fileName}`);
     }
 
     async exists(): Promise<boolean> {
@@ -38,9 +45,14 @@ class ImageFile extends File {
         }
     }
 
-    async delete(fileName: string): Promise <void>{
-            fs.unlink(`${this.dirPath}/${fileName}`);
+    async compareWithStored(): Promise<boolean>{
+            return true
     }
+
+    async unloadBuffer(): Promise<void>{
+        this.fileData = null 
+    }
+
 }
 
 
