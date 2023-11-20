@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import { constants } from 'fs';
 
-class ImageFile extends File {
+class ImageFile  {
     private dirPath: string;
     private fileName: string;
     private buffer: Buffer | null = null;
@@ -15,7 +15,6 @@ class ImageFile extends File {
             data = fs.readFile(`${this.dirPath}/${fileName}`)
             dirPath = dirPathOrBuffer
         }
-        super(data, fileName);
         this.dirPath = dirPath;
         this.fileName = fileName;
     }
@@ -24,9 +23,14 @@ class ImageFile extends File {
         fs.writeFile(`${this.dirPath}/${fileName}`, data, "base64")
     }
 
-    async read(fileName: string): Promise <Buffer | null>{
-        const fileData = await fs.readFile(`${this.dirPath}/${fileName}`);
-        return fileData;
+    async read(): Promise <Buffer | null>{
+        if(this.buffer == null){
+            const fileData = await fs.readFile(`${this.dirPath}/${this.fileName}`);
+            return fileData;
+        } else { 
+            return this.buffer;
+        }
+
     }
 
     async exists(): Promise<boolean> {
@@ -43,5 +47,31 @@ class ImageFile extends File {
     }
 }
 
+class FileRepository {
+    private dirPath: string
+    private files: Map<string, ImageFile>
 
-export default ImageFile
+    constructor(dirPath: string,) { 
+        this.files = new Map();
+        this.dirPath = dirPath;
+    }
+
+    async addFile(fileName: string, fileData: any) {
+
+    }
+
+    async readFile(fileName: string): Promise<Buffer>{
+
+    }
+
+    async deleteFile(fileName: string, hashID?: string) {
+
+    }
+
+
+
+}
+
+
+export ImageFile
+export default FileRepository
