@@ -24,8 +24,13 @@ class ImageFile {
     }
 
     async read(): Promise <Buffer | null>{
-        const fileData = await fs.readFile(`${this.dirPath}/${fileName}`);
-        return fileData;
+        if(this.buffer == null){
+            const fileData = await fs.readFile(`${this.dirPath}/${this.fileName}`);
+            return fileData;
+        } else { 
+            return this.buffer;
+        }
+
     }
 
     async update(data: Buffer){
@@ -55,5 +60,31 @@ class ImageFile {
 
 }
 
+class FileRepository {
+    private dirPath: string
+    private files: Map<string, ImageFile>
 
-export default ImageFile
+    constructor(dirPath: string,) { 
+        this.files = new Map();
+        this.dirPath = dirPath;
+    }
+
+    async addFile(fileName: string, fileData: any) {
+
+    }
+
+    async readFile(fileName: string): Promise<Buffer>{
+
+    }
+
+    async deleteFile(fileName: string, hashID?: string) {
+
+    }
+
+
+
+}
+
+
+export ImageFile
+export default FileRepository
