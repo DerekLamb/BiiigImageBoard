@@ -1,10 +1,12 @@
 import fs from "fs/promises";
 import { constants } from 'fs';
+import { createMissingThumbnails } from "./processFiles";
 
 class ImageFile {
     private dirPath: string | null = null;
     private fileName: string;
-    private fileData: Buffer | null;
+    private fileData: Buffer | null = null;
+    private hash: string;
 
     constructor(dirPath: string, fileName: string, data?: Buffer){
         this.fileData = data ? data : null;
@@ -24,11 +26,11 @@ class ImageFile {
     }
 
     async read(): Promise <Buffer | null>{
-        if(this.buffer == null){
+        if(this.fileData == null){
             const fileData = await fs.readFile(`${this.dirPath}/${this.fileName}`);
             return fileData;
         } else { 
-            return this.buffer;
+            return this.fileData;
         }
 
     }
@@ -38,7 +40,7 @@ class ImageFile {
     }
 
     async delete(): Promise <void>{
-        fs.unlink(`${this.dirPath}/${fileName}`);
+        fs.unlink(`${this.dirPath}/${this.fileName}`);
     }
 
     async exists(): Promise<boolean> {
@@ -70,21 +72,35 @@ class FileRepository {
     }
 
     async addFile(fileName: string, fileData: any) {
+        this.files.set(fileName, new ImageFile(fileName, fileData))
 
     }
 
-    async readFile(fileName: string): Promise<Buffer>{
-
+    async readFile(fileName: string): Promise<Buffer | null>{
+        let imgFileObj =  await this.files.get(fileName) ?? new ImageFile(this.dirPath, fileName);
+        if(await imgFileObj.exists()){
+            return  imgFileObj.read();
+        }
+        return null;
     }
 
     async deleteFile(fileName: string, hashID?: string) {
-
+        let imgFileObj = await this.files.get(fileName);
+        if(imgFileObj){
+            imgFileObj.delete();
+        } else {
+            console.log(`File ${fileName} not found in repository`);
+        }
     }
 
 
 
 }
 
+const mainFileRepo : FileRepository = new FileRepository("images")
+const thumbFileRepo : FileRepository = new FileRepository("thumb")
 
-export ImageFile
-export default FileRepository
+export ImageFile;
+export FileRepository;
+export mainFileRepo;
+export thumbFileRepo;
