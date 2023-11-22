@@ -14,7 +14,7 @@ class ImageFile {
         this.dirPath = dirPath;
     }
 
-    async create(): Promise <void>{
+    async write(): Promise <void>{
         if (this.fileData instanceof Buffer) {
             const newFile = await fs.open(`${this.dirPath}/${this.fileName}`)
             newFile.writeFile(this.fileData);
@@ -54,6 +54,15 @@ class ImageFile {
 
     async compareWithStored(): Promise<boolean>{
             return true
+    }
+
+    async writeThumb(data?: Buffer){
+        const thumbName = `${this.fileName}_thmb.webp`;
+        if(data || this.fileData) {
+
+        } else {
+            console.log()
+        }
     }
 
     async unloadBuffer(): Promise<void>{
@@ -100,7 +109,4 @@ class FileRepository {
 const mainFileRepo : FileRepository = new FileRepository("images")
 const thumbFileRepo : FileRepository = new FileRepository("thumb")
 
-export ImageFile;
-export FileRepository;
-export mainFileRepo;
-export thumbFileRepo;
+export {ImageFile, FileRepository, mainFileRepo, thumbFileRepo};
