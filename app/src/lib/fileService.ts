@@ -81,8 +81,13 @@ class FileRepository {
     }
 
     async addFile(fileName: string, fileData: any) {
-        this.files.set(fileName, new ImageFile(fileName, fileData))
-
+        const imageFile = new ImageFile(fileName, fileData)
+        this.files.set(fileName, imageFile)
+        try {
+            imageFile.write();
+        } catch (error) {
+            console.log("err occured writing file")
+        }
     }
 
     async readFile(fileName: string): Promise<Buffer | null>{
@@ -101,8 +106,6 @@ class FileRepository {
             console.log(`File ${fileName} not found in repository`);
         }
     }
-
-
 
 }
 
