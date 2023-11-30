@@ -6,20 +6,26 @@ import {mainFileRepo} from "$lib/fileService"
 
     export const actions = {
 
-    default: async ({ request }) => {
+        default: async ({ request }) => {
 
-    const formdata = await request.formData(); 
-    const files = formdata.getAll("image");
-    await Promise.all(files.map( async file => {
-        if(!(file instanceof Object) || !file.name){
-            console.log("Error processing file attributes/data")
-        } else {
-            const buffer = Buffer.from(await file.arrayBuffer());
-            mainFileRepo.addFile(file.name, buffer);
+            const formdata = await request.formData(); 
+            const files = formdata.getAll("image");
+            await Promise.all(files.map( async file => {
+                if(!(file instanceof Object) || !file.name){
+                    console.log("Error processing file attributes/data")
+                } else {
+                    
+                    try{
+                        const buffer = Buffer.from(await file.arrayBuffer());
+                        await mainFileRepo.addFile(file.name, buffer);
+                    } catch (error) {
+                        console.log(error.stack);
+                    }
+                    
+                }
+            }))
+
+            //checkFiles('images');
+            return { sucess: true, submitted: files.length };
         }
-    }))
-
-    //checkFiles('images');
-    return { sucess: true, submitted: files.length };
-    }
     };

@@ -208,15 +208,12 @@ export async function addFile(fileStream: Buffer, fileName:string, imagePath:str
             genName:timestamp, 
             imagePath: `${imagePath}/${fsName}`, 
             tags: tags, embPrompt:""});
-
-
-        
         console.log(`File ${fileName} written to DB and filesystem`)
-    } 
-    catch(error) {
-        if(error.code === 11000){
+    } catch(error) {
+
+        if (error.code === 11000) {
             console.error("Duplicate file error, file ignored");
-        }else{
+        } else {
             throw error;
         }
     

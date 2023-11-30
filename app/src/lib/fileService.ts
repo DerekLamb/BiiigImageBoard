@@ -16,9 +16,10 @@ class ImageFile {
 
     async write(): Promise <void>{
         if (this.fileData instanceof Buffer) {
-            const newFile = await fs.open(`${this.dirPath}/${this.fileName}`)
-            newFile.writeFile(this.fileData);
-            newFile.close();
+            // const newFile = await fs.open(`${this.dirPath}/${this.fileName}`)
+            // newFile.writeFile(this.fileData,'base64');
+            // newFile.close();
+            await fs.writeFile(`${this.dirPath}/${this.fileName}`)
         }
         else {
             throw(`Data Buffer for ${this.fileName} not defined`)
