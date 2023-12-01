@@ -19,7 +19,7 @@ class ImageFile {
             // const newFile = await fs.open(`${this.dirPath}/${this.fileName}`)
             // newFile.writeFile(this.fileData,'base64');
             // newFile.close();
-            await fs.writeFile(`${this.dirPath}/${this.fileName}`)
+            await fs.writeFile(`./${this.dirPath}/${this.fileName}`, this.fileData)
         }
         else {
             throw(`Data Buffer for ${this.fileName} not defined`)
@@ -106,6 +106,24 @@ class FileRepository {
         } else {
             console.log(`File ${fileName} not found in repository`);
         }
+    }
+
+    async memAddFile(fileName: string, fileData: any){
+        const imageFile = new ImageFile(fileName, fileData)
+        
+        try {
+            imageFile.write();
+        } catch (error) {
+            console.log("err occured writing file")
+        }
+
+        imageFile.unloadBuffer();
+        this.files.set(fileName, imageFile)
+    }
+
+    async updateListFiles(){
+        const dirFiles = await fs.readdir(this.dirPath);
+        
     }
 
 }
