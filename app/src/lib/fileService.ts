@@ -123,6 +123,24 @@ class FileRepository {
         //build out a comparison that will handle files that were deleted unsafely, possibly store in array 
         return this.files;
     }
+    
+    async memAddFile(fileName: string, fileData: any){
+        const imageFile = new ImageFile(fileName, fileData)
+        
+        try {
+            imageFile.write();
+        } catch (error) {
+            console.log("err occured writing file")
+        }
+
+        imageFile.unloadBuffer();
+        this.files.set(fileName, imageFile)
+    }
+
+    async updateListFiles(){
+        const dirFiles = await fs.readdir(this.dirPath);
+        
+    }
 
 }
 

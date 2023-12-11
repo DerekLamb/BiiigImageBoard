@@ -30,7 +30,6 @@ import { hashFile } from "$lib/processFiles.js";
     export const actions = {
 
         default: async ({ request }) => {
-
             const formdata = await request.formData(); 
             const files = formdata.getAll("image");
             await Promise.all(files.map( async file => {
