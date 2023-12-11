@@ -24,11 +24,11 @@ function copyItems() {
         <TagSection editable = {true} tags = {tags} imageID = {data.image.genName}></TagSection>
     </SideBar>
     <div class="imageWindow">
-        <Image maxHeight = "100vh"  src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
+        <Image src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
         <div class="imageInfo">
-            <p><span>ImageName: </span>{data.image.name}</p>
-            <p><span>Filename: </span>{data.image.fsName}</p>
-            <p><span>FileLocation: </span>{data.image.imagePath}</p>
+            <p><span>ImageName: </span>{data.image?.originalName}</p>
+            <p><span>Filename: </span>{data.image?.sanitizedFilename}</p>
+            <p><span>FileLocation: </span>{data.image?.imagePath}</p>
             {#if embPrompt.length != 0}
                 <div>embeddedPrompt:
                     <p>
@@ -71,7 +71,7 @@ function copyItems() {
         height:100%;
         align-self: stretch;
     }
-    @media (min-width:767px) {
+    @media (min-width:960px) {
 
         .midContainer{
             grid-template-columns: 200px 1fr;

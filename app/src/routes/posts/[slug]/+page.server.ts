@@ -1,3 +1,4 @@
+import { imageRepo } from '$lib/imageRepository';
 import db from '$lib/db';
 import fs from "fs";
 import { redirect } from '@sveltejs/kit';
@@ -5,14 +6,17 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, url }) => {
     params.slug
-    const image = await db.collection('testimages').findOne({genName:params.slug});
+    //const image = await db.collection('testimages').findOne({genName:params.slug});
+    const image = await imageRepo.getByTimestamp(params.slug);
+    delete image?._id;
+
     if(!image){
         return{
             status: 200,
             image: null,
         }
     }
-    delete image._id;
+    
 
     return{
         status: 200,

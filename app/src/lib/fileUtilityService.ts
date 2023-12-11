@@ -7,7 +7,7 @@ class fileUtiltyService {
         this.fileServiceObj = fileServiceObj;
     }
 
-    async extractPrompt(){}
+    //async extractPrompt(){}
 
     async hashFile(file: string | Buffer): Promise<string> {
         let buffer: Buffer;
