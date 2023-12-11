@@ -1,25 +1,22 @@
 
 <script>
-    export const size = "default";
     export let src = '';
-	export let alt = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
+    export let alt = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
     export let imageName = "";
     export let link = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
     export let thumbnail = false;
-	export let width = "200px";
-    export let maxHeight = "100%";
-    let upScore = 1
-    let downScore = 1
+    export let upScore = -1;
+    export let downScore = -1;
     let imgClass = "full-img"
     if(thumbnail){
         imgClass="thumbnail";
     }
 </script>
 
-<div class="container" style={`width: ${width}`}>
-    <a href={link}> <img class="{imgClass}" src={src} alt={alt} style={`max-height: ${maxHeight}; width:${width};`} /> </a>
+<div class="container">
+    <a href={link}> <img class="{imgClass}" src={src} alt={alt} /> </a>
     {#if upScore == -1 && downScore == -1}
-            <div class = "imgName " style = "width:{width}">{imageName}</div>
+            <span class = "imgName ">{imageName}</span>
     {:else}
             <span class = "imgName">{imageName}</span>
             <span class = "score">{upScore} &#x1F446 {downScore} &#x1F447 </span>
@@ -36,7 +33,7 @@
         display:flex;
         flex-direction: column;
         border-radius:10px;
-        background-color: #474747;
+        background-color: #923c3c;
         color: white;
     }
 
@@ -51,7 +48,6 @@
     .container img {
         width: 100%; /* Makes the image responsive, scales with the width of the parent */
         height: auto; /* Keeps the image aspect ratio */
-        max-width: 100%; /* Ensures the image does not grow beyond its natural size */
         object-fit: cover;
     }
 
@@ -64,52 +60,4 @@
         margin-top: 8px; /* Space between the image and the title */
     }
 
-    /* .image-container{
-        box-sizing: border-box;
-        display:flex;
-        flex-direction: column;
-        align-items: center;
-        background-color: #162524;
-        font-family: 'Montserrat', sans-serif;
-        padding: 2px; 
-        filter:opacity(90%);
-    }
-
-    .full-img {
-        object-fit: contain;
-        filter: blur(0px);
-        width: 100%;
-        height: auto;
-    }
-
-    .thumbnail{
-        width:17vw;
-    }
-
-    .image-container a{
-        overflow:visible;
-    }
-    
-    .metadata { 
-        width: 100%;
-    }
-
-    .imgName {
-        display:block;
-        font-size: 1.15rem;
-        background-color: #d6f8ef;
-        margin: 5px 0 0 0;
-        padding: 4px 15px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .score{
-        margin: 0;
-        font-size: 1.15rem;
-        padding: 5px 15px;
-        background-color:#d6f8ef;
-        color:#162524;
-    } */
 </style>

@@ -6,7 +6,7 @@ class ImageFile {
     private dirPath: string | null = null;
     private fileName: string;
     private fileData: Buffer | null = null;
-    private hash: string;
+    //private hash: string;
 
     constructor(dirPath: string, fileName: string, data?: Buffer){
         this.fileData = data ? data : null;
@@ -19,7 +19,7 @@ class ImageFile {
             // const newFile = await fs.open(`${this.dirPath}/${this.fileName}`)
             // newFile.writeFile(this.fileData,'base64');
             // newFile.close();
-            await fs.writeFile(`${this.dirPath}/${this.fileName}`)
+            await fs.writeFile(`${this.dirPath}/${this.fileName}`, this.fileData)
         }
         else {
             throw(`Data Buffer for ${this.fileName} not defined`)
@@ -82,7 +82,7 @@ class FileRepository {
     }
 
     async addFile(fileName: string, fileData: any) {
-        const imageFile = new ImageFile(fileName, fileData)
+        const imageFile = new ImageFile(this.dirPath, fileName, fileData)
         this.files.set(fileName, imageFile)
         try {
             imageFile.write();
@@ -100,12 +100,28 @@ class FileRepository {
     }
 
     async deleteFile(fileName: string, hashID?: string) {
-        let imgFileObj = await this.files.get(fileName);
+        let imgFileObj = this.files.get(fileName);
         if(imgFileObj){
             imgFileObj.delete();
+            this.files.delete(fileName); // this is really confusing but not sure what to change yet.
         } else {
             console.log(`File ${fileName} not found in repository`);
         }
+    }
+
+    async updateFiles() {
+        const dirFiles = await fs.readdir(this.dirPath);
+        dirFiles.forEach( item => {
+            if(!this.files.has(item)) {
+                this.files.set(item, new ImageFile(item, ""))
+            }
+        });
+        return this.files;
+    }
+
+    async safeUpdateFiles() {
+        //build out a comparison that will handle files that were deleted unsafely, possibly store in array 
+        return this.files;
     }
 
 }

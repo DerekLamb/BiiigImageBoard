@@ -1,49 +1,35 @@
 import { page } from '$app/stores';
 import db from '$lib/db';
-import txtToSearchParam from '$lib/SearchTxtToFilter';
+import { imageRepo } from '$lib/imageRepository';
 
 
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url }) => {
     const { searchParams } = url;
-    const pageNum = parseInt(searchParams.get('page') || '1');
+    const pageNum : number = parseInt(searchParams.get('page') as string) || 1;
+
     const currPage = Math.max(pageNum, 1);
-    const lengthNum = parseInt(searchParams.get('len') || '24');
 
-    // Extract the 'search' query parameter as an array
-    const tags = searchParams.getAll('search');
-    const filter = tags ? txtToSearchParam(tags[0]) : {};
+    let lengthNum = parseInt(searchParams.get('len') as string);
+    if (isNaN(lengthNum) || lengthNum < 1 || lengthNum > 100) {
+        lengthNum = 24; 
+    }
 
+    const images = await imageRepo.getPage(currPage, lengthNum);
 
-    const pageLength = lengthNum || 20;
-    const startInd = (currPage - 1) * pageLength;
-
-    const images = await db.collection('testimages')
-        .find(filter)
-        .sort({ genName:-1 })
-        .skip(startInd)
-        .limit(pageLength)
-        .toArray();
+    const pageLength = lengthNum || 24;
 
     const numPages = Math.ceil(await db.collection('testimages').estimatedDocumentCount() / pageLength);
-    
-    const rawImages = images.map(({ name, fsName, genName, imagePath, thumbPath, tags}) => ({
-        name,
-        fsName,
-        genName,
-        imagePath,
-        thumbPath,
-        tags
-    }))
-
-    console.log(rawImages);
+    images.forEach( image => {
+        delete image._id;
+    });
 
     return{
         status: 200,
-        images: rawImages,
+        images: images,
         pageNum: numPages,
         currPage: currPage,
-        lengthNum: lengthNum,
+        len: lengthNum,
     }
 }) satisfies PageServerLoad;
