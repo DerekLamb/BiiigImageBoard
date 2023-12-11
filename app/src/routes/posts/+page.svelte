@@ -1,29 +1,42 @@
 <script>
+import { imageSize } from "$lib/stores/searchStore";
 import Image from "$lib/image.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import SearchBar from "$lib/searchBar.svelte";
 import { onMount, beforeUpdate } from "svelte";
+import { goto } from "$app/navigation";
 
 /** @type {import('./$types').PageData} */ 
 export let data;
 
 let nextPage = null;
 let prevPage = null;
+const sizes = [100,150,200,300,400,500];
+let selectedNumImages = 24;
+const numImages = [24,32,48,60,72,84,96];
 
-function calculateNextPrevPages() {
-    const numImages = Number(data.lengthNum);
-    const numImageParam = (numImages === 24 || !numImages) ? "" : `&len=${numImages}`;
+function handleSizeChange(){
+    imageSize.set(selectedSize);
+}
+
+function reloadPage() {
+    const numImageParam = (selectedNumImages === 24) ? "" : `&len=${selectedNumImages}`;
+    goto(`/posts?page=${data.currPage}${numImageParam}`);
+}
+
+const calculatePages = () => {
+    const numImageParam = (selectedNumImages === 24) ? "" : `&len=${selectedNumImages}`;
     nextPage = (data.currPage > 1) ? `/posts?page=${data.currPage - 1}${numImageParam}` : null;
     prevPage = (data.currPage < data.pageNum) ? `/posts?page=${data.currPage + 1}${numImageParam}` : null;
   }
 
 onMount(() => {
-    calculateNextPrevPages();
+    calculatePages();
     });
 
 beforeUpdate(() => {
-    calculateNextPrevPages();
+    calculatePages();
     });
 
 </script>
@@ -38,15 +51,28 @@ beforeUpdate(() => {
             <a href={nextPage} class="pageNum">&lt&lt&lt</a>
             <a href={prevPage} class="pageNum">&gt&gt&gt</a>
         </div>
-        <div class = "imageCont">
+        <span> Image Size:
+            <select bind:value={$imageSize} on:change={handleSizeChange}>
+                {#each sizes as size}
+                    <option value={size}>{size}</option>
+                {/each}
+            </select>
+        </span>
+        <span> # of Images:
+            <select bind:value={selectedNumImages} on:change={reloadPage}>
+                {#each numImages as num}
+                    <option value={num}>{num}</option>
+                {/each}
+        </span>
+        <div class = "imageGrid" style="grid-template-columns: repeat(auto-fit, minmax({$imageSize}px, 1fr)">
         {#each data.images as image}
-            {#if image.thumbPath}
+            {#if image.thumbnailPath}
                 <div class = "imageBox">
-                    <Image src = "/{image.thumbPath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "480px" width = "200px" thumbnail=true></Image>
+                    <Image src = "/{image.thumbnailPath}" link = "/posts/{image.uploadDate}" imageName = {image.originalName} thumbnail={true}></Image>
                 </div>
             {:else}
                 <div class = "imageBox">
-                    <Image src = "/{image.imagePath}" link = "/posts/{image.genName}" imageName = {image.name} maxHeight = "480px" width = "250px"></Image>
+                    <Image src = "/{image.imagePath}" link = "/posts/{image.uploadDate}" imageName = {image.originalName} ></Image>
                 </div>
             {/if}
         {/each}
@@ -78,18 +104,19 @@ beforeUpdate(() => {
         flex-grow: 1;
     }
 
-    .imageCont{
+    .imageGrid{
         display: grid;
-        grid-template-columns:  repeat(auto-fit, minmax(100px, 1fr));
-        gap:5px;
+
+        gap:10px;
         width: 100%;
     }
-    .imageBox{ 
-        display:flex;
-        justify-content: center;
-        padding: 8px;
-        width:100%;
+
+    .imageBox{
+        position: relative;
+        width: 100%;
+        overflow:hidden;
     }
+
     .pgnumCont{
         margin: 12px;
         width: 100%;
