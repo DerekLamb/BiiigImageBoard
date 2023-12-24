@@ -33,8 +33,9 @@ class ImageRepository {
         return this.collection.findOne({ uploadDate: timestamp }) as Promise<ImageData>;
     }
 
-    async getAll(): Promise <ImageData[]> {
-        return this.collection.find({}).toArray() as Promise<ImageData[]>;
+    async get(filter = {}): Promise <ImageData[]> {
+        //default returns everything
+        return this.collection.find(filter).toArray() as Promise<ImageData[]>;
     }
 
     async getPage(currPage:number, pageLength:number, tagSearch? : string[], sort?: {}): Promise<ImageData[]> {
