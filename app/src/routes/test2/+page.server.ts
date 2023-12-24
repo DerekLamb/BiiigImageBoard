@@ -1,5 +1,7 @@
 import { createMissingThumbnails } from "$lib/processFiles";
 import { trusted } from "svelte/internal";
+import { fileUtilService } from "$lib/fileUtilityService.js";
+import { thumbFileRepo } from "$lib/fileService.js";
 
 /** @type {import('./$types').Actions} */
 

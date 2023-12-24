@@ -19,14 +19,18 @@ class ImageFile {
             // const newFile = await fs.open(`${this.dirPath}/${this.fileName}`)
             // newFile.writeFile(this.fileData,'base64');
             // newFile.close();
-            await fs.writeFile(`${this.dirPath}/${this.fileName}`, this.fileData)
+            try{
+                fs.writeFile(`${this.dirPath}/${this.fileName}`, this.fileData)
+            } catch (error) {
+                throw new Error(`Error writing file ${this.fileName}: ${error}`)
+            }
         }
         else {
             throw(`Data Buffer for ${this.fileName} not defined`)
         }
     }
 
-    async read(): Promise <Buffer | null>{
+    async read(): Promise <Buffer>{
         if(this.fileData == null){
             const fileData = await fs.readFile(`${this.dirPath}/${this.fileName}`);
             return fileData;
@@ -82,21 +86,25 @@ class FileRepository {
     }
 
     async addFile(fileName: string, fileData: any) {
-        const imageFile = new ImageFile(this.dirPath, fileName, fileData)
-        this.files.set(fileName, imageFile)
+        const imageFile = new ImageFile(this.dirPath, fileName, fileData);
+        this.files.set(fileName, imageFile);
         try {
-            imageFile.write();
+            if (fileData) {
+                await imageFile.write();
+            } else {
+                console.log("File data is empty. Skipping write operation.");
+            }
         } catch (error) {
-            console.log("err occured writing file")
+            console.log("Error occurred while writing file:", error);
         }
     }
 
-    async readFile(fileName: string): Promise<Buffer | null>{
+    async readFile(fileName: string): Promise<Buffer>{
         let imgFileObj =  await this.files.get(fileName) ?? new ImageFile(this.dirPath, fileName);
         if(await imgFileObj.exists()){
-            return  imgFileObj.read();
+            return imgFileObj.read();
         }
-        return null;
+        throw new Error(`File ${fileName} not found in repository`)
     }
 
     async deleteFile(fileName: string, hashID?: string) {
