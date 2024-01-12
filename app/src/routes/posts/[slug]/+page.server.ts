@@ -1,4 +1,5 @@
 import { imageRepo } from '$lib/imageRepository';
+import { mainFileRepo, thumbFileRepo } from '$lib/fileService';
 import db from '$lib/db';
 import fs from "fs";
 import { redirect } from '@sveltejs/kit';
@@ -28,20 +29,15 @@ export const load: PageServerLoad = async ({ params, url }) => {
 export const actions = {
     delete: async ({ request }) => {
         const data = await request.formData();
-        const gName = data.get("imageName");
-        const fName = data.get("fileName");
-        const newRedirect = data.get("redirect"); // not used yet
-        console.log(gName);
-        console.log(fName);
-        if(gName){
-        db.collection('testimages').deleteOne({genName:gName} )
-        }
-        fs.unlink(`${fName}`, (err) => {
-            console.log(`${fName}`)
-            if(err) throw err;
-            console.log(`deleted ${fName}`)
-        });
+        const oName = data.get("originalName");
+        const sName = data.get("sanitizedFilename");
+        const thumbPath = data.get("thumbnailPath");
+        const newRedirect = data.get("redirect"); // not used yet but is this the best way? Might do a store...       
+        imageRepo.deleteByFileName(`${sName}`);
+        mainFileRepo.deleteFile(`${sName}`);
         
+        console.log(`deleted ${sName}`)
+
         throw redirect(303,"/posts");
     },
 
