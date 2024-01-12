@@ -30,7 +30,7 @@ class fileUtiltyService {
             .toBuffer();
 
         } catch (error) {
-            console.log("err occured writing file")
+            console.log(`unable to create thumbnail from ${fileName}`)
         }
         return [thumbName, thumbData]
     }
@@ -92,7 +92,6 @@ class fileUtiltyService {
     async missingThumbAll(imageRepository: ImageRepository, thumbFileRepo: FileRepository){
         //const filelist = await this.fileServiceObj.updateFiles();
         const results = await imageRepository.get({ $or: [{thumbnailPath: {$exists:null}}, {thumbnailPath: ""}]});
-        console.log(results);
         
         Promise.all(results.map( async (image) => {
             const thumb = await this.createThumbnail(
