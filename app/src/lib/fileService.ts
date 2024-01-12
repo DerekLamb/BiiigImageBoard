@@ -50,7 +50,9 @@ class ImageFile {
 
     async exists(): Promise<boolean> {
         try {
+            console.log(`${this.dirPath}/${this.fileName}`)
             await fs.access(`${this.dirPath}/${this.fileName}`, constants.F_OK);
+            
             return true;
         } catch {
             return false;
@@ -59,15 +61,6 @@ class ImageFile {
 
     async compareWithStored(): Promise<boolean>{
             return true
-    }
-
-    async writeThumb(data?: Buffer){
-        const thumbName = `${this.fileName}_thmb.webp`;
-        if(data || this.fileData) {
-
-        } else {
-            console.log()
-        }
     }
 
     async unloadBuffer(): Promise<void>{
@@ -108,12 +101,16 @@ class FileRepository {
     }
 
     async deleteFile(fileName: string, hashID?: string) {
-        let imgFileObj = this.files.get(fileName);
-        if(imgFileObj){
-            imgFileObj.delete();
-            this.files.delete(fileName); // this is really confusing but not sure what to change yet.
-        } else {
-            console.log(`File ${fileName} not found in repository`);
+        try{
+            let imgFileObj = new ImageFile(this.dirPath, fileName)
+            if(await imgFileObj.exists()){
+                imgFileObj.delete();
+            }
+            else {
+                console.log(`cannot find file ${fileName}`);
+            }
+        } catch {
+            console.log(`Error deleting ${fileName} from dir`)
         }
     }
 
