@@ -11,6 +11,7 @@ interface ImageData {
     imagePath: string;
     uploadDate: string;
     thumbnailPath: string | null;
+    embPrompts: string[] | null;
     tags: string[] | null;
 }
 
@@ -54,7 +55,7 @@ class ImageRepository {
  
     async create(fileName:string, sanitizedFilename:string, timestamp: string, imagePath:string, thumbPath:string, fileHash:string): Promise<string | null>{
         const tags = null;
-
+        const embPrompts = null;
         const imageData : ImageData = {
             _id: new ObjectId(fileHash),
             originalName: fileName,
@@ -62,6 +63,7 @@ class ImageRepository {
             imagePath: `${imagePath}/${sanitizedFilename}`, 
             uploadDate: timestamp,
             thumbnailPath: thumbPath,
+            embPrompts: embPrompts,
             tags: tags
         }
 
@@ -81,6 +83,10 @@ class ImageRepository {
 
     async delete(id: string): Promise<void> {
         await this.collection.deleteOne({ _id: new ObjectId(id) });
+    }
+
+    async deleteByFileName(fileName: string): Promise<void> {
+        await this.collection.deleteOne({ sanitizedFilename: fileName });
     }
 }
 
