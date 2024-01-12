@@ -1,5 +1,5 @@
 <script>
-import { imageSize } from "$lib/stores/searchStore";
+import { improvImageSize, imageCount } from "$lib/stores/searchStore";
 import Image from "$lib/image.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
@@ -13,20 +13,20 @@ export let data;
 let nextPage = null;
 let prevPage = null;
 const sizes = [100,150,200,300,400,500];
-let selectedNumImages = 24;
+// let selectedNumImages = 24;
 const numImages = [24,32,48,60,72,84,96];
 
 function handleSizeChange(){
-    imageSize.set(selectedSize);
+    improvImageSize.set(selectedSize);
 }
 
 function reloadPage() {
-    const numImageParam = (selectedNumImages === 24) ? "" : `&len=${selectedNumImages}`;
+    const numImageParam = ($imageCount === 24) ? "" : `&len=${$imageCount}`;
     goto(`/posts?page=${data.currPage}${numImageParam}`);
 }
 
 const calculatePages = () => {
-    const numImageParam = (selectedNumImages === 24) ? "" : `&len=${selectedNumImages}`;
+    const numImageParam = ($imageCount === 24) ? "" : `&len=${$imageCount}`;
     nextPage = (data.currPage > 1) ? `/posts?page=${data.currPage - 1}${numImageParam}` : null;
     prevPage = (data.currPage < data.pageNum) ? `/posts?page=${data.currPage + 1}${numImageParam}` : null;
   }
@@ -52,19 +52,19 @@ beforeUpdate(() => {
             <a href={prevPage} class="pageNum">&gt&gt&gt</a>
         </div>
         <span> Image Size:
-            <select bind:value={$imageSize} on:change={handleSizeChange}>
+            <select bind:value={$improvImageSize} on:change={handleSizeChange}>
                 {#each sizes as size}
                     <option value={size}>{size}</option>
                 {/each}
             </select>
         </span>
         <span> # of Images:
-            <select bind:value={selectedNumImages} on:change={reloadPage}>
+            <select bind:value={$imageCount} on:change={reloadPage}>
                 {#each numImages as num}
                     <option value={num}>{num}</option>
                 {/each}
         </span>
-        <div class = "imageGrid" style="grid-template-columns: repeat(auto-fit, minmax({$imageSize}px, 1fr)">
+        <div class = "imageGrid" style="grid-template-columns: repeat(auto-fit, minmax({$improvImageSize}px, 1fr)">
         {#each data.images as image}
             {#if image.thumbnailPath}
                 <div class = "imageBox">

@@ -12,6 +12,8 @@ interface ImageData {
     uploadDate: string;
     thumbnailPath: string | null;
     tags: string[] | null;
+    embPrompt?: string[] | null;
+    related?: string[] | null;
 }
 
 class ImageRepository {
@@ -79,8 +81,8 @@ class ImageRepository {
         await this.collection.updateOne({ _id: new ObjectId(id) }, {$set: imageData });
     }
 
-    async delete(id: string): Promise<void> {
-        await this.collection.deleteOne({ _id: new ObjectId(id) });
+    async deleteFilename(filename: string){
+        return this.collection.deleteOne({sanitizedFilename: filename})
     }
 }
 

@@ -9,8 +9,8 @@ import { redirect } from "@sveltejs/kit";
 
 /** @type {import('./$types').PageData} */ 
 export let data;
-let tags = (data.image.tags) ? data.image.tags : [];
-let embPrompt = (data.image.embPrompt) ? data.image.embPrompt : [];
+let tags = (data.image?.tags) ? data.image.tags : [];
+let embPrompt =  ["need", "to", "add", "to", "DB", "schema"];
 
 function copyItems() {
       const copyText = embPrompt.join(",");
@@ -21,10 +21,10 @@ function copyItems() {
 <div class = midContainer>
     <SideBar>
         <SearchBar></SearchBar>
-        <TagSection editable = {true} tags = {tags} imageID = {data.image.genName}></TagSection>
+        <TagSection editable = {true} tags = {tags} imageID = {data.image?.uploadDate}></TagSection>
     </SideBar>
     <div class="imageWindow">
-        <Image src = "../../{data.image.imagePath}" imageName={data.image.name} link = "/{data.image.imagePath}"></Image>
+        <Image src = "../../{data.image?.imagePath}" imageName={data.image?.originalName} link = "/{data.image?.imagePath}"></Image>
         <div class="imageInfo">
             <p><span>ImageName: </span>{data.image?.originalName}</p>
             <p><span>Filename: </span>{data.image?.sanitizedFilename}</p>
@@ -44,8 +44,8 @@ function copyItems() {
 
             <form method="Post" action="?/delete">
                 <button type="submit">Delete Image</button>
-                <input type="hidden" name="imageName" value="{data.image.genName}">
-                <input type="hidden" name="fileName" value="{data.image.imagePath}">
+                <input type="hidden" name="imageName" value="{data.image?.originalName}">
+                <input type="hidden" name="fileName" value="{data.image?.sanitizedFilename}">
             </form>
     
 

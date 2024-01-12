@@ -2,6 +2,7 @@ import {mainFileRepo, thumbFileRepo} from "$lib/fileService"
 import {imageRepo} from "$lib/imageRepository"
 import { hashFile } from "$lib/processFiles.js";
 import { fileUtilService } from "$lib/fileUtilityService.js";
+import { v4 as uuidv4 } from 'uuid';
 
 
 async function checkFiles(){
@@ -33,31 +34,30 @@ export const actions = {
     default: async ({ request }) => {
         const formdata = await request.formData(); 
         const files = formdata.getAll("image");
-        await Promise.all(files.map( async file => {
-            if(!(file instanceof Object) || !file.name){
-                console.log("Error processing file attributes/data")
+        await Promise.all(files.map(async file => {
+            if (!(file instanceof Object) || !file.name) {
+                console.log("Error processing file attributes/data");
             } else {
-                
-                try{
-                    const buffer =  Buffer.from(await file.arrayBuffer());
+                try {
+                    const randomString = uuidv4().replace(/-/g, '').substring(0,8);
+                    const buffer = Buffer.from(await file.arrayBuffer());
+                    const [base, ext] = file.name.split('.');
+                    const timestamp = `${Date.now().toString()}`;
+                    const newFileName = `${timestamp}-${randomString}.${ext}`;
                     const hash = await fileUtilService.hashFile(buffer);
-                    const [ base, ext ] = file.name.split('.');
-                    const timestamp = base.match(/\b\d{13}\b/) ? base : `${Date.now().toString()}`;
-                    const newFileName = `${timestamp}.${ext}`
-                    const dbResults = await imageRepo.create(file.name, newFileName, timestamp, "images", "", hash)
-                    if(dbResults){
+                    const dbResults = await imageRepo.create(file.name, newFileName, timestamp, "images", "", hash);
+                    if (dbResults) {
                         await mainFileRepo.addFile(newFileName, buffer);
                     }
                 } catch (error) {
                     console.log(error);
                 }
-                
             }
-        }))
+        }));
 
         try{
             console.log("Checking for missing files")
-            await fileUtilService.missingThumbAll(imageRepo, thumbFileRepo);
+            fileUtilService.missingThumbAll(imageRepo, thumbFileRepo);
         } catch (error) {
             console.log(error);
         }
