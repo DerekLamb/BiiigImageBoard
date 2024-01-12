@@ -45,9 +45,13 @@ export const actions = {
                     const timestamp = `${Date.now().toString()}`;
                     const newFileName = `${timestamp}-${randomString}.${ext}`;
                     const hash = await fileUtilService.hashFile(buffer);
-                    const dbResults = await imageRepo.create(file.name, newFileName, timestamp, "images", "", hash);
-                    if (dbResults) {
+                    const [ base, ext ] = file.name.split('.');
+                    const timestamp = `${Date.now().toString()}`;
+                    const newFileName = `${timestamp}.${ext}`
+                    const dbResults = await imageRepo.create(file.name, newFileName, timestamp, "images", "", hash)
+                    if(dbResults){
                         await mainFileRepo.addFile(newFileName, buffer);
+                        // also create thumbnail
                     }
                 } catch (error) {
                     console.log(error);
@@ -61,6 +65,14 @@ export const actions = {
         } catch (error) {
             console.log(error);
         }
+
+        //issue in the following code, race condition causes system crash
+        // try{
+        //     console.log("Checking for missing files")
+        //     await fileUtilService.missingThumbAll(imageRepo, thumbFileRepo);
+        // } catch (error) {
+        //     console.log(error);
+        // }
         return { sucess: true, submitted: files.length };
     }
 };

@@ -45,7 +45,12 @@ class ImageFile {
     }
 
     async delete(): Promise <void>{
-        fs.unlink(`${this.dirPath}/${this.fileName}`);
+        try{
+            fs.unlink(`${this.dirPath}/${this.fileName}`);
+        }
+        catch (error) {
+            throw new Error(`Error deleting file ${this.fileName}: ${error}`)
+        }
     }
 
     async exists(): Promise<boolean> {
@@ -83,6 +88,7 @@ class FileRepository {
         this.files.set(fileName, imageFile);
         try {
             if (fileData) {
+                this.ensurePathExists();
                 await imageFile.write();
             } else {
                 console.log("File data is empty. Skipping write operation.");
@@ -129,6 +135,22 @@ class FileRepository {
         return this.files;
     }
     
+    async ensurePathExists(): Promise<boolean>{
+        try {
+            await fs.access(this.dirPath, constants.F_OK);
+            return true;
+        }
+        catch {
+            try {
+                await fs.mkdir(this.dirPath);
+                return true;
+            } catch (error) {
+                console.log(`Error creating directory ${this.dirPath}: ${error}`)
+                return false;
+            }
+        }
+    }
+
     async memAddFile(fileName: string, fileData: any){
         const imageFile = new ImageFile(fileName, fileData)
         

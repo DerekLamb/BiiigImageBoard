@@ -44,8 +44,9 @@ function copyItems() {
 
             <form method="Post" action="?/delete">
                 <button type="submit">Delete Image</button>
-                <input type="hidden" name="imageName" value="{data.image?.originalName}">
-                <input type="hidden" name="fileName" value="{data.image?.sanitizedFilename}">
+                <input type="hidden" name="originalName" value="{data.image?.originalName}">
+                <input type="hidden" name="sanitizedFilename" value="{data.image?.sanitizedFilename}">
+                <input type="hidden" name="thumbnailPath" value="{data.image?.thumbnailPath}">
             </form>
     
 
