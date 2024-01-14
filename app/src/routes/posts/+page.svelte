@@ -143,4 +143,20 @@ beforeUpdate(() => {
         color: #7bb7a2;
         transition:.2s;
     }
+
+    span{
+        font-family: 'Montserrat', sans-serif;
+        font-size: 20px;
+        margin: 5px 10px;
+        color: #808080;
+    }
+
+    select {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 17px;
+        appearance: none;
+        color: #d1d1d1;
+        background-color: #678c96;
+        border-radius: 5px;
+    }
 </style>

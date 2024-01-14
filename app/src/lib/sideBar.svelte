@@ -16,8 +16,7 @@
         display:grid;
         grid-template-rows: 40px 8fr;
         gap: 20px;
-        max-width: 250px;
-        min-width: 10%;
+        width: 235px;
         margin: 0 .5%;
     }
 

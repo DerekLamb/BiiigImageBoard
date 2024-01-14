@@ -98,12 +98,14 @@ class FileRepository {
         }
     }
 
-    async readFile(fileName: string): Promise<Buffer>{
-        let imgFileObj =  await this.files.get(fileName) ?? new ImageFile(this.dirPath, fileName);
+    async readFile(fileName: string): Promise<Buffer|void>{
+        let imgFileObj = new ImageFile(this.dirPath, fileName);
         if(await imgFileObj.exists()){
             return imgFileObj.read();
         }
-        throw new Error(`File ${fileName} not found in repository`)
+        else {
+            console.log(`cannot find file ${fileName}`)
+        }
     }
 
     async deleteFile(fileName: string, hashID?: string) {
@@ -127,7 +129,7 @@ class FileRepository {
                 this.files.set(item, new ImageFile(item, ""))
             }
         });
-        return this.files;
+        return dirFiles;
     }
 
     async safeUpdateFiles() {

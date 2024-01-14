@@ -1,8 +1,9 @@
 <script>
     import Tag from "./tag.svelte";
     export let tags  = ["test","test", "test"];
-    export let imageID = ''
+    export let imageID = '';
     export let editable = true;
+    //export let embPrompt = [];
     let editing = false;
 
     function handleKeyDown(event) {
@@ -40,8 +41,6 @@
     }
 
 </script>
-
-
     <div class="TagSection">
         <h3>Tags</h3>
             <div class="tagsContainer">
@@ -58,15 +57,27 @@
         {#if editable}   
             <button on:click = {() => {editing = !editing;}}>Edit</button>
         {/if}
+
+        <!-- {#if embPrompt}
+            <h3>Embedded Prompt</h3>
+            <div class="tagsContainer">
+                <ul>
+                    {#each embPrompt as tag }
+                        <Tag tag = {tag} edit = {false} on:message = {handleDeleteTag} ></Tag>
+                    {/each}
+                </ul>
+            </div>
+        {/if} -->
     </div>
     
 <style>
     .TagSection{
         display: grid;
-        grid-template-rows: 2rem 2fr 1.5rem 1.5rem 1.5rem 1fr;
+        grid-template-rows: 2rem minmax(120px, auto) 1.5rem 1.5rem 1.5rem 1fr;
         background-color: #FFFFFF;
         border-radius: 15px;
         justify-content: center;
+        width: 230px;
     }
 
     .TagSection h3{
@@ -77,10 +88,9 @@
 
     ul{
         width: inherit;
-        box-sizing: border-box; 
         display:flex;
         flex-direction: column;
-        align-items: stretch;
+        height:auto;
         padding: 0px;
         margin: 2px;
     }
@@ -88,19 +98,31 @@
     .tagsContainer{
         display:flex;
         flex-direction: column;
-        align-items: stretch;
+        align-items: start;
     }
 
     .tagInput{
-        font-size:16px;
-        width:85%;
+        font-size:18px;
+        width: 190px;
         font-family: 'Montserrat', sans-serif;
-        background: #b4e7d6;
+        background: #E06C75;
         outline: none;
         border: none;
         border-radius: 6px;
-        padding-left: 5%;
-        margin-left: 5%;
+        padding-left: 10px;
+        margin: 0 20px 10px 10px;
+    }
+    
+    button{
+        font-size:16px;
+        font-family: 'Montserrat', sans-serif;
+        color:#fafafa;
+        background: #7c3036;
+        outline: none;
+        border: none;
+        border-radius: 6px;
+        width:200px;
+        margin: 0 20px 0 10px;
     }
     
 </style>
