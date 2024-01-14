@@ -1,5 +1,5 @@
-import type {FileRepository} from "$lib/fileService";
-import {mainFileRepo} from "$lib/fileService";
+import type { FileRepository } from "$lib/fileService";
+import { mainFileRepo } from "$lib/fileService";
 import type { ImageRepository } from "./imageRepository";
 
 import sharp from 'sharp';
@@ -50,6 +50,7 @@ class fileUtiltyService {
         if(fileData){
             const prompt = promptDecode(fileData);
             if(prompt){
+                console.log(prompt);
                 return prompt;
             }
         }
@@ -77,12 +78,12 @@ class fileUtiltyService {
 
     } 
 
-    async checkAllFiles(imageRepository: ImageRepository){
+    async compareDBToDir(imageRepository: ImageRepository){ // trues up database and image directory
         const filelist = await this.fileServiceObj.updateFiles()
         const dblist = await imageRepository.get();
         
         const dbFileNames = dblist.map((document) => document.sanitizedFilename);
-        const dirFileNames = Array.from(filelist.keys());
+        const dirFileNames = filelist;
 
         const missingFiles = dbFileNames.filter( file => !dirFileNames.includes(file));
         const missingDBRecord = dirFileNames.filter( file => !dbFileNames.includes(file));
@@ -90,7 +91,6 @@ class fileUtiltyService {
     }
 
     async missingThumbAll(imageRepository: ImageRepository, thumbFileRepo: FileRepository){
-        //const filelist = await this.fileServiceObj.updateFiles();
         const results = await imageRepository.get({ $or: [{thumbnailPath: {$exists:null}}, {thumbnailPath: ""}]});
         
         Promise.all(results.map( async (image) => {
@@ -102,6 +102,20 @@ class fileUtiltyService {
             if(thumb[1] && image._id) {
                 thumbFileRepo.addFile(thumb[0], thumb[1]);
                 imageRepository.update(image._id.toString(), {thumbnailPath: `thumb/${thumb[0]}`});
+            }
+        }))
+    }
+
+    async extractPromptAll(imageRepository: ImageRepository){
+        const results = await imageRepository.get({ $or: [{prompt: {$exists:null}}, {prompt: ""}]});
+        Promise.all(results.map( async (image) => {
+            const extractedData = await this.extractPrompt(image.sanitizedFilename);
+            if(extractedData && image._id) {
+                console.log(`Prompt found for ${image.sanitizedFilename}`)
+                imageRepository.update(image._id.toString(), {embPrompt: extractedData.prompt});
+            }
+            else { 
+                console.log(`No prompt found for ${image.sanitizedFilename}`)
             }
         }))
     }

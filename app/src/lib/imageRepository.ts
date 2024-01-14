@@ -13,7 +13,7 @@ interface ImageData {
     thumbnailPath: string | null;
     embPrompts: string[] | null;
     tags: string[] | null;
-    embPrompt?: string[] | null;
+    embPrompt?: string[][] | null;
     related?: string[] | null;
 }
 

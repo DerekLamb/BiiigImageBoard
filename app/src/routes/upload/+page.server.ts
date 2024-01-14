@@ -41,17 +41,13 @@ export const actions = {
                 try {
                     const randomString = uuidv4().replace(/-/g, '').substring(0,8);
                     const buffer = Buffer.from(await file.arrayBuffer());
-                    const [base, ext] = file.name.split('.');
-                    const timestamp = `${Date.now().toString()}`;
-                    const newFileName = `${timestamp}-${randomString}.${ext}`;
                     const hash = await fileUtilService.hashFile(buffer);
                     const [ base, ext ] = file.name.split('.');
-                    const timestamp = `${Date.now().toString()}`;
-                    const newFileName = `${timestamp}.${ext}`
+                    const timestamp = `${Date.now().toString()} - ${randomString}`;
+                    const newFileName = `${timestamp}.${ext}`;
                     const dbResults = await imageRepo.create(file.name, newFileName, timestamp, "images", "", hash)
                     if(dbResults){
                         await mainFileRepo.addFile(newFileName, buffer);
-                        // also create thumbnail
                     }
                 } catch (error) {
                     console.log(error);
@@ -61,18 +57,13 @@ export const actions = {
 
         try{
             console.log("Checking for missing files")
+            console.log( await fileUtilService.compareDBToDir(imageRepo));
             fileUtilService.missingThumbAll(imageRepo, thumbFileRepo);
+            fileUtilService.extractPromptAll(imageRepo);
         } catch (error) {
             console.log(error);
         }
 
-        //issue in the following code, race condition causes system crash
-        // try{
-        //     console.log("Checking for missing files")
-        //     await fileUtilService.missingThumbAll(imageRepo, thumbFileRepo);
-        // } catch (error) {
-        //     console.log(error);
-        // }
         return { sucess: true, submitted: files.length };
     }
 };
