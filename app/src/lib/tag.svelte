@@ -36,9 +36,9 @@
         font-size: 20px;
         list-style: none;
         border-radius: 6px;
-        margin: 0 50px 5px 20px;
+        margin: 0 20px 5px 10px;
         background-color: #E06C75;
-
+        width:200px;
     }
     .tag:hover{ 
         color: #725e5e;
@@ -71,7 +71,7 @@
     }
     .tag-close-icon { 
         display:inline;
-        background-color: #b4e7d6;
+        background-color: #00000000;
         color: #162524;
         border: none;
         cursor: pointer;

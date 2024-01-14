@@ -10,7 +10,7 @@ import { redirect } from "@sveltejs/kit";
 /** @type {import('./$types').PageData} */ 
 export let data;
 let tags = (data.image?.tags) ? data.image.tags : [];
-let embPrompt =  ["need", "to", "add", "to", "DB", "schema"];
+let embPrompt = (data.image?.embPrompt) ? data.image.embPrompt : [];
 
 function copyItems() {
       const copyText = embPrompt.join(",");
@@ -21,14 +21,14 @@ function copyItems() {
 <div class = midContainer>
     <SideBar>
         <SearchBar></SearchBar>
-        <TagSection editable = {true} tags = {tags} imageID = {data.image?.uploadDate}></TagSection>
+        <TagSection editable = {true} imageID = {data.image?.uploadDate}></TagSection>
     </SideBar>
     <div class="imageWindow">
         <Image src = "../../{data.image?.imagePath}" imageName={data.image?.originalName} link = "/{data.image?.imagePath}"></Image>
         <div class="imageInfo">
-            <p><span>ImageName: </span>{data.image?.originalName}</p>
+            <p><span>Image Name: </span>{data.image?.originalName}</p>
             <p><span>Filename: </span>{data.image?.sanitizedFilename}</p>
-            <p><span>FileLocation: </span>{data.image?.imagePath}</p>
+            <p><span>File Location: </span>{data.image?.imagePath}</p>
             {#if embPrompt.length != 0}
                 <div>embeddedPrompt:
                     <p>

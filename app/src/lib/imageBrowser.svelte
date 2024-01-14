@@ -2,9 +2,7 @@
 <script>
 import Image from "./image.svelte";
 
-export let images = [{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1},{test:-1}];
-// export let images
-// structure is [{imgdata: xx, imgname: xx, imgthumb: xx, imgpage: xx}, ...]
+export let images = [];
 
 </script>
 
