@@ -12,6 +12,8 @@ export let data;
 
 let nextPage = null;
 let prevPage = null;
+let firstPage = null;
+let lastPage = null;
 const sizes = [100,150,200,300,400,500];
 // let selectedNumImages = 24;
 const numImages = [24,32,48,60,72,84,96];
@@ -27,8 +29,11 @@ function reloadPage() {
 
 const calculatePages = () => {
     const numImageParam = ($imageCount === 24) ? "" : `&len=${$imageCount}`;
+    
     nextPage = (data.currPage > 1) ? `/posts?page=${data.currPage - 1}${numImageParam}` : null;
     prevPage = (data.currPage < data.pageNum) ? `/posts?page=${data.currPage + 1}${numImageParam}` : null;
+    firstPage = `/posts?page=1${numImageParam}`;
+    lastPage = `/posts?page=${data.pageNum}${numImageParam}`;
   }
 
 onMount(() => {
@@ -78,8 +83,10 @@ beforeUpdate(() => {
         {/each}
         </div>
         <div class = "pgnumCont">
+            <a href={firstPage} class="pageNum">&lt&lt&sol</a>
             <a href={nextPage} class="pageNum">&lt&lt&lt</a>
             <a href={prevPage} class="pageNum">&gt&gt&gt</a>
+            <a href={lastPage} class="pageNum">&lt&lt&sol</a>
         </div>
     </div>
         
