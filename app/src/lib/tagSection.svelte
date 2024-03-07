@@ -10,7 +10,7 @@
     if (event.key === "Enter") {
         const newTag = event.target.value.trim();
         if (newTag !== "") {
-            tags = [...tags, newTag];
+            tags = tags ? [...tags, newTag] : [newTag];
             sendTagsToBackend();
             event.target.value = "";
             }
@@ -24,7 +24,7 @@
 
     async function sendTagsToBackend() {
     try {
-      const response = await fetch(`/api/tags?image_id=${imageID}`, {
+      const response = await fetch(`/api/tags`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tags : tags , imageID: imageID})
@@ -45,9 +45,13 @@
         <h3>Tags</h3>
             <div class="tagsContainer">
             <ul>
-                {#each tags as tag }
-                    <Tag tag = {tag} edit = {editing} on:message = {handleDeleteTag} ></Tag>
-                {/each}
+                {#if tags}
+                    {#each tags as tag }
+                        <Tag tag = {tag} edit = {editing} on:message = {handleDeleteTag} ></Tag>
+                    {/each}
+                {:else}
+                    <p>No tags...</p>
+                {/if}      
             </ul>
             {#if editing}
                 <input class = "tagInput" id="tagInput" type="text" placeholder="Type tag here" on:keydown = {handleKeyDown} autofocus>

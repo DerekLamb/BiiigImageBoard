@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import { improvImageSize, imageCount } from "$lib/stores/searchStore";
 import Image from "$lib/image.svelte";
 import TagSection from "$lib/tagSection.svelte";
@@ -14,35 +14,49 @@ let nextPage = null;
 let prevPage = null;
 let firstPage = null;
 let lastPage = null;
-const sizes = [100,150,200,300,400,500];
-// let selectedNumImages = 24;
-const numImages = [24,32,48,60,72,84,96];
+const sizes = [100, 150, 200, 300, 400, 500];
+const numImages = [24, 32, 48, 60, 72, 84, 96];
 
-function handleSizeChange(){
+function handleSizeChange() {
     improvImageSize.set(selectedSize);
 }
 
-function reloadPage() {
-    const numImageParam = ($imageCount === 24) ? "" : `&len=${$imageCount}`;
-    goto(`/posts?page=${data.currPage}${numImageParam}`);
+function reloadCurrPage() {
+    const numImageParam = $imageCount === 24 ? "" : `&len=${$imageCount}`;
+    const url = new URL(window.location.href);
+    url.searchParams.set("page", data.currPage.toString());
+    url.searchParams.set("numImages", $imageCount.toString());
+    goto(url.toString());
 }
 
 const calculatePages = () => {
-    const numImageParam = ($imageCount === 24) ? "" : `&len=${$imageCount}`;
-    
-    nextPage = (data.currPage > 1) ? `/posts?page=${data.currPage - 1}${numImageParam}` : null;
-    prevPage = (data.currPage < data.pageNum) ? `/posts?page=${data.currPage + 1}${numImageParam}` : null;
-    firstPage = `/posts?page=1${numImageParam}`;
-    lastPage = `/posts?page=${data.pageNum}${numImageParam}`;
-  }
+    if ($imageCount !== 24) {
+        reloadCurrPage();
+    }
+    const numImageParam = $imageCount === 24 ? "" : `&len=${$imageCount}`;
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("numImages", $imageCount.toString());
+
+    nextPage =
+        data.currPage > 1
+            ? `${url.pathname}?page=${data.currPage - 1}${numImageParam}`
+            : null;
+    prevPage =
+        data.currPage < data.pageNum
+            ? `${url.pathname}?page=${data.currPage + 1}${numImageParam}`
+            : null;
+    firstPage = `${url.pathname}?page=1${numImageParam}`;
+    lastPage = `${url.pathname}?page=${data.pageNum}${numImageParam}`;
+};
 
 onMount(() => {
     calculatePages();
-    });
+});
 
 beforeUpdate(() => {
     calculatePages();
-    });
+});
 
 </script>
 
@@ -53,8 +67,10 @@ beforeUpdate(() => {
     </SideBar>
     <div class = "imageBrowser">
         <div class = "pgnumCont">
+            <a href={firstPage} class="pageNum">&lt&lt/</a>
             <a href={nextPage} class="pageNum">&lt&lt&lt</a>
             <a href={prevPage} class="pageNum">&gt&gt&gt</a>
+            <a href={lastPage} class="pageNum">\&gt&gt</a>
         </div>
         <span> Image Size:
             <select bind:value={$improvImageSize} on:change={handleSizeChange}>
@@ -64,7 +80,7 @@ beforeUpdate(() => {
             </select>
         </span>
         <span> # of Images:
-            <select bind:value={$imageCount} on:change={reloadPage}>
+            <select bind:value={$imageCount} on:change={reloadCurrPage}>
                 {#each numImages as num}
                     <option value={num}>{num}</option>
                 {/each}
@@ -83,10 +99,10 @@ beforeUpdate(() => {
         {/each}
         </div>
         <div class = "pgnumCont">
-            <a href={firstPage} class="pageNum">&lt&lt&sol</a>
+            <a href={firstPage} class="pageNum">&lt&lt/</a>
             <a href={nextPage} class="pageNum">&lt&lt&lt</a>
             <a href={prevPage} class="pageNum">&gt&gt&gt</a>
-            <a href={lastPage} class="pageNum">&lt&lt&sol</a>
+            <a href={lastPage} class="pageNum">\&gt&gt</a>
         </div>
     </div>
         
@@ -135,7 +151,6 @@ beforeUpdate(() => {
         text-decoration: none;
         margin: .2em;
         color: #808080;
-
     }
 
     .pageNum:link{
