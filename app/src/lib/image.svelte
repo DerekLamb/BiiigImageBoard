@@ -28,12 +28,12 @@
 
     .container {
         width: 100%; 
-        padding: 10px;
+        padding: 8px;
         box-sizing: border-box;
         display:flex;
         flex-direction: column;
-        border-radius:10px;
-        background-color: #923c3c;
+        border-radius: 12px;
+        background-color: #21344e;
         color: white;
     }
 
@@ -49,6 +49,7 @@
         width: 100%; /* Makes the image responsive, scales with the width of the parent */
         height: auto; /* Keeps the image aspect ratio */
         object-fit: cover;
+        border-radius: 4px;
     }
 
     .container span {

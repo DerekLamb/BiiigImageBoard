@@ -8,7 +8,7 @@ import type { PageServerLoad } from './$types';
 export const load = (async ({ url }) => {
     const { searchParams } = url;
     const pageNum : number = parseInt(searchParams.get('page') as string) || 1;
-
+    const searchTerm : string = searchParams.get('search') as string || '';
     const currPage = Math.max(pageNum, 1);
 
     let lengthNum = parseInt(searchParams.get('len') as string);
@@ -16,7 +16,7 @@ export const load = (async ({ url }) => {
         lengthNum = 24; 
     }
 
-    const images = await imageRepo.getPage(currPage, lengthNum);
+    const images = await imageRepo.getPage(currPage, lengthNum, [searchTerm]);
 
     const pageLength = lengthNum || 24;
 
@@ -31,5 +31,6 @@ export const load = (async ({ url }) => {
         pageNum: numPages,
         currPage: currPage,
         len: lengthNum,
+        searchTerm: searchTerm
     }
 }) satisfies PageServerLoad;

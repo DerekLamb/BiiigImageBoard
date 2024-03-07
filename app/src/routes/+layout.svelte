@@ -19,18 +19,18 @@
 
 <style>
     :global(body){
-        background-color:#1C1C1C;
+        background-color:#EFEFEF;
         height:100%;
     }
     h1{
         margin: 20px 140px;
         font-family: 'Orbitron', sans-serif;
-        color:#FAFAFA;
+        color:#7BAFD4;
     }
     h3{
         margin: 0px 180px 10px;
         font-family: 'Orbitron', sans-serif;
-        color:#78909C;
+        color:#345D7E;
     }
     .mainFlex{
         display:flex;

@@ -83,6 +83,10 @@ class ImageRepository {
         await this.collection.updateOne({ _id: new ObjectId(id) }, {$set: imageData });
     }
 
+    async updateByTimestamp(timestamp: string, imageData: Partial<ImageData>): Promise<void> { // may need to recheck this... 
+        await this.collection.updateOne({ uploadDate: timestamp}, {$set: imageData });
+    }
+
     async deleteFilename(filename: string){
         return this.collection.deleteOne({sanitizedFilename: filename})
     }

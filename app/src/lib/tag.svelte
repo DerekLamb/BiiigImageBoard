@@ -37,12 +37,12 @@
         list-style: none;
         border-radius: 6px;
         margin: 0 20px 5px 10px;
-        background-color: #E06C75;
+        background-color: #FFAB73;
         width:200px;
     }
     .tag:hover{ 
         color: #725e5e;
-        background-color:#ff6666;
+        background-color:#fab689;
         transition: .2s;
     }
 

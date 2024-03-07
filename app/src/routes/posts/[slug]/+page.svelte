@@ -21,7 +21,7 @@ function copyItems() {
 <div class = midContainer>
     <SideBar>
         <SearchBar></SearchBar>
-        <TagSection editable = {true} imageID = {data.image?.uploadDate}></TagSection>
+        <TagSection editable = {true} imageID = {data.image?.uploadDate} tags = {tags}></TagSection>
     </SideBar>
     <div class="imageWindow">
         <Image src = "../../{data.image?.imagePath}" imageName={data.image?.originalName} link = "/{data.image?.imagePath}"></Image>
@@ -80,9 +80,9 @@ function copyItems() {
     }
     .imageWindow{
         background-color: #9ac7d6;
-        border: 2px solid #65ccc744;
+
         border-radius: 8px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.205);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.205);
         display:flex;
         flex-wrap:wrap;
         flex-grow: 1;
