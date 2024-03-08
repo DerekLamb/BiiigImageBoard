@@ -15,9 +15,9 @@
 
 <li class = "tag">
     {#if !edit}
-    <span class = 'span-minus'><a href="{tag}">-</a></span>   
+    <span class = 'span-minus'><a href="/posts?search=-{tag}">-</a></span>   
     {/if}
-    <span class = 'tag-title'><a href="{tag}">{tag}</a></span>   
+    <span class = 'tag-title'><a href="/posts?search={tag}">{tag}</a></span>   
     {#if edit}
     <div class = 'delete-flex'>
         <button class = 'tag-close-icon' on:click={deleteTagMessage}>x</button>

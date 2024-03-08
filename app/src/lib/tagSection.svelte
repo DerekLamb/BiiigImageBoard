@@ -8,7 +8,8 @@
 
     function handleKeyDown(event) {
     if (event.key === "Enter") {
-        const newTag = event.target.value.trim();
+        const newTag = event.target.value.trim().replace(" ", "_");
+
         if (newTag !== "") {
             tags = tags ? [...tags, newTag] : [newTag];
             sendTagsToBackend();
