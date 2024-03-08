@@ -43,7 +43,7 @@ export const actions = {
                     const buffer = Buffer.from(await file.arrayBuffer());
                     const hash = await fileUtilService.hashFile(buffer);
                     const [ base, ext ] = file.name.split('.');
-                    const timestamp = `${Date.now().toString()} - ${randomString}`;
+                    const timestamp = `${Date.now().toString()}-${randomString}`;
                     const newFileName = `${timestamp}.${ext}`;
                     const dbResults = await imageRepo.create(file.name, newFileName, timestamp, "images", "", hash)
                     if(dbResults){

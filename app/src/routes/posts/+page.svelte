@@ -25,7 +25,7 @@ function reloadCurrPage() {
     const numImageParam = $imageCount === 24 ? "" : `&len=${$imageCount}`;
     const url = new URL(window.location.href);
     url.searchParams.set("page", data.currPage.toString());
-    url.searchParams.set("numImages", $imageCount.toString());
+    url.searchParams.set("len", $imageCount.toString());
     goto(url.toString());
 }
 
