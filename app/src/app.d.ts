@@ -4,9 +4,10 @@
 declare namespace App {
 	// interface Error {}
 	interface Locals {
-		user: import("lucia").User | null;
-		session: import("lucia").Session | null;
+		user: import("lucia").User;
+		session: import("lucia").Session;
 	}
+
 	// interface PageData {}
 	// interface Platform {}
 }

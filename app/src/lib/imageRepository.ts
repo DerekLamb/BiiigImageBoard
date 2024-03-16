@@ -1,5 +1,5 @@
 import { ObjectId, Collection, type WithId } from "mongodb"
-import db from '$lib/db'
+import { db } from '$lib/db'
 import txtToSearchParam from "./SearchTxtToFilter";
 import type Image from "./image.svelte";
 
@@ -15,6 +15,8 @@ interface ImageData {
     tags: string[] | null;
     embPrompt?: string[][] | null;
     related?: string[] | null;
+    favorite?: string[] | null;
+    hidden?: string[] | null;
 }
 
 class ImageRepository {

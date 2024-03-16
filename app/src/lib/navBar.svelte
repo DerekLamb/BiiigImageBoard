@@ -7,6 +7,7 @@
     <li><a href="/upload">Upload</a></li>
     <li><a href="/tags">Tags</a></li>
     <li><a href="/config">Config</a></li>
+    <li><a href="/login">Login</a></li>
     <li><a href="/">Home</a></li>
 </ul>
 <style>
