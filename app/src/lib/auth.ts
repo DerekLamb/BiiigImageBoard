@@ -1,18 +1,17 @@
 import { Lucia, type Adapter } from 'lucia';
+import { db } from '$lib/db';
 import { MongodbAdapter } from '@lucia-auth/adapter-mongodb';
-import { Collection, MongoClient } from 'mongodb';
+import type { Collection, ObjectId } from 'mongodb';
 
-const client = new MongoClient('mongodb://localhost:27017');
-await client.connect();
-
-export const db = client.db();
-const User = db.collection('users') as Collection<UserDoc>;
-const Session = db.collection('sessions') as Collection<SessionDoc>;
+export const User = db.collection('users') as Collection<UserDoc>;
+export const Session = db.collection('sessions') as Collection<SessionDoc>;
 
 const adapter = new MongodbAdapter(Session, User) as MongodbAdapter;
 
 interface UserDoc {
-    _id: string;
+    _id: ObjectId;
+    username?: string;
+    password?: string;
 }
 
 interface SessionDoc {
