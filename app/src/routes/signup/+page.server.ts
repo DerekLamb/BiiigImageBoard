@@ -1,5 +1,4 @@
-import { lucia, db } from "$lib/auth";
-import { ObjectId } from "mongodb";
+import { lucia, User } from "$lib/auth";
 import { fail, redirect } from "@sveltejs/kit";
 import { generateId } from "lucia";
 import { Argon2id } from "oslo/password";
@@ -33,7 +32,7 @@ export const actions = {
 
 		const userId = generateId(15);
 		const hashedPassword = await new Argon2id().hash(password);
-        await db.collection("users").insertOne({ username: username, password: hashedPassword });
+        await User.insertOne({ username: username, password: hashedPassword });
 
         const session = await lucia.createSession(userId, {});
         const sessionCookie = lucia.createSessionCookie(session.id);

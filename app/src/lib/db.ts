@@ -7,4 +7,4 @@ const client = new MongoClient(DB_URI)
 
 await client.connect()
 
-export default client.db(dbName) //select database
+export const db = client.db(dbName)
