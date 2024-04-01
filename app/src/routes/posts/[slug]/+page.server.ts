@@ -1,6 +1,6 @@
 import { imageRepo } from '$lib/imageRepository';
 import { mainFileRepo, thumbFileRepo } from '$lib/fileService';
-import db from '$lib/db';
+import { db } from '$lib/db';
 import fs from "fs";
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
@@ -39,7 +39,7 @@ export const actions = {
         throw redirect(303,"/posts");
     },
 
-    update: async ({ request }) => {
+    update: async ({ request }) => {  // may not be using any more... TODO 
         const data = await request.json();
         const genName = data.genName;
         const tags = data.tags;

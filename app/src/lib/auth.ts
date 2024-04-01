@@ -1,7 +1,7 @@
 import { Lucia, type Adapter } from 'lucia';
 import { db } from '$lib/db';
 import { MongodbAdapter } from '@lucia-auth/adapter-mongodb';
-import type { Collection, ObjectId } from 'mongodb';
+import type { Collection } from 'mongodb';
 
 export const User = db.collection('users') as Collection<UserDoc>;
 export const Session = db.collection('sessions') as Collection<SessionDoc>;
@@ -9,9 +9,7 @@ export const Session = db.collection('sessions') as Collection<SessionDoc>;
 const adapter = new MongodbAdapter(Session, User) as MongodbAdapter;
 
 interface UserDoc {
-    _id: ObjectId;
-    username?: string;
-    password?: string;
+    _id: string;
 }
 
 interface SessionDoc {
@@ -23,7 +21,7 @@ interface SessionDoc {
 export const lucia = new Lucia( adapter, {
     sessionCookie: {
         attributes: {
-            secure: false
+            secure: false // need to add dev env check instead TODO
         }
     }
 });
