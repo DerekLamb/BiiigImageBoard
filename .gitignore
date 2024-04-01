@@ -16,3 +16,6 @@
 /mongodb/*
 app/.svelte-kit/ambient.d.ts
 app/.env
+package-lock.json
+vite.config.js
+app/package-lock.json
