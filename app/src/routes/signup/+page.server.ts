@@ -23,11 +23,10 @@ export const actions = {
             return fail(400, { error: "Invalid username or password" });
 
         }
-        if (typeof password !== "string" || password.length < 6 || password.length > 255) {
-            console.log("Got here");
-			return fail(400, {
-				error: "Invalid password"
-			});
+        if (typeof password !== "string" || 
+            password.length < 6 || 
+            password.length > 255) {
+			return fail(400, { error: "Invalid password" });//update to display password requirements
         }
 
 		const userId = generateId(15);
