@@ -43,7 +43,7 @@ export const actions = {
 
         console.log("User created and logged in");
 
-        redirect(302, "/");
+        throw redirect(302, "/");
 
         
     }

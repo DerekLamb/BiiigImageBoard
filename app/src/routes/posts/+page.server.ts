@@ -1,11 +1,17 @@
 import { page } from '$app/stores';
 import { db } from '$lib/db';
 import { imageRepo } from '$lib/imageRepository';
+import { redirect } from '@sveltejs/kit';
 
 
 import type { PageServerLoad } from './$types';
 
-export const load = (async ({ url }) => {
+export const load = (async ({ url, locals}) => {
+    if (!locals.user) {
+        console.log("no user");
+        throw redirect(307, '/login');
+    }
+
     const { searchParams } = url;
     const pageNum : number = parseInt(searchParams.get('page') as string) || 1;
     const searchTerm : string = searchParams.get('search') as string || '';

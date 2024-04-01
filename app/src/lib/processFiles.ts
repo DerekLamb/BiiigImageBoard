@@ -1,5 +1,5 @@
 import fs from "fs";
-import db from "$lib/db";
+import { db } from "$lib/db";
 import {ObjectId} from 'mongodb';
 import promptDecode from "$lib/ExtractPrompt";
 import sharp from "sharp";
