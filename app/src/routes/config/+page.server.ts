@@ -1,8 +1,21 @@
 import { embPromptGrab } from "$lib/processFiles";
-import db from "$lib/db";
 import { trusted } from "svelte/internal";
+import { redirect } from "@sveltejs/kit";
 
 /** @type {import('./$types').Actions} */
+
+
+export const load = async (event) => {
+    if(!event.locals.user){
+        throw redirect(307, '/login');
+    }
+    if(event.locals.user.username !== "admin"){
+        // handle here
+    }
+    return{
+        username: event.locals.user.username
+    }
+}
 
 export const actions = {
 

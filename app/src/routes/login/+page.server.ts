@@ -2,7 +2,6 @@ import { lucia } from "$lib/auth";
 import { fail, redirect } from "@sveltejs/kit";
 import { Argon2id } from "oslo/password";
 import { db } from "$lib/db";
-import type { User } from "lucia";
 
 //import type { Actions } from "./$types";
 

@@ -154,11 +154,11 @@ beforeUpdate(() => {
     }
 
     .pageNum:link{
-        color: #808080;
+        color: #345D7E;
     }
 
     .pageNum:visited{
-        color: #808080;
+        color: #345D7E;
     }
 
     .pageNum:hover{
@@ -170,15 +170,15 @@ beforeUpdate(() => {
         font-family: 'Montserrat', sans-serif;
         font-size: 20px;
         margin: 5px 10px;
-        color: #808080;
+        color: #5b5b5b;
     }
 
     select {
         font-family: 'Montserrat', sans-serif;
         font-size: 17px;
         appearance: none;
-        color: #d1d1d1;
-        background-color: #678c96;
-        border-radius: 5px;
+        color: #345D7E;
+        background-color: #ffe4ed;
+        border-radius: 7px;
     }
 </style>
