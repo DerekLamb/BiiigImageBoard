@@ -12,7 +12,7 @@ import Tagbar from "$lib/tagbar.svelte"
     <div class="Home">
         <h3>biiig image board</h3>
         <SearchBar></SearchBar>
-        <div class="placeholder"> Placeholder for carousel</div>
+
     </div>
 </div>
 
@@ -47,6 +47,6 @@ import Tagbar from "$lib/tagbar.svelte"
         font-size: 57px;
         margin: 0px 180px 10px;
         font-family: 'Orbitron', sans-serif;
-        color:#FAFAFA;
+        color:#ffecef;
     }
 </style>
