@@ -19,3 +19,4 @@ app/.env
 package-lock.json
 vite.config.js
 app/package-lock.json
+app/.svelte-kit/ambient.d.ts

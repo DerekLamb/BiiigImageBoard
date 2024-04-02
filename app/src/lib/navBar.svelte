@@ -44,7 +44,7 @@
             color: #ffffff;
         }
         100% {
-            color: #B0E0E6
+            color: #8dd4b8
         }
     }
 

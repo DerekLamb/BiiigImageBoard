@@ -19,7 +19,7 @@
 
 <style>
     :global(body){
-        background-color:#EFEFEF;
+        background-color:#ffecef;
         height:100%;
     }
     h1{

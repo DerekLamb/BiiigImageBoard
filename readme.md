@@ -12,25 +12,20 @@ A web image board for users to upload and tag images designed to be easily deplo
 
 ## Planning
 ### done ✔️
-- basic server and client side built
-- image storage and viewing
-- Stable diffusion prompt extraction
-- Prompt and tag searching
-
-### barebones :heavy_check_mark:
-- server side and client side
-- focus on ease of use (docker) 
-- image storage and viewing
-- Stable Diffusion prompt extraction (Automatic1111 format)
+- Basic server and client side built
+- Image storage and viewing
+- Automatic1111 prompt extraction
+- Basic prompt and tag searching
 
 ### TODO 
 - Add image display options (full size, fill screen size, etc...)
-- tags, and search function
+- improved search function
 - efficient management of images (mass deletion and tagging)
-- login and user system
+- login and user system (in progress)
+- Develop/implement a security model
 
 ### future ideas
-- Tight integration with Automatic1111? 
-- File management features (dropbuckets and like) 
-- Multimode installation(Hosted standalone, AWS S3 distributed front end?)
+- Tight integration with Automatic1111? (Not focus anymore)
+- File management features (dropbucket?) 
+- Multimode installation (Hosted standalone or AWS S3 distributed with front end?) 
 

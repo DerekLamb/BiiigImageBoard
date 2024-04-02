@@ -30,7 +30,7 @@
         flex-direction: row;
         align-items: center;
         border-radius:25px;
-        background: #FFFFFF;
+        background: #ffecef;
     }
 
     #searchQueryInput {
