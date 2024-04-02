@@ -5,12 +5,19 @@ import type { Collection } from 'mongodb';
 
 
 export const User = db.collection('users') as Collection<UserDoc>;
-export const Session = db.collection('sessions');
+export const Session = db.collection('sessions') as Collection<Session>;
 
 const adapter = new MongodbAdapter(db.collection('sessions'), User);
 
-interface UserDoc {
+interface DatabaseUserAttributes {
+    username: string;
+    passwordHash: string;
+
+}
+interface UserDoc { //extends DatabaseUserAttributes 
 	_id: string;
+    username: string;
+    passwordHash: string;
 }
 
 interface Session {
@@ -41,7 +48,5 @@ declare module 'lucia' {
     }
 }
 
-interface DatabaseUserAttributes {
-    username: string;
-}
+
 

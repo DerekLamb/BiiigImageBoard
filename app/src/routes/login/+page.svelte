@@ -1,26 +1,18 @@
 <script>
-    //import { enhance } from '$app/forms';
-    let username = '';
-    let password = '';
+    import { enhance } from '$app/forms';
 
-    function handleLogin() {
-        // Add your login logic here
-        console.log('Logging in...');
-        console.log('Username:', username);
-        console.log('Password:', password);
-    }
 </script>
 
 <main>
     <h1>Login</h1>
-    <form on:submit|preventDefault={handleLogin}>
+    <form method="post" use:enhance>
         <label>
             Username:
-            <input type="text" bind:value={username} />
+            <input type="text" name="username" id="username" />
         </label>
         <label>
             Password:
-            <input type="password" bind:value={password} />
+            <input type="password" name= "password" id="password" />
         </label>
         <button type="submit">Login</button>
     </form>
