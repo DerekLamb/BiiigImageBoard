@@ -7,6 +7,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     if(!sessionId){
         event.locals.user = null;
         event.locals.session = null;
+        console.log("No session id");
         return resolve(event);
     }
 
@@ -31,5 +32,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     event.locals.user = user;
     event.locals.session = session;
+    console.log("Session validated");
+    console.log(user, session);
     return resolve(event);
 }
