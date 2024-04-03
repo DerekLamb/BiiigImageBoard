@@ -1,5 +1,5 @@
 FROM node:latest
-WORKDIR /playhere
+WORKDIR /biiib
 
 COPY package.json .
 
