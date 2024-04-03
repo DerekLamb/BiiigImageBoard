@@ -24,6 +24,14 @@ function copyItems() {
         <TagSection editable = {true} imageID = {data.image?.uploadDate} tags = {tags}></TagSection>
     </SideBar>
     <div class="imageWindow">
+        <div class="pageNumContainer">
+            {#if data.adjacents?.next}
+            <a href="/posts/{data.adjacents.next}" class="pageNum">&lt&lt&lt</a>
+            {/if}
+            {#if data.adjacents?.prev}
+            <a href="/posts/{data.adjacents.prev}" class="pageNum">&gt&gt&gt</a>
+            {/if}
+        </div>
         <Image src = "../../{data.image?.imagePath}" imageName={data.image?.originalName} link = "/{data.image?.imagePath}"></Image>
         <div class="imageInfo">
             <p><span>Image Name: </span>{data.image?.originalName}</p>
@@ -86,6 +94,22 @@ function copyItems() {
         display:flex;
         flex-wrap:wrap;
         flex-grow: 1;
+    }
+
+    .pageNum{
+        
+        
+        font-size: 2rem;
+        text-decoration: none;
+        margin: .2em;
+        color: #5b5b5b;
+    }
+
+    .pageNumContainer{
+        margin: 12px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
     }
 
     td {

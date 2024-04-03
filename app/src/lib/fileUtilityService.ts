@@ -60,7 +60,7 @@ class fileUtiltyService {
         let buffer: Buffer;
 
         if (typeof file === 'string') {
-            buffer = await this.fileServiceObj.readFile(file);
+            buffer = await this.fileServiceObj.readFile(file); //add safety here 
         } else if (typeof file === 'object' && file instanceof Buffer) {
             buffer = file;
         } else {
@@ -70,7 +70,7 @@ class fileUtiltyService {
         try {
             const hash = crypto.createHash('sha256');
             hash.update(buffer);
-            const fsHash = hash.digest('base64').slice(0,12);
+            const fsHash = hash.digest('hex').slice(0,24);
             return fsHash;
         } catch (error: any) {
             throw new Error('Error while hashing file: ' + error.message);

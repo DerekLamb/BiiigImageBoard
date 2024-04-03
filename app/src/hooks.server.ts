@@ -3,7 +3,6 @@ import type { Handle } from "@sveltejs/kit";
 
 export const handle: Handle = async ({ event, resolve }) => {
     const sessionId = event.cookies.get(lucia.sessionCookieName);
-    console.log(sessionId);
     if(!sessionId){
         event.locals.user = null;
         event.locals.session = null;
@@ -33,6 +32,5 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.user = user;
     event.locals.session = session;
     console.log("Session validated");
-    console.log(user, session);
     return resolve(event);
 }

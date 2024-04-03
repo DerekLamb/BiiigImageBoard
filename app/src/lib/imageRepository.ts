@@ -11,7 +11,6 @@ interface ImageData {
     imagePath: string;
     uploadDate: string;
     thumbnailPath: string | null;
-    embPrompts: string[] | null;
     tags: string[] | null;
     embPrompt?: string[][] | null;
     related?: string[] | null;
@@ -26,16 +25,40 @@ class ImageRepository {
         this.collection = db.collection(collectionName);
     }
 
+    private async getOneByField(fieldName: string, value: any): Promise<ImageData | null> {
+        const query = { [fieldName]: value };
+        return this.collection.findOne(query) as Promise<ImageData>;
+    }
+
     async getById(id: string): Promise <ImageData | null> {
-        return this.collection.findOne({ _id: new ObjectId(id) }) as Promise<ImageData>;
+        return this.getOneByField("_id", new ObjectId(id));
     }
 
     async getByFileName(fileName: string): Promise <ImageData | null> {
-        return this.collection.findOne({ sanitizedFilename: fileName }) as Promise<ImageData>;
+        return this.getOneByField("sanitizedFilename", fileName);
     }
 
     async getByTimestamp(timestamp: string): Promise <ImageData | null> {
-        return this.collection.findOne({ uploadDate: timestamp }) as Promise<ImageData>;
+        return this.getOneByField("uploadDate", timestamp);
+    }
+
+    async getAdjacentTimestamps(timestamp: string): Promise<{ prev: string | null, curr: string | null, next: string | null }> {
+        //mongodb projection for returning only the uploadDate field
+        const projection = { uploadDate: 1, _id: 0 };
+        const currImage = { uploadDate:timestamp };
+
+        const prevImage = await this.collection.findOne(
+            { uploadDate: { $lt: timestamp } },
+            { sort: { uploadDate: -1 }, projection: projection }
+          );
+
+          const nextImage = await this.collection.findOne(
+            { uploadDate: { $gt: timestamp } },
+            { projection: projection }
+          );
+          
+        console.log(prevImage, currImage, nextImage);
+        return { prev: prevImage?.uploadDate || null, curr: currImage?.uploadDate || null, next: nextImage?.uploadDate || null };
     }
 
     async get(filter = {}): Promise <ImageData[]> {
@@ -43,7 +66,7 @@ class ImageRepository {
         return this.collection.find(filter).toArray() as Promise<ImageData[]>;
     }
 
-    async getPage(currPage:number, pageLength:number, tagSearch? : string[], sort?: {}): Promise<ImageData[]> {
+    async getPage(currPage: number, pageLength: number, tagSearch?: string[], sort?: {}): Promise<ImageData[]> {
         const startInd = (currPage - 1) * pageLength;
         const imageFilter = tagSearch ? txtToSearchParam(tagSearch[0]) : {};
 
@@ -60,6 +83,7 @@ class ImageRepository {
     async create(fileName:string, sanitizedFilename:string, timestamp: string, imagePath:string, thumbPath:string, fileHash:string): Promise<string | null>{
         const tags = null;
         const embPrompts = null;
+        console.log(fileHash)
         const imageData : ImageData = {
             _id: new ObjectId(fileHash),
             originalName: fileName,
