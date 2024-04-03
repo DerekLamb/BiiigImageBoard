@@ -33,31 +33,34 @@ export const actions = {
 
     default: async ({ request }) => {
         const formdata = await request.formData(); 
-        const files = formdata.getAll("image");
-        await Promise.all(files.map(async file => {
+        const files = formdata.getAll("image") as File[];
+        const baseTimestamp = Date.now().toString();
+        await Promise.all(files.map(async (file, index) => {
             if (!(file instanceof Object) || !file.name) {
                 console.log("Error processing file attributes/data");
-            } else {
-                try {
-                    const randomString = uuidv4().replace(/-/g, '').substring(0,8);
-                    const buffer = Buffer.from(await file.arrayBuffer());
-                    const hash = await fileUtilService.hashFile(buffer);
-                    const [ base, ext ] = file.name.split('.');
-                    const timestamp = `${Date.now().toString()}-${randomString}`;
-                    const newFileName = `${timestamp}.${ext}`;
-                    const dbResults = await imageRepo.create(file.name, newFileName, timestamp, "images", "", hash)
-                    if(dbResults){
-                        await mainFileRepo.addFile(newFileName, buffer);
-                    }
-                } catch (error) {
-                    console.log(error);
+            } 
+            
+            try {
+                const buffer = Buffer.from(await file.arrayBuffer());
+                const hash = await fileUtilService.hashFile(buffer);
+                const [ base, ext ] = file.name.split('.');
+
+                const sequentialTimestamp = (parseInt(baseTimestamp) + index).toString();
+                const newFileName = `${sequentialTimestamp}.${ext}`;
+
+                const dbResults = await imageRepo.create(file.name, newFileName, sequentialTimestamp, "images", "", hash)
+                if(dbResults){
+                    await mainFileRepo.addFile(newFileName, buffer);
                 }
+            } catch (error) {
+                console.log(error);
             }
+            
         }));
 
         try{
             console.log("Checking for missing files")
-            console.log( await fileUtilService.compareDBToDir(imageRepo));
+            console.log( await fileUtilService.compareDBToDir(imageRepo) );
             fileUtilService.missingThumbAll(imageRepo, thumbFileRepo);
             fileUtilService.extractPromptAll(imageRepo);
         } catch (error) {

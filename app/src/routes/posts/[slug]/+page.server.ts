@@ -5,11 +5,16 @@ import fs from "fs";
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params, url }) => {
-    params.slug
+export const load: PageServerLoad = async ({ params, url, locals }) => {
+    if (!locals.user) {
+        console.log("no user");
+        throw redirect(307, '/login');
+    }
+
+    const adjacents = await imageRepo.getAdjacentTimestamps(params.slug);
     const image = await imageRepo.getByTimestamp(params.slug);
     delete image?._id;
-
+    
     if(!image){
         return{
             status: 200,
@@ -20,6 +25,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
     return{
         status: 200,
         image: image,
+        adjacents: adjacents
     }
 }
 

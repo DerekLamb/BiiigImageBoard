@@ -5,26 +5,22 @@ name: biiig-image-board
 services:
   biiig-image-app:
       build: ./app
-      networks:
-        - biiig-image-net
       environment:
       - DB_URI=mongodb://biiig-image-db:27017
       ports: 
       - "5173:5173"
       volumes: 
-      - ./app/images:/biiib/images # modify ./app/images to point to wanted image directory
+      - ./images:/biiib/images # modify ./app/images to point to wanted image directory
 
 
   biiig-image-db:
       image: mongo:latest
-      environment:
-        - MONGO_INITDB_ROOT_USERNAME=root
-        - MONGO_INITDB_ROOT_PASSWORD=example
+      # environment:
+        # - MONGO_INITDB_ROOT_USERNAME=root
+        # - MONGO_INITDB_ROOT_PASSWORD=example
       volumes: 
       - ./mongodb:/data/db
-      networks:
-        - biiig-image-net
 
-  networks:
-    biiig-image-net:
-      driver: bridge
+networks:
+  biiig-image-net:
+    driver: bridge
