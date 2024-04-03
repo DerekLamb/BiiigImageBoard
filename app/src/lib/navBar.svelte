@@ -10,6 +10,7 @@
     <li><a href="/login">Login</a></li>
     <li><a href="/">Home</a></li>
 </ul>
+
 <style>
 
     ul{
@@ -32,6 +33,12 @@
         text-decoration: none;
         margin:.5%;
     }
+
+    @media (max-width: 600px) {
+    .navBar {
+        display: none;
+    }}
+
     a:visited{
         color: #678c9e;
     } 
