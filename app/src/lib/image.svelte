@@ -32,8 +32,8 @@
         box-sizing: border-box;
         display:flex;
         flex-direction: column;
-        border-radius: 12px;
-        background-color: #21344e;
+        border-radius: 5px;
+        background-color: #6395a5;
         color: white;
     }
 
