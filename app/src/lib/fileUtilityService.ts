@@ -13,10 +13,18 @@ class fileUtiltyService {
         this.fileServiceObj = fileServiceObj;
     }
 
+    private async readFile(fileName: string): Promise<Buffer> {
+        try {
+            return await this.fileServiceObj.readFile(fileName) as Buffer;
+        } catch (error) {
+            throw new Error(`Error reading file ${fileName}: ${error}`);
+        }
+    }
+
     async createThumbnail(fileName: string, file?: Buffer):Promise<[string, Buffer | null]>{ //returns a tuple of [string, buffer]
         if(!file){
             try{
-                file = await this.fileServiceObj.readFile(fileName);
+                file = await this.readFile(fileName);
             } catch (error) {
                 throw new Error(`Error reading file ${fileName}: ${error}`)
             }
@@ -38,7 +46,7 @@ class fileUtiltyService {
     async extractPrompt(file: string | Buffer){
         let fileData = null;
         if(typeof file === 'string'){
-            fileData = await this.fileServiceObj.readFile(file);
+            fileData = await this.readFile(file);
         }
         else if (file instanceof Buffer){
             fileData = file;
@@ -60,7 +68,7 @@ class fileUtiltyService {
         let buffer: Buffer;
 
         if (typeof file === 'string') {
-            buffer = await this.fileServiceObj.readFile(file); //add safety here 
+            buffer = await this.readFile(file); //add safety here 
         } else if (typeof file === 'object' && file instanceof Buffer) {
             buffer = file;
         } else {
@@ -96,7 +104,7 @@ class fileUtiltyService {
         Promise.all(results.map( async (image) => {
             const thumb = await this.createThumbnail(
                 image.sanitizedFilename,
-                await this.fileServiceObj.readFile(image.sanitizedFilename)
+                await this.readFile(image.sanitizedFilename)
             );
 
             if(thumb[1] && image._id) {
