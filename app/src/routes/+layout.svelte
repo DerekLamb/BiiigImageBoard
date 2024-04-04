@@ -1,5 +1,4 @@
 <script>
-    import NavBar from "$lib/navBar.svelte";
 	import Navigation from "$lib/navigation.svelte";
 
 </script>
