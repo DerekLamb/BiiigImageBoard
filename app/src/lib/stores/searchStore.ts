@@ -26,3 +26,4 @@ export const improvSearch = createPersistentStore("search", "");
 export const improvImageSize = createPersistentStore("imageSize", 200);
 export const improvCurrPage = createPersistentStore("currPage", 1);
 export const imageCount = createPersistentStore("imageCount", 24);
+export const menuOpen = createPersistentStore("menuOpen", false);

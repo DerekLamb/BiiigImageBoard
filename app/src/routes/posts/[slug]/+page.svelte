@@ -76,12 +76,11 @@ function copyItems() {
 
     .midContainer{
         display:grid;
-        gap:40px;
+        gap:60px;
         height:100%;
         align-self: stretch;
     }
     @media (min-width:960px) {
-
         .midContainer{
             grid-template-columns: 200px 1fr;
         }
@@ -97,8 +96,6 @@ function copyItems() {
     }
 
     .pageNum{
-        
-        
         font-size: 2rem;
         text-decoration: none;
         margin: .2em;
@@ -106,10 +103,20 @@ function copyItems() {
     }
 
     .pageNumContainer{
-        margin: 12px;
+        margin: 2 12px;
         width: 100%;
         display: flex;
         justify-content: space-between;
+    }
+
+    @media (max-width: 768px){
+        .pageNum{
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        .pageNumContainer{
+            margin: 2px 12px;
+        }
     }
 
     td {
