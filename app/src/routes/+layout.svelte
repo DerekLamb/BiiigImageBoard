@@ -1,5 +1,6 @@
 <script>
     import NavBar from "$lib/navBar.svelte";
+	import Navigation from "$lib/navigation.svelte";
 
 </script>
 
@@ -13,7 +14,7 @@
 
     
         <div class="flexContainer">
-            <NavBar></NavBar>
+            <Navigation></Navigation>
             <slot></slot>
         </div>
     </div>
@@ -46,6 +47,7 @@
     }
 
     .logo{
+        margin-left: 50px;        
         display:grid;
         grid-template-areas:
         "logo . ." 
