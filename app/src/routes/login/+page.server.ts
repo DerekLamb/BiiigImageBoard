@@ -63,7 +63,7 @@ export const actions = {
 
         console.log("Got here");
 
-        throw redirect(302, "/");
+        redirect(302, "/");
 
     }
 }
