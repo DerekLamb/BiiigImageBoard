@@ -31,18 +31,26 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-    delete: async ({ request }) => {
+    delete: async ({ request, locals }) => {
+
+        if( !locals.user){
+            throw redirect(307, '/login');
+        }
+        let newSlug = "/posts";
         const data = await request.formData();
-        const oName = data.get("originalName");
         const sName = data.get("sanitizedFilename");
         const thumbPath = data.get("thumbnailPath");
-        const newRedirect = data.get("redirect"); // not used yet but is this the best way? Might do a store...       
+        const newRedirect = data.get("redirect"); 
+        const adjacents = data.getAll("adjacents");
+        if( adjacents.length > 0){
+            newSlug = `/posts/?${adjacents[0]}`;
+        }
         imageRepo.deleteByFileName(`${sName}`);
         mainFileRepo.deleteFile(`${sName}`);
         
         console.log(`deleted ${sName}`)
 
-        throw redirect(303,"/posts");
+        throw redirect(303, newSlug);
     },
 
     update: async ({ request }) => {  // may not be using any more... TODO 
