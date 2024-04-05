@@ -55,6 +55,9 @@ function copyItems() {
                 <input type="hidden" name="originalName" value="{data.image?.originalName}">
                 <input type="hidden" name="sanitizedFilename" value="{data.image?.sanitizedFilename}">
                 <input type="hidden" name="thumbnailPath" value="{data.image?.thumbnailPath}">
+                {#if data.adjacents?.next || data.adjacents?.prev}
+                <input type="hidden" name="next" value="{data.adjacents}">
+                {/if}
             </form>
     
 

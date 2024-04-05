@@ -30,6 +30,11 @@ class ImageRepository {
         return this.collection.findOne(query) as Promise<ImageData>;
     }
 
+    private async deleteOneByField(fieldName: string, value: any): Promise<void> {
+        const query = { [fieldName]: value };
+        await this.collection.deleteOne(query);
+    }
+
     async getById(id: string): Promise <ImageData | null> {
         return this.getOneByField("_id", new ObjectId(id));
     }
@@ -82,7 +87,7 @@ class ImageRepository {
  
     async create(fileName:string, sanitizedFilename:string, timestamp: string, imagePath:string, thumbPath:string, fileHash:string): Promise<string | null>{
         const tags = null;
-        const embPrompts = null;
+        const embPrompt = null;
         console.log(fileHash)
         const imageData : ImageData = {
             _id: new ObjectId(fileHash),
@@ -91,7 +96,7 @@ class ImageRepository {
             imagePath: `${imagePath}/${sanitizedFilename}`, 
             uploadDate: timestamp,
             thumbnailPath: thumbPath,
-            embPrompts: embPrompts,
+            embPrompt: embPrompt,
             tags: tags
         }
 
@@ -113,12 +118,8 @@ class ImageRepository {
         await this.collection.updateOne({ uploadDate: timestamp}, {$set: imageData });
     }
 
-    async deleteFilename(filename: string){
-        return this.collection.deleteOne({sanitizedFilename: filename})
-    }
-
     async deleteByFileName(fileName: string): Promise<void> {
-        await this.collection.deleteOne({ sanitizedFilename: fileName });
+        this.deleteOneByField("sanitizedFilename", fileName);
     }
 }
 
