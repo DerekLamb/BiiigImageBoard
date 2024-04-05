@@ -9,7 +9,7 @@ import type { PageServerLoad } from './$types';
 export const load = (async ({ url, locals}) => {
     if (!locals.user) {
         console.log("no user");
-        throw redirect(307, '/login');
+        redirect(307, '/login');
     }
 
     const { searchParams } = url;

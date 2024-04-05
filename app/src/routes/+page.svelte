@@ -17,7 +17,6 @@ import Tagbar from "$lib/tagbar.svelte"
 </div>
 
 <style>
-
     .midContainer{
         display:flex;
         flex-direction: row;
