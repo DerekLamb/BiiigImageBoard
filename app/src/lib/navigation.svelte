@@ -24,7 +24,7 @@
     </div>
 
     <!-- Menu Button for Mobile -->
-    <button class="menu-button" on:click={toggleMenu}>Menu</button>
+    <button class="menu-button" class:open={$menuOpen} on:click={toggleMenu}>Menu</button>
 </div>
 
 <!-- Off-Canvas Menu for Mobile -->
@@ -86,6 +86,10 @@
       bottom: 20px; /* Place near the middle bottom for thumb access */
       transform: translateX(-50%); /* Adjust for actual button width */
       z-index: 1000; /* Above content */
+    }
+
+    .menu-button.open {
+        left:90%;
     }
   
     .menu-container {

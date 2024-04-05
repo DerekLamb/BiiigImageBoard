@@ -14,7 +14,7 @@ let nextPage = null;
 let prevPage = null;
 let firstPage = null;
 let lastPage = null;
-const sizes = [100, 150, 200, 300, 400, 500];
+const sizes = [100, 110, 150, 200, 300];
 const numImages = [24, 32, 48, 60, 72, 84, 96];
 
 function handleSizeChange() {
@@ -67,19 +67,23 @@ beforeUpdate(() => {
     </SideBar>
     <div class = "imageBrowser">
         <div class = "pgnumCont">
-            <a href={firstPage} class="pageNum">&lt&lt/</a>
-            <a href={nextPage} class="pageNum">&lt&lt&lt</a>
-            <a href={prevPage} class="pageNum">&gt&gt&gt</a>
-            <a href={lastPage} class="pageNum">\&gt&gt</a>
+            <div class="prevPageCont">
+                <a href={firstPage} class="pageNum">&lt&lt/</a>
+                <a href={nextPage} class="pageNum">&lt&lt&lt</a>
+            </div>
+            <div class="nextPageCont">
+                <a href={prevPage} class="pageNum">&gt&gt&gt</a>
+                <a href={lastPage} class="pageNum">\&gt&gt</a>
+            </div>
         </div>
-        <span> Image Size:
+        <span> Size:
             <select bind:value={$improvImageSize} on:change={handleSizeChange}>
                 {#each sizes as size}
                     <option value={size}>{size}</option>
                 {/each}
             </select>
         </span>
-        <span> # of Images:
+        <span> Length:
             <select bind:value={$imageCount} on:change={reloadCurrPage}>
                 {#each numImages as num}
                     <option value={num}>{num}</option>
@@ -99,13 +103,17 @@ beforeUpdate(() => {
         {/each}
         </div>
         <div class = "pgnumCont">
-            <a href={firstPage} class="pageNum">&lt&lt/</a>
-            <a href={nextPage} class="pageNum">&lt&lt&lt</a>
-            <a href={prevPage} class="pageNum">&gt&gt&gt</a>
-            <a href={lastPage} class="pageNum">\&gt&gt</a>
+            <div class="prevPageCont">
+                <a href={firstPage} class="pageNum">&lt&lt/</a>
+                <a href={nextPage} class="pageNum">&lt&lt&lt</a>
+            </div>
+            <div class="nextPageCont">
+                <a href={prevPage} class="pageNum">&gt&gt&gt</a>
+                <a href={lastPage} class="pageNum">\&gt&gt</a>
+            </div>
         </div>
     </div>
-        
+    <div class = "footerSpacer"></div>
 </div>
 
 <style>
@@ -114,10 +122,18 @@ beforeUpdate(() => {
         height:100%;
 
     }
+
+    .footerSpacer{
+        height: 30px;
+    }
     
     @media (min-width:960px) {
         .midContainer{
             grid-template-columns: 1fr 4fr;
+        }
+
+        .imageGrid{
+            gap:5px;
         }
     }
 
@@ -129,7 +145,6 @@ beforeUpdate(() => {
 
     .imageGrid{
         display: grid;
-
         gap:10px;
         width: 100%;
     }
@@ -143,6 +158,8 @@ beforeUpdate(() => {
     .pgnumCont{
         margin: 12px;
         width: 100%;
+        display: flex;
+        justify-content: space-around;
     }
 
     .pageNum{

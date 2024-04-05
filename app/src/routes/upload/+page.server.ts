@@ -62,7 +62,7 @@ export const actions = {
             console.log("Checking for missing files")
             console.log( await fileUtilService.compareDBToDir(imageRepo) );
             fileUtilService.missingThumbAll(imageRepo, thumbFileRepo);
-            fileUtilService.extractPromptAll(imageRepo);
+            //fileUtilService.extractPromptAll(imageRepo);
         } catch (error) {
             console.log(error);
         }
