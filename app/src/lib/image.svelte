@@ -28,13 +28,12 @@
 
     .container {
         width: 100%; 
-        padding: 8px;
+        padding: 3px;
         box-sizing: border-box;
         display:flex;
         flex-direction: column;
         border-radius: 5px;
-        background-color: #6395a5;
-        color: white;
+        color: #345D7E;
     }
 
     .container a {
