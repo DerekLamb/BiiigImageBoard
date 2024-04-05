@@ -35,7 +35,7 @@
             <li><a href="/posts">Posts</a></li>
             <li><a href="/tags">Tags</a></li>
             <li><a href="/upload">Upload</a></li>
-            <li><a href="/home">Home</a></li>
+            <li><a href="/">Home</a></li>
             <li><a href="/login">Login</a></li>
         </ul>
     </nav>
@@ -82,8 +82,8 @@
     .menu-button {
       display: block;
       position: fixed;
-      left: 70%; /* Center button */
-      bottom: 40px; /* Place near the middle bottom for thumb access */
+      left: 50%; /* Center button */
+      bottom: 20px; /* Place near the middle bottom for thumb access */
       transform: translateX(-50%); /* Adjust for actual button width */
       z-index: 1000; /* Above content */
     }
