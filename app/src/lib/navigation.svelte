@@ -19,7 +19,7 @@
         <a href="/posts">Posts</a>
         <a href="/tags">Tags</a>
         <a href="/upload">Upload</a>
-        <a href="/home">Home</a>
+        <a href="/">Home</a>
         <a href="/login">Login</a>
     </div>
 

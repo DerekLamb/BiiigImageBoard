@@ -6,14 +6,26 @@ import SideBar from "$lib/sideBar.svelte";
 import SearchBar from "$lib/searchBar.svelte";
 import { onMount, beforeUpdate } from "svelte";
 import { goto } from "$app/navigation";
-
+import { updateUrlParam } from "$lib/urlParamHandler";
 /** @type {import('./$types').PageData} */ 
-export let data;
 
-let nextPage = null;
-let prevPage = null;
-let firstPage = null;
-let lastPage = null;
+interface ImageData {
+    images: {
+        originalName: string;
+        thumbnailPath: string;
+        imagePath: string;
+        uploadDate: string;
+    }[];
+    currPage: number;
+    pageNum: number;
+}
+
+export let data : ImageData;
+
+let nextPage: string | null = null;
+let prevPage: string | null = null;
+let firstPage: string | null = null;
+let lastPage: string | null = null;
 const sizes = [100, 110, 150, 200, 300];
 const numImages = [24, 32, 48, 60, 72, 84, 96];
 
@@ -38,14 +50,8 @@ const calculatePages = () => {
     const url = new URL(window.location.href);
     url.searchParams.set("numImages", $imageCount.toString());
 
-    nextPage =
-        data.currPage > 1
-            ? `${url.pathname}?page=${data.currPage - 1}${numImageParam}`
-            : null;
-    prevPage =
-        data.currPage < data.pageNum
-            ? `${url.pathname}?page=${data.currPage + 1}${numImageParam}`
-            : null;
+    nextPage = data.currPage > 1 ? `${url.pathname}?page=${data.currPage - 1}${numImageParam}` : null;
+    prevPage = data.currPage < data.pageNum ? `${url.pathname}?page=${data.currPage + 1}${numImageParam}` : null;
     firstPage = `${url.pathname}?page=1${numImageParam}`;
     lastPage = `${url.pathname}?page=${data.pageNum}${numImageParam}`;
 };

@@ -7,10 +7,10 @@ import { redirect } from "@sveltejs/kit";
 
 export const load = async (event) => {
     if(!event.locals.user){
-        throw redirect(307, '/login');
+        redirect(307, '/login');
     }
     if(event.locals.user.username !== "admin"){
-        // handle here
+        // handle here if no admin TODO
     }
     return{
         username: event.locals.user.username
