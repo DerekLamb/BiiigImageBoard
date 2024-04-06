@@ -1,9 +1,9 @@
 
 <script>
     export let src = '';
-    export let alt = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
+    export let alt = "TestAlt";
     export let imageName = "";
-    export let link = "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459__340.png";
+    export let link = "TestLink";
     export let thumbnail = false;
     export let upScore = -1;
     export let downScore = -1;
@@ -14,7 +14,7 @@
 </script>
 
 <div class="container">
-    <a href={link}> <img class="{imgClass}" src={src} alt={alt} /> </a>
+    <a href={link}> <img class="{imgClass}" src={src} alt={alt}/> </a>
     {#if upScore == -1 && downScore == -1}
             <span class = "imgName ">{imageName}</span>
     {:else}
