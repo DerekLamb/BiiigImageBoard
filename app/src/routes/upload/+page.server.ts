@@ -2,7 +2,6 @@ import {mainFileRepo, thumbFileRepo} from "$lib/fileService"
 import {imageRepo} from "$lib/imageRepository"
 import { hashFile } from "$lib/processFiles.js";
 import { fileUtilService } from "$lib/fileUtilityService.js";
-import { v4 as uuidv4 } from 'uuid';
 
 
 async function checkFiles(){
@@ -15,9 +14,9 @@ async function checkFiles(){
     const missingDB = dirFileNames.filter( file => !dbFileNames.includes(file));
     await Promise.all(missingDB.map( async file => {
         imageRepo.create(
+            file.toString(),
             file,
-            file,
-            file.split('.')[0],
+            file.split('.')[0], // need to build a better file type system 
             "images",
             "",
             await hashFile(`images/${file}`),
