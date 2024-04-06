@@ -20,3 +20,4 @@ package-lock.json
 vite.config.js
 app/package-lock.json
 app/.svelte-kit/ambient.d.ts
+app/testCert/_cert.pem
