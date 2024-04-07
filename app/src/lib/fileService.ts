@@ -1,26 +1,23 @@
 import fs from "fs/promises";
+import { createReadStream } from "fs";
 import { constants } from 'fs';
 import { createMissingThumbnails } from "./processFiles";
+import { error } from "console";
 
 class ImageFile {
     private dirPath: string | null = null;
     private fileName: string;
-    private fileData: Buffer | null = null;
     //private hash: string;
 
     constructor(dirPath: string, fileName: string, data?: Buffer){
-        this.fileData = data ? data : null;
         this.fileName = fileName;
         this.dirPath = dirPath;
     }
 
-    async write(): Promise <void>{
-        if (this.fileData instanceof Buffer) {
-            // const newFile = await fs.open(`${this.dirPath}/${this.fileName}`)
-            // newFile.writeFile(this.fileData,'base64');
-            // newFile.close();
+    async write(fileData : Buffer): Promise <void>{
+        if (fileData instanceof Buffer) {
             try{
-                fs.writeFile(`${this.dirPath}/${this.fileName}`, this.fileData)
+                await fs.writeFile(`${this.dirPath}/${this.fileName}`, fileData)
             } catch (error) {
                 throw new Error(`Error writing file ${this.fileName}: ${error}`)
             }
@@ -31,22 +28,17 @@ class ImageFile {
     }
 
     async read(): Promise <Buffer>{
-        if(this.fileData == null){
             const fileData = await fs.readFile(`${this.dirPath}/${this.fileName}`);
             return fileData;
-        } else { 
-            return this.fileData;
-        }
-
     }
 
-    async update(data: Buffer){
-        this.fileData = data;
+    createReadStream(){
+        return createReadStream(`${this.dirPath}/${this.fileName}`);
     }
 
     async delete(): Promise <void>{
         try{
-            fs.unlink(`${this.dirPath}/${this.fileName}`);
+            await fs.unlink(`${this.dirPath}/${this.fileName}`);
         }
         catch (error) {
             throw new Error(`Error deleting file ${this.fileName}: ${error}`)
@@ -57,19 +49,14 @@ class ImageFile {
         try {
             console.log(`${this.dirPath}/${this.fileName}`)
             await fs.access(`${this.dirPath}/${this.fileName}`, constants.F_OK);
-            
             return true;
         } catch {
             return false;
         }
     }
 
-    async compareWithStored(): Promise<boolean>{
+    private async compareWithStored(): Promise<boolean>{
             return true
-    }
-
-    async unloadBuffer(): Promise<void>{
-        this.fileData = null 
     }
 
 }
@@ -83,13 +70,13 @@ class FileRepository {
         this.dirPath = dirPath;
     }
 
-    async addFile(fileName: string, fileData: any) {
-        const imageFile = new ImageFile(this.dirPath, fileName, fileData);
+    async addFile(fileName: string, fileData: Buffer | null) {
+        const imageFile = new ImageFile(this.dirPath, fileName);
         this.files.set(fileName, imageFile);
         try {
             if (fileData) {
                 this.ensurePathExists();
-                await imageFile.write();
+                await imageFile.write(fileData);
             } else {
                 console.log("File data is empty. Skipping write operation.");
             }
@@ -105,6 +92,18 @@ class FileRepository {
         }
         else {
             console.log(`cannot find file ${fileName}`)
+        }
+    }
+
+    //file stream smart function 
+    async createReadStream(fileName: string){
+        let imgFileObj = new ImageFile(this.dirPath, fileName);
+        if(await imgFileObj.exists()){
+            return imgFileObj.createReadStream();
+        }
+        else {
+            return error(`cannot find file ${fileName}`)
+            
         }
     }
 
@@ -138,6 +137,7 @@ class FileRepository {
     }
     
     async ensurePathExists(): Promise<boolean>{
+
         try {
             await fs.access(this.dirPath, constants.F_OK);
             return true;
@@ -151,19 +151,6 @@ class FileRepository {
                 return false;
             }
         }
-    }
-
-    async memAddFile(fileName: string, fileData: any){
-        const imageFile = new ImageFile(fileName, fileData)
-        
-        try {
-            imageFile.write();
-        } catch (error) {
-            console.log("err occured writing file")
-        }
-
-        imageFile.unloadBuffer();
-        this.files.set(fileName, imageFile)
     }
 
     async updateListFiles(){

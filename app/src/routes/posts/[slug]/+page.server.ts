@@ -40,9 +40,14 @@ export const actions = {
         const sName = data.get("sanitizedFilename");
         const thumbPath = data.get("thumbnailPath");
         const adjacents = data.getAll("adjacents");
+        const next = data.get("next");
+        const prev = data.get("prev");
         let redirectSlug = "/posts";
-        if( adjacents.length > 0){
-            redirectSlug = `/posts/?${adjacents[0]}`;
+        if( next ){
+            redirectSlug = `/posts/${next}`;
+        }
+        else if( prev ){
+            redirectSlug = `/posts/${prev}`;
         }
         
         imageRepo.deleteByFileName(`${sName}`);
