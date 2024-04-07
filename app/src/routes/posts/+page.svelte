@@ -30,6 +30,7 @@ const sizes = [100, 110, 150, 200, 300];
 const numImages = [24, 32, 48, 60, 72, 84, 96];
 
 function handleSizeChange() {
+    console.log("this is actually called...");
     improvImageSize.set(selectedSize);
 }
 
@@ -83,14 +84,14 @@ beforeUpdate(() => {
             </div>
         </div>
         <span> Size:
-            <select bind:value={$improvImageSize} on:change={handleSizeChange}>
+            <select bind:value={$improvImageSize} >
                 {#each sizes as size}
                     <option value={size}>{size}</option>
                 {/each}
             </select>
         </span>
         <span> Length:
-            <select bind:value={$imageCount} on:change={reloadCurrPage}>
+            <select bind:value={$imageCount} >
                 {#each numImages as num}
                     <option value={num}>{num}</option>
                 {/each}

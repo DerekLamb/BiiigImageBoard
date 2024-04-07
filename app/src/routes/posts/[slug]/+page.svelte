@@ -50,13 +50,14 @@ function copyItems() {
                 <button on:click={copyItems}>Copy Prompt</button>
             {/if}
 
-            <form method="Post" action="?/delete">
+            <form method="post" action="?/delete">
                 <button type="submit">Delete Image</button>
                 <input type="hidden" name="originalName" value="{data.image?.originalName}">
                 <input type="hidden" name="sanitizedFilename" value="{data.image?.sanitizedFilename}">
                 <input type="hidden" name="thumbnailPath" value="{data.image?.thumbnailPath}">
                 {#if data.adjacents?.next || data.adjacents?.prev}
-                <input type="hidden" name="next" value="{data.adjacents}">
+                <input type="hidden" name="next" value="{data.adjacents.next}">
+                <input type="hidden" name="prev" value="{data.adjacents.prev}">
                 {/if}
             </form>
     
