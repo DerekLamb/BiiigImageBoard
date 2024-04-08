@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit'
-import db from '$lib/db'
+import { db } from '$lib/db'
 
 
 

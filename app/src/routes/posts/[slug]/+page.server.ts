@@ -30,11 +30,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 /** @type {import('./$types').Actions} */
 export const actions = {
     delete: async ({ request, locals }) => {
-
+        console.log("delete action reached");
         if( !locals.user){
             redirect(307, '/login');
         }
-
 
         const data = await request.formData();
         const sName = data.get("sanitizedFilename");
@@ -43,6 +42,7 @@ export const actions = {
         const next = data.get("next");
         const prev = data.get("prev");
         let redirectSlug = "/posts";
+        
         if( next ){
             redirectSlug = `/posts/${next}`;
         }

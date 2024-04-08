@@ -14,9 +14,6 @@ const config = {
 		})
 	],
 	server: {
-		fs: {
-			allow: ['./images', './thumb']
-		},
 		host: true,
 		
 	}
