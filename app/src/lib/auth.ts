@@ -30,7 +30,7 @@ interface Session {
 export const lucia = new Lucia( adapter, {
     sessionCookie: {
         attributes: {
-            secure: false // need to add dev env check TODO
+            secure: true // need to add dev env check TODO
         }
     },
     getUserAttributes: (attributes) => {
