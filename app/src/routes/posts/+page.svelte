@@ -29,11 +29,6 @@ let lastPage: string | null = null;
 const sizes = [100, 110, 150, 200, 300];
 const numImages = [24, 32, 48, 60, 72, 84, 96];
 
-function handleSizeChange() {
-    console.log("this is actually called...");
-    improvImageSize.set(selectedSize);
-}
-
 function reloadCurrPage() {
     const numImageParam = $imageCount === 24 ? "" : `&len=${$imageCount}`;
     const url = new URL(window.location.href);

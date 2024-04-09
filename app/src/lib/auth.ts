@@ -12,12 +12,16 @@ const adapter = new MongodbAdapter(db.collection('sessions'), User);
 interface DatabaseUserAttributes {
     username: string;
     passwordHash: string;
-
+    role: string;
+    passwordChangeRequired: boolean;
 }
+
 interface UserDoc { //extends DatabaseUserAttributes 
 	_id: string;
     username: string;
     passwordHash: string;
+    role: string;
+    passwordChangeRequired: boolean;
 }
 
 interface Session {
