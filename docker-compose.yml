@@ -3,23 +3,27 @@ version: "3.8"
 name: biiig-image-board
 
 services:
-  biiig-image-app:
-      build: ./app
-      environment:
-      - DB_URI=mongodb://biiig-image-db:27017
-      ports: 
-      - "5173:5173"
-      volumes: 
-      - ./images:/biiib/images # modify ./app/images to point to wanted image directory
 
+    biiig-image-app:
+        build: ./app
+        depends_on:
+            biiig-image-db:
+                condition: service_healthy
+                restart: true
+        environment:
+        - DB_URI=mongodb://biiig-image-db:27017
+        ports: 
+        - "4173:4173"
+        volumes: 
+        - ./images:/biiib/images # modify ./app/images to point to wanted image directory
 
-  biiig-image-db:
-      image: mongo:latest
-      # environment:
-        # - MONGO_INITDB_ROOT_USERNAME=root
-        # - MONGO_INITDB_ROOT_PASSWORD=example
-      volumes: 
-      - ./mongodb:/data/db # modify to point to mongodb data directory
+    biiig-image-db:
+        image: mongo:latest
+        # environment:
+            # - MONGO_INITDB_ROOT_USERNAME=root
+            # - MONGO_INITDB_ROOT_PASSWORD=example
+        volumes: 
+            - ./mongodb:/data/db # modify to point to mongodb data directory
 
 networks:
   biiig-image-net:
