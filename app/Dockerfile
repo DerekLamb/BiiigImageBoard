@@ -1,14 +1,15 @@
 FROM node:latest
+
+LABEL Dev="DLamb"
+
 WORKDIR /biiib
-
-COPY package.json .
-
-RUN npm install
 
 COPY . .
 
-CMD ["npm", "run", "dev", "--host"]
+RUN npm ci
 
-# EXPOSE PORT
+RUN npm run build 
 
-# RUN sed -i -e 's/\r$//' /app/TestServ.sh
+RUN rm -rf src/ static/ Dockerfile
+
+CMD ["ls", "-la"]
