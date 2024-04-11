@@ -12,4 +12,4 @@ RUN npm run build
 
 RUN rm -rf src/ static/ Dockerfile
 
-CMD ["ls", "-la"]
+CMD ["node", "build/index.js"]
