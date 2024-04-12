@@ -10,6 +10,6 @@ RUN npm ci
 
 RUN npm run build 
 
-RUN rm -rf src/ static/ Dockerfile
+RUN rm -rf src/ static/ Dockerfile .svelte-kit/
 
 CMD ["node", "build/index.js"]
