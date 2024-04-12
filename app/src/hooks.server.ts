@@ -4,7 +4,7 @@ import { start_mongo } from "$lib/db";
 
 start_mongo().then(() => {
     console.log("Connected to MongoDB")
-    initialize();
+    initialize(); //creates admin user if it doesn't exist
     }).catch((err) => {
         console.error(err);
     });
