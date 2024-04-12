@@ -1,7 +1,8 @@
-import { Lucia } from 'lucia';
+import { Lucia, generateId } from 'lucia';
 import { MongodbAdapter } from '@lucia-auth/adapter-mongodb';
 import { db } from '$lib/db';
 import type { Collection } from 'mongodb';
+import { Argon2id } from 'oslo/password';
 
 
 export const User = db.collection('users') as Collection<UserDoc>;
@@ -44,6 +45,24 @@ export const lucia = new Lucia( adapter, {
         }
     }
 });
+
+
+export const initialize = async () => {
+
+    if( await db.collection('users').countDocuments() === 0){
+
+        const userId = generateId(15);
+		const hashedPassword = await new Argon2id().hash('myOwnPersonalApp');
+
+        User.insertOne({
+            _id: userId,
+            username: 'admin',
+            passwordHash: hashedPassword,
+            role: 'admin',
+            passwordChangeRequired: true
+        });
+    }
+}
 
 declare module 'lucia' {
     interface Register {
