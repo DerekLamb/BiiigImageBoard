@@ -26,6 +26,7 @@ services:
                 restart: true
         environment:
         - DB_URI=mongodb://biiig-image-db:27017
+        - BODY_SIZE_LIMIT=Infinity
         volumes: 
         - ./images:/biiib/images # modify ./app/images to point to wanted image directory
         networks:
