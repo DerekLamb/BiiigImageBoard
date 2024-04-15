@@ -24,3 +24,6 @@ app/testCert/_cert.pem
 /app/.svelte-kit/output
 /app/build
 /app/.svelte-kit
+nginx/certs/fullchain.pem
+nginx/certs/privkey.pem
+/nginx/certbot/conf/accounts
