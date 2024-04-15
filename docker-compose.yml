@@ -4,6 +4,18 @@ name: biiig-image-board
 
 services:
 
+    biiig-image-proxy:
+        build: ./nginx
+        restart: always
+        ports: 
+        # - "80:80"
+        - "3043:443"
+        depends_on:
+            - biiig-image-app
+        volumes:
+        - ./nginx/conf:/etc/nginx
+        - ./nginx/certs:/etc/nginx/certs
+        
     biiig-image-app:
         build: ./app
         depends_on:
