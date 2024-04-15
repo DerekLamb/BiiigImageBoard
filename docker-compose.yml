@@ -24,10 +24,10 @@ services:
                 restart: true
         environment:
         - DB_URI=mongodb://biiig-image-db:27017
-        ports: 
-        - "4007:3000"
         volumes: 
         - ./images:/biiib/images # modify ./app/images to point to wanted image directory
+        networks:
+            - biiig-image-net
 
     biiig-image-db:
         image: mongo:latest
@@ -36,6 +36,8 @@ services:
             # - MONGO_INITDB_ROOT_PASSWORD=example
         volumes: 
             - ./mongodb:/data/db # modify to point to mongodb data directory
+        networks:
+            - biiig-image-net
 
 networks:
   biiig-image-net:
