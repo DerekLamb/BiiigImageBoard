@@ -23,7 +23,7 @@ services:
         depends_on:
             biiig-image-db:
                 condition: service_started
-                restart: true
+                restart: always
         environment:
         - DB_URI=mongodb://biiig-image-db:27017
         - BODY_SIZE_LIMIT=Infinity
