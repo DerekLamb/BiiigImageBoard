@@ -95,7 +95,7 @@ class fileUtiltyService {
 
         const missingFiles = dbFileNames.filter( file => !dirFileNames.includes(file));
         const missingDBRecord = dirFileNames.filter( file => !dbFileNames.includes(file));
-        return [missingFiles, missingDBRecord]
+        return [ missingFiles, missingDBRecord ]
     }
 
     async missingThumbAll(imageRepository: ImageRepository, thumbFileRepo: FileRepository){
