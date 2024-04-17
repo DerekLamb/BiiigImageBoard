@@ -1,8 +1,7 @@
 import { page } from '$app/stores';
 import { db } from '$lib/db';
-import { imageRepo } from '$lib/imageRepository';
 import { redirect } from '@sveltejs/kit';
-
+import { imageRepo, sanitizeImage } from '$lib/imageService';
 
 import type { PageServerLoad } from './$types';
 
@@ -21,14 +20,15 @@ export const load = (async ({ url, locals}) => {
     if (isNaN(lengthNum) || lengthNum < 1 || lengthNum > 100) {
         lengthNum = 24; 
     }
-
+    
     const images = await imageRepo.getPage(currPage, lengthNum, [searchTerm]);
 
     const pageLength = lengthNum || 24;
 
     const numPages = Math.ceil(await db.collection('testimages').estimatedDocumentCount() / pageLength);
-    images.forEach( image => {
-        delete image._id;
+    
+    images?.forEach((image) => {
+        sanitizeImage(image);
     });
 
     return{
