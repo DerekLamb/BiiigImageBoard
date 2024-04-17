@@ -1,7 +1,6 @@
-import { ObjectId, Collection, type WithId } from "mongodb"
+import { ObjectId, Collection } from "mongodb"
 import { db } from '$lib/db'
 import txtToSearchParam from "./SearchTxtToFilter";
-import type Image from "./image.svelte";
 
 
 interface ImageData {

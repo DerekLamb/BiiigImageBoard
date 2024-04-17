@@ -1,5 +1,4 @@
-import { imageRepo } from '$lib/imageRepository';
-import { mainFileRepo, thumbFileRepo } from '$lib/fileService';
+import { fileService, imageRepo, sanitizeImage } from '$lib/imageService';
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -10,19 +9,18 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     }
 
     const adjacents = await imageRepo.getAdjacentTimestamps(params.slug);
-    const image = await imageRepo.getByTimestamp(params.slug);
-    delete image?._id;
-    
+    const image = await imageRepo.getOne("uploadDate", params.slug);
     if(!image){
         return{
             status: 200,
             image: null,
         }
     }
+    const sanitized = sanitizeImage(image);
 
     return{
         status: 200,
-        image: image,
+        image: sanitized,
         adjacents: adjacents
     }
 }
@@ -30,29 +28,38 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 /** @type {import('./$types').Actions} */
 export const actions = {
     delete: async ({ request, locals }) => {
-        console.log("delete action reached");
         if( !locals.user){
             redirect(307, '/login');
         }
 
         const data = await request.formData();
-        const sName = data.get("sanitizedFilename");
-        const thumbPath = data.get("thumbnailPath");
-        const adjacents = data.getAll("adjacents");
+        const strId = data.get("strId");
         const next = data.get("next");
         const prev = data.get("prev");
         let redirectSlug = "/posts";
         
-        if( next ){
-            redirectSlug = `/posts/${next}`;
+        const image = await imageRepo.getOne("_id",strId);
+        if(!image){
+            throw new Error(`Image not found: ${strId}`);
+            redirect(303, redirectSlug);
         }
-        else if( prev ){
+
+        if( prev ){
             redirectSlug = `/posts/${prev}`;
         }
+        else if( next ){
+            redirectSlug = `/posts/${next}`;
+        }
         
-        imageRepo.deleteByFileName(`${sName}`);
-        mainFileRepo.deleteFile(`${sName}`);
-        thumbFileRepo.deleteFile(`${thumbPath}`);
+        try{
+            imageRepo.deleteOne("_id", strId);
+            fileService.deleteImage(image)
+            fileService.deleteThumbnail(image);
+        }
+        catch(error)
+        {
+            console.log(`Error deleting image: ${strId}`);
+        }
 
         redirect(303, redirectSlug);
     },

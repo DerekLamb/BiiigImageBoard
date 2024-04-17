@@ -4,7 +4,6 @@ import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import Image from "$lib/image.svelte";
 import PromptSection from "$lib/promptSection.svelte";
-import { redirect } from "@sveltejs/kit";
 
 
 /** @type {import('./$types').PageData} */ 
@@ -37,6 +36,7 @@ function copyItems() {
             <p><span>Image Name: </span>{data.image?.originalName}</p>
             <p><span>Filename: </span>{data.image?.sanitizedFilename}</p>
             <p><span>File Location: </span>{data.image?.imagePath}</p>
+            <p><span>Image Id:</span>{data.image?.strId}</p>
             {#if embPrompt.length != 0}
                 <div>embeddedPrompt:
                     <p>
@@ -52,9 +52,7 @@ function copyItems() {
 
             <form method="post" action="?/delete">
                 <button type="submit">Delete Image</button>
-                <input type="hidden" name="originalName" value="{data.image?.originalName}">
-                <input type="hidden" name="sanitizedFilename" value="{data.image?.sanitizedFilename}">
-                <input type="hidden" name="thumbnailPath" value="{data.image?.thumbnailPath}">
+                <input type="hidden" name="strId" value="{data.image?.strId}">
                 {#if data.adjacents?.next || data.adjacents?.prev}
                 <input type="hidden" name="next" value="{data.adjacents.next}">
                 <input type="hidden" name="prev" value="{data.adjacents.prev}">

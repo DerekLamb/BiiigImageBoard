@@ -30,6 +30,8 @@ services:
         - BODY_SIZE_LIMIT=Infinity
         volumes: 
         - ./images:/biiib/images # modify ./app/images to point to wanted image directory
+        - ./thumb:/biiib/thumb # modify ./app/thumb to point to wanted thumbnail directory
+
         networks:
             - biiig-image-net
 
