@@ -17,7 +17,7 @@ interface DatabaseUserAttributes {
     passwordChangeRequired: boolean;
 }
 
-interface UserDoc { //extends DatabaseUserAttributes 
+interface UserDoc { //needs to mirror DatabaseUserAttributes (ignore _id)
 	_id: string;
     username: string;
     passwordHash: string;
@@ -30,7 +30,6 @@ interface Session {
 	expires_at: Date;
 	user_id: string;
 }
-
 
 export const lucia = new Lucia( adapter, {
     sessionCookie: {
@@ -70,6 +69,3 @@ declare module 'lucia' {
         DatabaseUserAttributes: DatabaseUserAttributes;
     }
 }
-
-
-

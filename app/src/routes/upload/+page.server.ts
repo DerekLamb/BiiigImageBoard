@@ -39,7 +39,7 @@ export const actions = {
                     
                     const buffer = Buffer.from(await file.arrayBuffer());
                     const hash = await fileUtilService.hashFile(buffer);
-                    const ext  = file.name.split('.').pop();
+                    const ext = file.name.split('.').pop();
                     const sequentialTimestamp = (parseInt(baseTimestamp) + index).toString();
                     const newFileName = `${sequentialTimestamp}.${ext}`;
 
@@ -62,15 +62,6 @@ export const actions = {
                     console.error("Error processing file", file.name, error);
                 }
         }));
-
-        // try{
-        //     console.log("Checking for missing files")
-        //     console.log( await fileUtilService.compareDBToDir(imageRepo) );
-        //     fileUtilService.missingThumbAll(imageRepo, thumbFileRepo);
-        //     //fileUtilService.extractPromptAll(imageRepo);
-        // } catch (error) {
-        //     console.log(error);
-        // }
 
         return { sucess: true, submitted: files.length };
     }

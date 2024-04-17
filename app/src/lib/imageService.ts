@@ -224,10 +224,10 @@ class ImageRepoService{
     async create(imageData : ImageData): Promise<string | null>{
         try {
             await this.imageCollection.insertOne(imageData)
-            console.log(`File ${imageData.sanitizedFilename} written to DB and filesystem`)
+            console.log(`File ${imageData.sanitizedFilename}, ${imageData.originalName} written to DB and filesystem`)
             return "written to DB"
         } catch (error) {
-            console.log(`Error writing ${imageData.sanitizedFilename} to DB`)
+            console.log(`Error writing ${imageData.sanitizedFilename}, ${imageData.originalName} to DB`)
             return null
         }
     }
