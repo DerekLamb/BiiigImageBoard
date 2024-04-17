@@ -33,14 +33,13 @@ export const actions = {
         let [ missingFiles, missingDB ]  = await fileUtilService.compareDBToDir();
         if ( missingDB.length > 0 || missingDB instanceof Array ){
             const baseTimestamp = Date.now().toString();
-            await Promise.all(missingDB.map(async (file, index) => {
-                try {
-                    // add if statement to check file size too large
-                    
+            for(let i = 0; i < missingDB.length; i++){
+                const file = missingDB[i];
+                try{
                     const buffer = await fs.readFile(`images/${file}`);
                     const hash = await fileUtilService.hashFile(buffer);
                     const ext  = file.split('.').pop();
-                    const sequentialTimestamp = (parseInt(baseTimestamp) + index).toString();
+                    const sequentialTimestamp = (parseInt(baseTimestamp) + i).toString();
                     const newFileName = `${sequentialTimestamp}.${ext}`;
 
                     const imageDataObj : ImageData = {
@@ -52,16 +51,18 @@ export const actions = {
                         thumbnailPath: "",
                         tags: null,
                     }
-    
+                    console.log(imageDataObj)
                     const dbResults = await imageRepo.create(imageDataObj)
                     if(dbResults){
                         fs.rename(`images/${file}`, `images/${newFileName}`); // rename file
                         fileUtilService.createThumbnail(imageDataObj, buffer);
+                        console.log(`File ${file} added to DB`);
                     }
                 } catch (error) {
                     console.error("Error processing file", file, error);
                 }
-            }));
+                
+            }
         }
         
     } 
