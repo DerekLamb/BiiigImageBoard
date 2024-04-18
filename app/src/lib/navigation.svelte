@@ -7,7 +7,7 @@
     }
 
 </script>
-  
+   
 <!-- Regular Navbar -->
 <div class="navContainer">
     <!-- Brand or Logo -->
@@ -31,7 +31,7 @@
     <i></i><i></i><i></i>
 </button>
 <!-- Off-Canvas Menu for Mobile -->
-<div class="menu-container" class:open={$menuOpen} on:click={toggleMenu}>
+<div class="menu-container" class:open={$menuOpen} on:click={toggleMenu} on:keydown={toggleMenu} role="menu" tabindex=0>
     <!-- Mobile Menu Content -->
     <nav>
         <ul>
