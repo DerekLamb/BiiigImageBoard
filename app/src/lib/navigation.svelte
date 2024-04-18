@@ -1,10 +1,11 @@
 <script>
     import { menuOpen } from "$lib/stores/searchStore";
+    import { onMount } from "svelte";
 
-  
     function toggleMenu() {
-      menuOpen.update((state) => !state);
+        menuOpen.update((state) => !state);
     }
+
 </script>
   
 <!-- Regular Navbar -->
@@ -23,12 +24,14 @@
         <a href="/login">Login</a>
     </div>
 
-    <!-- Menu Button for Mobile -->
-    <button class="menu-button" class:open={$menuOpen} on:click={toggleMenu}>Menu</button>
+    
 </div>
-
+<!-- Menu Button for Mobile -->
+<button class="menu-button" class:open={$menuOpen} on:click={toggleMenu}>
+    <i></i><i></i><i></i>
+</button>
 <!-- Off-Canvas Menu for Mobile -->
-<div class="menu-container" class:open={$menuOpen}>
+<div class="menu-container" class:open={$menuOpen} on:click={toggleMenu}>
     <!-- Mobile Menu Content -->
     <nav>
         <ul>
@@ -80,31 +83,196 @@
     }
 
     .menu-button {
-      display: block;
-      position: fixed;
-      left: 50%; /* Center button */
-      bottom: 20px; /* Place near the middle bottom for thumb access */
-      transform: translateX(-50%); /* Adjust for actual button width */
-      z-index: 1000; /* Above content */
+        position: fixed;
+        cursor: pointer;
+        padding: 10px;
+        height: 50px;
+        width: 50px;
+        right: 30px;
+        bottom: 30px; 
+        border-radius: 50%;
+        transform: translateX(-50%);
+        transform: translateY(-50%); 
+        background-color: #8dd4b8;
+        z-index: 1000; 
+        border:none;
     }
 
-    .menu-button.open {
-        left:90%;
+
+    .menu-button i {
+        background-color: #fff;
+        border-radius: 2px;
+        content: "";
+        display: block;
+        width: 100%;
+        height: 4px;
     }
-  
+    .menu-button i:nth-child(1) {
+        -webkit-animation: outT 0.8s backwards;
+        animation: outT 0.8s backwards;
+        -webkit-animation-direction: reverse;
+        animation-direction: reverse;
+    }
+    .menu-button i:nth-child(2) {
+        margin: 5px 0;
+        -webkit-animation: outM 0.8s backwards;
+        animation: outM 0.8s backwards;
+        -webkit-animation-direction: reverse;
+        animation-direction: reverse;
+    }
+    .menu-button i:nth-child(3) {
+        -webkit-animation: outBtm 0.8s backwards;
+        animation: outBtm 0.8s backwards;
+        -webkit-animation-direction: reverse;
+        animation-direction: reverse;
+    }
+    .menu-button.open i:nth-child(1) {
+        -webkit-animation: inT 0.8s forwards;
+        animation: inT 0.8s forwards;
+    }
+    .menu-button.open i:nth-child(2) {
+        -webkit-animation: inM 0.8s forwards;
+        animation: inM 0.8s forwards;
+    }
+    .menu-button.open i:nth-child(3) {
+        -webkit-animation: inBtm 0.8s forwards;
+        animation: inBtm 0.8s forwards;
+    }
+
+    @-webkit-keyframes inM {
+        50% {
+            -webkit-transform: rotate(0deg);
+        }
+        100% {
+            -webkit-transform: rotate(45deg);
+        }
+    }
+    @keyframes inM {
+        50% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(45deg);
+        }
+    }
+    @-webkit-keyframes outM {
+        50% {
+            -webkit-transform: rotate(0deg);
+        }
+        100% {
+            -webkit-transform: rotate(45deg);
+        }
+    }
+    @keyframes outM {
+        50% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(45deg);
+        }
+        }
+    @-webkit-keyframes inT {
+        0% {
+            -webkit-transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            -webkit-transform: translateY(9px) rotate(0deg);
+        }
+        100% {
+            -webkit-transform: translateY(9px) rotate(135deg);
+        }
+    }
+    @keyframes inT {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(9px) rotate(0deg);
+        }
+        100% {
+            transform: translateY(9px) rotate(135deg);
+        }
+    }
+    @-webkit-keyframes outT {
+        0% {
+            -webkit-transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            -webkit-transform: translateY(9px) rotate(0deg);
+        }
+        100% {
+            -webkit-transform: translateY(9px) rotate(135deg);
+        }
+    }
+    @keyframes outT {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(9px) rotate(0deg);
+        }
+        100% {
+            transform: translateY(9px) rotate(135deg);
+        }
+    }
+    @-webkit-keyframes inBtm {
+        0% {
+            -webkit-transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            -webkit-transform: translateY(-9px) rotate(0deg);
+        }
+        100% {
+            -webkit-transform: translateY(-9px) rotate(135deg);
+        }
+    }
+    @keyframes inBtm {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-9px) rotate(0deg);
+        }
+        100% {
+            transform: translateY(-9px) rotate(135deg);
+        }
+    }
+    @-webkit-keyframes outBtm {
+        0% {
+            -webkit-transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            -webkit-transform: translateY(-9px) rotate(0deg);
+        }
+        100% {
+            -webkit-transform: translateY(-9px) rotate(135deg);
+        }
+    }
+    @keyframes outBtm {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-9px) rotate(0deg);
+        }
+        100% {
+            transform: translateY(-9px) rotate(135deg);
+        }
+    }
+    
     .menu-container {
-      position: fixed;
-      display:flex;
-      flex-direction: column;
-      justify-content: end;
-      top: 0;
-      bottom: 0;
-      left: -200px; /* Menu width */
-      width: 200px;
-      background-color: #fff;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-      transition: left 0.3s;
-      z-index: 1000;
+        position: fixed;
+        display:flex;
+        flex-direction: column;
+        justify-content: end;
+        top: 0;
+        bottom: 0;
+        left: -200px; /* Menu width */
+        width: 200px;
+        background-color: #fff;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        transition: left 0.3s;
+        z-index: 1000;
     }
 
     .menu-container nav {
@@ -139,7 +307,6 @@
   
     .backdrop {
       display: none;
-      /* ...rest of the backdrop styles */
     }
   
     .backdrop.open {
@@ -155,17 +322,16 @@
         display: none;
       }
   
-      .menu-container,
-      .backdrop {
+      .menu-container, .backdrop {
         display: none;
       }
     }
   
-    @media (max-width: 599px) {
+    @media (max-width: 768px) {
       .menu-button {
         display: block;
       }
-      .navbar {
+      .navContainer {
         display: none;
       }
 
