@@ -83,4 +83,10 @@
         align-self: stretch;
         margin: 0 5vw;
     }
+
+    @media (max-width:768px){
+        .flexContainer{
+            margin: 0 0;
+        }
+    }
 </style>
