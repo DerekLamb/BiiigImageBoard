@@ -7,9 +7,10 @@ import SearchBar from "$lib/searchBar.svelte";
 import { onMount, beforeUpdate } from "svelte";
 import { goto } from "$app/navigation";
 import { updateUrlParam } from "$lib/urlParamHandler";
+
 /** @type {import('./$types').PageData} */ 
 
-interface ImageData {
+interface Images {
     images: {
         originalName: string;
         thumbnailPath: string;
@@ -20,7 +21,7 @@ interface ImageData {
     pageNum: number;
 }
 
-export let data : ImageData;
+export let data : Images;
 
 let nextPage: string | null = null;
 let prevPage: string | null = null;
@@ -122,7 +123,6 @@ beforeUpdate(() => {
     .midContainer{
         display:grid;
         height:100%;
-
     }
 
     .footerSpacer{
@@ -172,11 +172,7 @@ beforeUpdate(() => {
         color: #808080;
     }
 
-    .pageNum:link{
-        color: #345D7E;
-    }
-
-    .pageNum:visited{
+    .pageNum:link, .pageNum:visited{
         color: #345D7E;
     }
 
@@ -197,7 +193,8 @@ beforeUpdate(() => {
         font-size: 17px;
         appearance: none;
         color: #345D7E;
-        background-color: #ffe4ed;
+        background-color: #f7d1d7;
+        border:none;
         border-radius: 7px;
     }
 </style>
