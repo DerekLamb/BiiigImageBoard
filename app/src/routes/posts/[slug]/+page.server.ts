@@ -1,4 +1,4 @@
-import { fileService, imageRepo, sanitizeImage } from '$lib/imageService';
+import imageController from "$lib/server/controllers/imageController";
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -8,19 +8,19 @@ export const load: PageServerLoad = async ({ params, locals }) => {
         redirect(307, '/login');
     }
 
-    const adjacents = await imageRepo.getAdjacentTimestamps(params.slug);
-    const image = await imageRepo.getOne("uploadDate", params.slug);
+    const image = await imageController.getImageByTimestamp(params.slug);
+
     if(!image){
         return{
             status: 200,
             image: null,
         }
     }
-    const sanitized = sanitizeImage(image);
+    const adjacents = await imageController.getAdjacents("uploadDate", params.slug);
 
     return{
         status: 200,
-        image: sanitized,
+        image: image,
         adjacents: adjacents
     }
 }
@@ -33,15 +33,22 @@ export const actions = {
         }
 
         const data = await request.formData();
-        const strId = data.get("strId");
-        const next = data.get("next");
-        const prev = data.get("prev");
+        const strId = data.get("strId") as string;
+        const next = data.get("next") as string;
+        const prev = data.get("prev") as string;
         let redirectSlug = "/posts";
-        
-        const image = await imageRepo.getOne("_id",strId);
+        console.log(strId);
+        const image = await imageController.getImage(strId);
+ 
         if(!image){
             throw new Error(`Image not found: ${strId}`);
             redirect(303, redirectSlug);
+        }
+
+        const deleted = await imageController.deleteImage(image);
+
+        if(!deleted){
+            throw new Error(`Error deleting image: ${image._id}`);
         }
 
         if( prev ){
@@ -50,21 +57,16 @@ export const actions = {
         else if( next ){
             redirectSlug = `/posts/${next}`;
         }
-        
-        try{
-            imageRepo.deleteOne("_id", strId);
-            fileService.deleteImage(image)
-            fileService.deleteThumbnail(image);
-        }
-        catch(error)
-        {
-            console.log(`Error deleting image: ${strId}`);
-        }
+
 
         redirect(303, redirectSlug);
     },
 
-    update: async ({ request }) => {  // may not be using any more... TODO 
+    update: async ({ request, locals }) => {  // may not be using any more... TODO 
+        if( !locals.user){
+            redirect(307, '/login');
+        }
+
         const data = await request.json();
         const genName = data.genName;
         const tags = data.tags;

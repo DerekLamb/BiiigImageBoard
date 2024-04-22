@@ -1,25 +1,16 @@
-
-<script>
-import Image from "./image.svelte";
-
-export let images = [];
-
+<script lang="ts">
+    export let minSize = 200;
 </script>
 
-<div class = "imageBrowser">
-    {#each images as image}
-        <Image link = image.imgPage  image = image.imgData ></Image>
-        <!-- <Image > </Image > -->
-    {/each}
+<div class="imageGrid" style = "grid-template-columns: repeat(auto-fit, minmax({minSize}px, 1fr)">
+    <slot />
 </div>
 
 <style>
-    .imageBrowser{
-        display:flex;
-        flex-wrap: wrap;
-        min-width: 100px; 
-        min-height: 20px;
-
-        background-color: lightgreen
+    .imageGrid {
+        display: grid;
+        gap: 20px;
     }
+
+
 </style>

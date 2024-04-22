@@ -8,8 +8,8 @@ import PromptSection from "$lib/promptSection.svelte";
 
 /** @type {import('./$types').PageData} */ 
 export let data;
-let tags = (data.image?.tags) ? data.image.tags : [];
-let embPrompt = (data.image?.embPrompt) ? data.image.embPrompt : [];
+let tags = data.image?.tags ?? [];
+let embPrompt = data.image?.embPrompt ?? [];
 
 function copyItems() {
       const copyText = embPrompt.join(",");
@@ -25,10 +25,10 @@ function copyItems() {
     <div class="imageWindow">
         <div class="pageNumContainer">
             {#if data.adjacents?.next}
-            <a href="/posts/{data.adjacents.next}" class="pageNum">&lt&lt&lt</a>
+            <a href="/posts/{data.adjacents.next.uploadDate}" class="pageNum">&lt&lt&lt</a>
             {/if}
             {#if data.adjacents?.prev}
-            <a href="/posts/{data.adjacents.prev}" class="pageNum">&gt&gt&gt</a>
+            <a href="/posts/{data.adjacents.prev.uploadDate}" class="pageNum">&gt&gt&gt</a>
             {/if}
         </div>
         <Image src = "../../{data.image?.imagePath}" imageName={data.image?.originalName} link = "/{data.image?.imagePath}"></Image>
@@ -36,7 +36,7 @@ function copyItems() {
             <p><span>Image Name: </span>{data.image?.originalName}</p>
             <p><span>Filename: </span>{data.image?.sanitizedFilename}</p>
             <p><span>File Location: </span>{data.image?.imagePath}</p>
-            <p><span>Image Id:</span>{data.image?.strId}</p>
+            <p><span>Image Id:</span>{data.image?._id}</p>
             {#if embPrompt.length != 0}
                 <div>embeddedPrompt:
                     <p>
@@ -52,7 +52,7 @@ function copyItems() {
 
             <form method="post" action="?/delete">
                 <button type="submit">Delete Image</button>
-                <input type="hidden" name="strId" value="{data.image?.strId}">
+                <input type="hidden" name="strId" value="{data.image?._id}">
                 {#if data.adjacents?.next || data.adjacents?.prev}
                 <input type="hidden" name="next" value="{data.adjacents.next}">
                 <input type="hidden" name="prev" value="{data.adjacents.prev}">
