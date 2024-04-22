@@ -1,7 +1,7 @@
-import {mainFileRepo, thumbFileRepo} from "$lib/fileService"
-import {imageRepo, fileUtilService, fileService, type ImageData} from "$lib/imageService"
-import { ObjectId } from "mongodb"
+import { fileUtilService } from "$lib/imageService"
+import imageController from "$lib/server/controllers/imageController.js";
 
+import { type AppImageData } from "$lib/server/models/imageModel.js";
 
 // async function checkFiles(){
 //     const filelist = await mainFileRepo.updateFiles()
@@ -31,33 +31,28 @@ export const actions = {
 
     default: async ({ request }) => {
         const formdata = await request.formData(); 
-        const files = formdata.getAll("image").filter(file => file instanceof File && file.name) as Blob[]
+        const files = formdata.getAll("image").filter(file => file instanceof File && file.name);
         const baseTimestamp = Date.now().toString();
         await Promise.all(files.map(async (file, index) => {
                 try {
                     // add if statement to check file size too large
-                    
                     const buffer = Buffer.from(await file.arrayBuffer());
                     const hash = await fileUtilService.hashFile(buffer);
                     const ext = file.name.split('.').pop();
                     const sequentialTimestamp = (parseInt(baseTimestamp) + index).toString();
                     const newFileName = `${sequentialTimestamp}.${ext}`;
 
-                    const imageDataObj : ImageData = {
-                        _id: new ObjectId(hash),
+                    const imageDataObj : AppImageData = {
+                        _id: hash,
                         originalName: file.name,
                         sanitizedFilename: newFileName,
                         imagePath: `images/${newFileName}`, 
                         uploadDate: sequentialTimestamp,
                         thumbnailPath: "",
-                        tags: null,
+                        tags: []
                     }
     
-                    const dbResults = await imageRepo.create(imageDataObj)
-                    if(dbResults){
-                        fileService.saveImage(imageDataObj, buffer);
-                        fileUtilService.createThumbnail(imageDataObj, buffer);
-                    }
+                    const dbResults = await imageController.addImage(imageDataObj, buffer)
                 } catch (error) {
                     console.error("Error processing file", file.name, error);
                 }
