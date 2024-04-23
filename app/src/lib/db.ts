@@ -10,7 +10,8 @@ export const db = client.db(dbName);
 export const collections = {
     images : "testimages",
     users : "users",
-    sessions : "sessions"
+    sessions : "sessions",
+    groups: "groups",
     //config : "config"
 }
 
