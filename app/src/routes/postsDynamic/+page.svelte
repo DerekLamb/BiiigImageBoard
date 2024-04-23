@@ -5,8 +5,8 @@
     import ImageBrowser from "$lib/imageBrowser.svelte";
     import Image from "$lib/image.svelte";
     import PageNav from "$lib/pageNav.svelte";
-    import { improvImageSize, imageCount } from "$lib/stores/searchStore";
 	import DropDown from "$lib/dropDown.svelte";
+    import { improvImageSize, imageCount } from "$lib/stores/searchStore";
 
     interface Images {
         images: {

@@ -6,7 +6,6 @@ import SideBar from "$lib/sideBar.svelte";
 import SearchBar from "$lib/searchBar.svelte";
 import { onMount, beforeUpdate } from "svelte";
 import { goto } from "$app/navigation";
-import { updateUrlParam } from "$lib/urlParamHandler";
 
 /** @type {import('./$types').PageData} */ 
 
