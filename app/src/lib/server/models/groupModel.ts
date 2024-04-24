@@ -26,7 +26,7 @@ interface ImageDoc extends BaseImage {
 interface BasicGroup {
     name:string, // name of group
     children: ObjectId[], // contains the ids of imageDoc or other GroupDoc(s), will need to handle making sure only goes three levels deep for groups
-    groups: ObjectId[], // contians the groups this group is a member of
+    groups: ObjectId[], // contians the groups this group is a member of : Add check to make sure it is only one level deep
     groupType: string, // possible extension, unsure what to use for now
     groupTags: string[], // tags for the group
 }
