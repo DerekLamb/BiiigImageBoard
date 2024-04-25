@@ -10,12 +10,12 @@ interface BaseImage{ // This is the interface for the image data that is stored 
     imagePath: string;
     uploadDate: string;
     thumbnailPath: string;
+    groups: string[];
     tags: string[];
-    embPrompt?: string[][];
-    related?: string[];
+    embPrompt?: string[][]; //needs fleshed out
+    related?: string[]; 
     favorite?: string[];
     hidden?: string[];
-
 }
 
 interface ImageDoc extends BaseImage { // 
@@ -25,6 +25,8 @@ interface ImageDoc extends BaseImage { //
 export interface AppImageData extends BaseImage {
     _id: string,
 }
+
+ 
 
 function toClient(document: ImageDoc): AppImageData {
     const id = document._id.toString();
@@ -58,8 +60,14 @@ export const ImageModel = {
         return await imageCollection.insertOne(toDatabase(imageData)); 
     },
 
-    async updateImage(id: string, updates: Partial<AppImageData>) {
-        return await imageCollection.updateOne({ _id: new ObjectId(id) }, { $set: toDatabase(updates) });
+    async updateImage <ImageProp extends keyof ImageData> (id: string, prop: ImageProp, value: ImageData[ImageProp]) {
+        let updates = { $set: { prop: value }} 
+        return await imageCollection.updateOne({ _id: new ObjectId(id) }, updates);
+    },
+
+    async replaceImage(imageData: AppImageData) {
+        const document = toDatabase(imageData);
+        return await imageCollection.replaceOne({_id: document._id}, document);
     },
 
     async deleteImage(id: string) {
@@ -70,7 +78,7 @@ export const ImageModel = {
         return await imageCollection.estimatedDocumentCount(filter);
     },
 
-    async getAdjacents(key: string, value: string,) { // caution, this requires an index on the used key field for results to be consistent
+    async getAdjacents(key: keyof AppImageData, value: string | string[] | string [][],) { // caution, this requires an index on the used key field for results to be consistent
         const prevFilter = { [key]: { $lt: value } };
         const nextFilter = { [key]: { $gt: value } };
         const prev = await imageCollection.findOne(

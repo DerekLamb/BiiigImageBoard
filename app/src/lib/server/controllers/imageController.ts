@@ -1,5 +1,5 @@
-import { ImageModel, type AppImageData } from '../models/imageModel';
-import { FileModel } from '../models/fileModel';
+import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
+import { FileModel } from '$lib/server/models/fileModel';
 
 
 class ImageController{
@@ -16,7 +16,7 @@ class ImageController{
         return image;
     }
 
-    async getAdjacents(sort: string, value: string){
+    async getAdjacents(sort: keyof AppImageData, value: string){
         return await ImageModel.getAdjacents(sort, value);
     }
 
@@ -62,6 +62,15 @@ class ImageController{
         }
 
     }
+
+    async updateImageProperty<ImageProp extends keyof ImageData>(id: string, propToUpdate: ImageProp, value: ImageData[ImageProp]) {
+        const results = ImageModel.updateImage(id, propToUpdate, value);
+        if(!results){
+            console.log("No Updates made to ", id)
+        }
+    }
+
+
 
 }
 
