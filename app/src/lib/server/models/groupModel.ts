@@ -54,4 +54,31 @@ export const GroupModel = {
         const documents = await groupCollection.find(filter).sort(sort).skip(skip).limit(limit).toArray() as GroupDoc[];  
         return documents.map(toClient);
     },
+
+    async getGroupById(id: string) {
+        const document = await groupCollection.findOne({ _id: new ObjectId(id) }) as GroupDoc;
+        return toClient(document);
+    },
+
+    async getGroupByName(name: string) {
+        const document = await groupCollection.findOne({ name: name }) as GroupDoc;
+        return toClient(document);
+    },
+
+    async addGroup(groupData: AppGroupData) {
+        // @ts-ignore
+        return await groupCollection.insertOne(toDatabase(groupData)); 
+    },
+
+    async insertIntoGroup(id: string, updates: Partial<AppGroupData>) { // update type 
+        return await groupCollection.updateOne({ _id: new ObjectId(id) }, { $push: toDatabase(updates) });
+    },
+
+    async updateGroup(id: string, updates: Partial<AppGroupData>) {
+        return await groupCollection.updateOne({ _id: new ObjectId(id) }, { $set: toDatabase(updates) });
+    },
+
+    async deleteGroup(id: string) {
+        return await groupCollection.deleteOne({ _id: new ObjectId(id) });
+    },
 }
