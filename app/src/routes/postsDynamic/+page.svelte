@@ -68,7 +68,6 @@
         <SearchBar/>
         <TagSection/>
     </SideBar>
-
     <div class="imageContainer">
         <div class="slideToggle">
             <button on:click={toggleView} >Toggle View</button>
