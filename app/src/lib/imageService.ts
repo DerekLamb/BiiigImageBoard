@@ -324,7 +324,7 @@ class FileUtilityServicee {
 }
 
 
-export const fileService = new FileService();
-export const imageRepo = new ImageRepoService();
-export const imageAddrService = new ImageAddrService(db.collection(collections.images));
+const fileService = new FileService();
+const imageRepo = new ImageRepoService();
+//export const imageAddrService = new ImageAddrService(db.collection(collections.images));
 export const fileUtilService = new FileUtilityServicee();
