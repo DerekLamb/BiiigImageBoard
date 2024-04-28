@@ -8,12 +8,17 @@
     export let downScore = -1;
     export let leftLink = "";
     export let rightLink = "";
+    export let mainLink = "";
     let imgClass = "full-img"
     if(thumbnail){
         imgClass="thumbnail";
     }
 
     function handleClick(event) {
+        if( mainLink != "" ){
+            window.location.href = mainLink;
+            return;
+        }
         const bounds = event.target.getBoundingClientRect();
         const x = event.clientX - bounds.left;
         if (x < bounds.width / 2) {
@@ -47,14 +52,6 @@
         flex-direction: column;
         border-radius: 5px;
         color: #345D7E;
-    }
-
-    .container a {
-        display: block; /* Makes the anchor behave like a block, containing the image and text */
-        text-align: center; /* Centers the content */
-        color: inherit; /* Optional, ensures the title inherits the text color from the parent */
-        text-decoration: none; /* Removes underline from links */
-        max-width: 100%; /* Ensures it doesn't grow beyond the parent container */
     }
 
     .container img {
