@@ -27,3 +27,5 @@ app/testCert/_cert.pem
 nginx/certs/fullchain.pem
 nginx/certs/privkey.pem
 /nginx/certbot/conf/accounts
+images/
+thumb/

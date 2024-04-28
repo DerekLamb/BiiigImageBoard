@@ -1,6 +1,7 @@
 import imageController from "$lib/server/controllers/imageController";
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import type { AppImageData } from "$lib/server/models/imageModel";
 
 export const load: PageServerLoad = async ({ params, locals }) => {
     if (!locals.user) {
@@ -45,16 +46,18 @@ export const actions = {
             redirect(303, redirectSlug);
         }
 
-        const deleted = await imageController.deleteImage(image);
+        const deleted = await imageController.deleteImage(image); //needs tweaking
 
-        if(!deleted){
-            throw new Error(`Error deleting image: ${image._id}`);
-        }
+        // if(!deleted){
+            console.log(deleted);
+        //     throw new Error(`Error deleting image: ${image._id}`);
+        // }
 
-        if( prev ){
+        if( prev != "" ){
+            console.log(prev);
             redirectSlug = `/posts/${prev}`;
         }
-        else if( next ){
+        else if( next != "" ){
             redirectSlug = `/posts/${next}`;
         }
 
