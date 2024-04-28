@@ -1,5 +1,6 @@
 <script>
 	import Image from "$lib/image.svelte";
+    import AutoTagInput from "$lib/autoTagInput.svelte";
     import Tag from "$lib/tag.svelte";
 
     let files = [];
@@ -53,7 +54,7 @@
 <div>
     <input type="file" multiple bind:files on:change="{handleFilesChange}">
     <button on:click="{submitBatch}">Upload All</button>
-
+    
     {#each uploadQueue as item, index}
         <div class = "uploadContainer">
             <img src="{item.previewImage}" alt="preview" style="width: 400px; height: auto;">
@@ -65,6 +66,7 @@
                         <Tag tag={tag} edit={true} />
                     {/each}
                 <input type="text" id="tagAddInput" placeholder="Add tag and press Enter" on:keydown="{e => handleKeyDown(e, index)}">
+                <AutoTagInput autocompleteTags={["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9"]} />
             </div>
         </div>
     {/each}
