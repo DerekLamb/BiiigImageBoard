@@ -3,18 +3,31 @@
     export let src = '';
     export let alt = "TestAlt";
     export let imageName = "";
-    export let link = "TestLink";
     export let thumbnail = false;
     export let upScore = -1;
     export let downScore = -1;
+    export let leftLink = "";
+    export let rightLink = "";
     let imgClass = "full-img"
     if(thumbnail){
         imgClass="thumbnail";
     }
+
+    function handleClick(event) {
+        const bounds = event.target.getBoundingClientRect();
+        const x = event.clientX - bounds.left;
+        if (x < bounds.width / 2) {
+        window.location.href = leftLink; // Navigate to left link
+        } else {
+        window.location.href = rightLink; // Navigate to right link
+        }
+  }
+
 </script>
 
 <div class="container">
-    <a href={link}> <img class="{imgClass}" src={src} alt={alt}/> </a>
+    
+    <img class="{imgClass}" src={src} alt={alt} on:click={handleClick}/>
     {#if upScore == -1 && downScore == -1}
             <span class = "imgName ">{imageName}</span>
     {:else}
