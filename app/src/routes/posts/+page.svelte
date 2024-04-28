@@ -95,11 +95,16 @@ beforeUpdate(() => {
         {#each data.images as image}
             {#if image.thumbnailPath}
                 <div class = "imageBox">
-                    <Image src = "/{image.thumbnailPath}" link = "/posts/{image.uploadDate}" imageName = {image.originalName} thumbnail={true}></Image>
+                    <Image src = "/{image.thumbnailPath}" 
+                    mainLink = "/posts/{image.uploadDate}" 
+                    imageName = {image.originalName} 
+                    thumbnail={true}></Image>
                 </div>
             {:else}
                 <div class = "imageBox">
-                    <Image src = "/{image.imagePath}" link = "/posts/{image.uploadDate}" imageName = {image.originalName} ></Image>
+                    <Image src = "/{image.imagePath}" 
+                    mainLink = "/posts/{image.uploadDate}" 
+                    imageName = {image.originalName} ></Image>
                 </div>
             {/if}
         {/each}
@@ -122,6 +127,7 @@ beforeUpdate(() => {
     .midContainer{
         display:grid;
         height:100%;
+        align-self: stretch;
     }
 
     .footerSpacer{

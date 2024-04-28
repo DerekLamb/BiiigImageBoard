@@ -25,7 +25,6 @@ function copyItems() {
     <div class="imageWindow">
         <Image src = "../../{data.image?.imagePath}" 
             imageName={data.image?.originalName} 
-            link = "/{data.image?.imagePath}" 
             leftLink = {data.adjacents?.next?.uploadDate}
             rightLink = {data.adjacents?.prev?.uploadDate}>
         </Image>
@@ -59,8 +58,8 @@ function copyItems() {
                 <button type="submit">Delete Image</button>
                 <input type="hidden" name="strId" value="{data.image?._id}">
                 {#if data.adjacents?.next || data.adjacents?.prev}
-                <input type="hidden" name="next" value="{data.adjacents.next}">
-                <input type="hidden" name="prev" value="{data.adjacents.prev}">
+                <input type="hidden" name="next" value="{data.adjacents.next.uploadDate}">
+                <input type="hidden" name="prev" value="{data.adjacents.prev.uploadDate}">
                 {/if}
             </form>
     
