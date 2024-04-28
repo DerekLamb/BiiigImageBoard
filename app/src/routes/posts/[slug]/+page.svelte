@@ -23,6 +23,12 @@ function copyItems() {
         <TagSection editable = {true} imageID = {data.image?.uploadDate} tags = {tags}></TagSection>
     </SideBar>
     <div class="imageWindow">
+        <Image src = "../../{data.image?.imagePath}" 
+            imageName={data.image?.originalName} 
+            link = "/{data.image?.imagePath}" 
+            leftLink = {data.adjacents?.next?.uploadDate}
+            rightLink = {data.adjacents?.prev?.uploadDate}>
+        </Image>
         <div class="pageNumContainer">
             {#if data.adjacents?.next}
             <a href="/posts/{data.adjacents.next.uploadDate}" class="pageNum">&lt&lt&lt</a>
@@ -31,7 +37,6 @@ function copyItems() {
             <a href="/posts/{data.adjacents.prev.uploadDate}" class="pageNum">&gt&gt&gt</a>
             {/if}
         </div>
-        <Image src = "../../{data.image?.imagePath}" imageName={data.image?.originalName} link = "/{data.image?.imagePath}"></Image>
         <div class="imageInfo">
             <p><span>Image Name: </span>{data.image?.originalName}</p>
             <p><span>Filename: </span>{data.image?.sanitizedFilename}</p>

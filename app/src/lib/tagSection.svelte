@@ -1,4 +1,5 @@
 <script>
+    import AutoTagInput from "./autoTagInput.svelte";
     import Tag from "./tag.svelte";
     export let tags  = ["test","test", "test"];
     export let imageID = '';
@@ -8,7 +9,7 @@
 
     function handleKeyDown(event) {
     if (event.key === "Enter") {
-        const newTag = event.target.value.trim().replace(" ", "_");
+        const newTag = event.target.value.trim().replace(/ /g,"_");;
 
         if (newTag !== "") {
             tags = tags ? [...tags, newTag] : [newTag];
@@ -16,6 +17,15 @@
             event.target.value = "";
             }
         }
+    }
+
+    function handleMessage(event) {
+        console.log(event.detail);
+        const newTag = event.detail.tag.trim().replace(/ /g,"_");;
+        if (newTag !== "") {
+            tags = tags ? [...tags, newTag] : [newTag];
+            sendTagsToBackend();
+            }
     }
 
     function handleDeleteTag(event){ 
@@ -45,18 +55,20 @@
     <div class="TagSection">
         <h3>Tags</h3>
             <div class="tagsContainer">
-            <ul>
-                {#if tags}
-                    {#each tags as tag }
-                        <Tag tag = {tag} edit = {editing} on:message = {handleDeleteTag} ></Tag>
-                    {/each}
-                {:else}
-                    <p>No tags...</p>
-                {/if}      
-            </ul>
-            {#if editing}
-                <input class = "tagInput" id="tagInput" type="text" placeholder="Type tag here" on:keydown = {handleKeyDown} autofocus>
-            {/if}
+                <ul>
+                    {#if tags}
+                        {#each tags as tag }
+                            <Tag tag = {tag} edit = {editing} on:message = {handleDeleteTag} ></Tag>
+                        {/each}
+                    {:else}
+                        <p>No tags...</p>
+                    {/if}        
+                </ul>
+                {#if editing}
+                <div class="inputContainer">
+                    <AutoTagInput autocompleteTags={["test","teest", "teeest"]} on:tag = {handleMessage} />
+                </div>
+                {/if}
             </div>
         
         {#if editable}   
@@ -76,6 +88,7 @@
     </div>
     
 <style>
+
     .TagSection{
         display: grid;
         grid-template-rows: 2rem minmax(120px, auto) 1.5rem 1.5rem 1.5rem 1fr;
@@ -92,32 +105,26 @@
     }
 
     ul{
-        width: inherit;
-        display:flex;
-        flex-direction: column;
-        height:auto;
-        padding: 0px;
-        margin: 2px;
+        width: 100%;
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
     }
 
     .tagsContainer{
         display:flex;
         flex-direction: column;
-        align-items: start;
-    }
-
-    .tagInput{
-        font-size:18px;
-        width: 190px;
-        font-family: 'Montserrat', sans-serif;
-        background: #E06C75;
-        outline: none;
-        border: none;
-        border-radius: 6px;
-        padding-left: 10px;
-        margin: 0 20px 10px 10px;
+        align-items: flex-start;
     }
     
+    .inputContainer{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+
     button{
         font-size:16px;
         font-family: 'Montserrat', sans-serif;

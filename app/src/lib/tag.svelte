@@ -36,9 +36,8 @@
         font-size: 20px;
         list-style: none;
         border-radius: 6px;
-        margin: 0 20px 5px 10px;
+        margin: 5px 10px;
         background-color: #FFAB73;
-        width:200px;
     }
     .tag:hover{ 
         color: #725e5e;
@@ -66,16 +65,13 @@
         transition: .2s;
     }
 
-    button {
-        color: red;
-    }
     .tag-close-icon { 
         display:inline;
         background-color: #00000000;
-        color: #162524;
+        color: #c90000;
         border: none;
         cursor: pointer;
-        margin: 0 5px;
+        margin: 0 3px;
         font-size: 1rem;
     }
 
