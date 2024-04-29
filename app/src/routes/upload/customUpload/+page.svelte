@@ -35,7 +35,7 @@
             let batch = uploadQueue.splice(0, 20);
             // Convert batch data to form or JSON as required by your backend
             // Use fetch or Axios to POST data
-            console.log('Submitting:', batch);  // Placeholder for actual submission
+            console.log('Submitting:', batch);  // Placeholder for actual submission TODO!!
         }
     }
 
