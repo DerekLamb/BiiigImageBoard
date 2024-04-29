@@ -4,7 +4,7 @@ import { collections, db} from "$lib/db";
 
 const groupCollection = db.collection(collections.groups);
 
-interface BaseImage{ 
+interface BaseImage{ //used for reference 
     originalName: string;
     sanitizedFilename: string;
     imagePath: string;
