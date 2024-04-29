@@ -1,7 +1,6 @@
 import imageController from "$lib/server/controllers/imageController";
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import type { AppImageData } from "$lib/server/models/imageModel";
 
 export const load: PageServerLoad = async ({ params, locals }) => {
     if (!locals.user) {
