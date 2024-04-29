@@ -57,8 +57,10 @@ function copyItems() {
             <form method="post" action="?/delete">
                 <button type="submit">Delete Image</button>
                 <input type="hidden" name="strId" value="{data.image?._id}">
-                {#if data.adjacents?.next || data.adjacents?.prev}
+                {#if data.adjacents?.next}
                 <input type="hidden" name="next" value="{data.adjacents.next.uploadDate}">
+                {/if}
+                {#if data.adjacents?.prev}
                 <input type="hidden" name="prev" value="{data.adjacents.prev.uploadDate}">
                 {/if}
             </form>
