@@ -24,8 +24,8 @@ class ImageController{
         const length = params.length;
         const skip = (params.page - 1) * length;
         const sort = params.sort;
-        //const search = params.search || "";
-        const filter = { };
+        const search = params.search || '';
+        const filter =  search ? { tags: { $regex: search, $options: 'i' }} : {};
 
         const images = await ImageModel.findImages(filter, length, skip, sort);
 
@@ -63,7 +63,7 @@ class ImageController{
 
     }
 
-    async updateImageProperty<ImageProp extends keyof ImageData>(id: string, propToUpdate: ImageProp, value: ImageData[ImageProp]) {
+    async updateImageProperty<ImageProp extends keyof AppImageData>(id: string, propToUpdate: ImageProp, value: ImageData[ImageProp]) {
         const results = ImageModel.updateImage(id, propToUpdate, value);
         if(!results){
             console.log("No Updates made to ", id)
