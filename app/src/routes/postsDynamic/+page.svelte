@@ -49,7 +49,7 @@
         if (draggedImage && draggedOverImage && draggable) {
             console.log(draggedImage, "::", draggedOverImage);
             // Make an API call to update the group IDs on the server
-            //   fetch('api/update-groups', {
+            //   fetch('api/groups', {
             //     method: 'POST',
             //     headers: {
             //       'Content-Type': 'application/json',
