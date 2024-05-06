@@ -63,7 +63,7 @@ class ImageController{
 
     }
 
-    async updateImageProperty<ImageProp extends keyof AppImageData>(id: string, propToUpdate: ImageProp, value: ImageData[ImageProp]) {
+    async updateImageProperty<ImageProp extends keyof AppImageData>(id: string, propToUpdate: ImageProp, value: AppImageData[ImageProp]) {
         const results = ImageModel.updateImage(id, propToUpdate, value);
         if(!results){
             console.log("No Updates made to ", id)

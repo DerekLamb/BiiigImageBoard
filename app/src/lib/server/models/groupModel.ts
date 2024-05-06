@@ -1,8 +1,8 @@
-
+import type { Collection } from 'mongodb';
 import { ObjectId, type Sort } from 'mongodb';
 import { collections, db} from "$lib/db";
 
-const groupCollection = db.collection(collections.groups);
+const groupCollection: Collection<GroupDoc> = db.collection(collections.groups);
 
 interface BaseImage{ //used for reference 
     originalName: string;
@@ -26,7 +26,7 @@ interface ImageDoc extends BaseImage {
 interface BasicGroup {
     name:string, // name of group
     children: ObjectId[], // contains the ids of imageDoc or other GroupDoc(s), will need to handle making sure only goes three levels deep for groups
-    groups: ObjectId[], // contians the groups this group is a member of : Add check to make sure it is only one level deep
+    groups: ObjectId[], // TODO: Remove, will create a new collection for groups of groups
     groupType: string, // possible extension, unsure what to use for now
     groupTags: string[], // tags for the group
 }
@@ -66,17 +66,16 @@ export const GroupModel = {
     },
 
     async addGroup(groupData: AppGroupData) {
-        // @ts-ignore
         return await groupCollection.insertOne(toDatabase(groupData)); 
     },
 
-    async insertIntoGroup(id: string, updates: Partial<AppGroupData>) { // update type 
-        return await groupCollection.updateOne({ _id: new ObjectId(id) }, { $push: toDatabase(updates) });
+    async addImageToGroup(groupId: string, imageId: string) {
+        return await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $push: { children: new ObjectId(imageId) } });
     },
 
-    async updateGroup(id: string, updates: Partial<AppGroupData>) {
-        return await groupCollection.updateOne({ _id: new ObjectId(id) }, { $set: toDatabase(updates) });
-    },
+    // async updateGroup(id: string, updates: Partial<AppGroupData>) {
+    //     return await groupCollection.updateOne({ _id: new ObjectId(id) }, { $set: toDatabase(updates) });
+    // },
 
     async deleteGroup(id: string) {
         return await groupCollection.deleteOne({ _id: new ObjectId(id) });
