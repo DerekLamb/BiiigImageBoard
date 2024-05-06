@@ -1,8 +1,8 @@
-import { ObjectId, type Sort, type SortDirection } from "mongodb";
+import { ObjectId, type Sort, type Collection } from "mongodb";
 import { collections, db } from "$lib/db";
 
 
-const imageCollection = db.collection(collections.images);
+const imageCollection : Collection<ImageDoc> = db.collection(collections.images);
 
 interface BaseImage{ // This is the interface for the image data that is stored in the database
     originalName: string;
@@ -56,11 +56,10 @@ export const ImageModel = {
     },
 
     async addImage(imageData: AppImageData) {
-        // @ts-ignore
         return await imageCollection.insertOne(toDatabase(imageData)); 
     },
 
-    async updateImage <ImageProp extends keyof ImageData> (id: string, prop: ImageProp, value: ImageData[ImageProp]) {
+    async updateImage <ImageProp extends keyof AppImageData> (id: string, prop: ImageProp, value: AppImageData[ImageProp]) {
         let updates = { $set: { [prop]: value }} 
         return await imageCollection.updateOne({ _id: new ObjectId(id) }, updates);
     },
