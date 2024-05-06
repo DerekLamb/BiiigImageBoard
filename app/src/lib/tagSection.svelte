@@ -1,54 +1,78 @@
 <script>
     import AutoTagInput from "./autoTagInput.svelte";
     import Tag from "./tag.svelte";
-    export let tags  = ["test","test", "test"];
+    import { onMount } from 'svelte';
+    export let imageTags;
+
     export let imageID = '';
     export let editable = true;
     //export let embPrompt = [];
+    let autoTags = ["test","test", "test"];
     let editing = false;
 
-    function handleKeyDown(event) {
-    if (event.key === "Enter") {
-        const newTag = event.target.value.trim().replace(/ /g,"_");;
+    // function handleKeyDown(event) {
+    // if (event.key === "Enter") {
+    //     const newTag = event.target.value.trim().replace(/ /g,"_");;
 
-        if (newTag !== "") {
-            tags = tags ? [...tags, newTag] : [newTag];
-            sendTagsToBackend();
-            event.target.value = "";
+    //     if (newTag !== "") {
+    //         tags = tags ? [...tags, newTag] : [newTag];
+    //         sendTagsToBackend();
+    //         event.target.value = "";
+    //         }
+    //     }
+    // }
+
+    onMount(() => {
+        fetchTags();
+    });
+
+
+    async function fetchTags() {
+        try {
+            const response = await fetch(`/api/tags`);
+            if (response.ok) {
+                console.log(response);
+                const data = await response.json();
+                autoTags = data;
+                console.log(autoTags);
+            } else {
+                throw new Error('Failed to fetch tags');
             }
+        } catch (error) {
+            console.error('Error fetching tags:', error);
         }
     }
 
+
     function handleMessage(event) {
         console.log(event.detail);
-        const newTag = event.detail.tag.trim().replace(/ /g,"_");;
+        const newTag = event.detail.tag.toLowerCase().trim().replace(/ /g,"_");;
         if (newTag !== "") {
-            tags = tags ? [...tags, newTag] : [newTag];
+            imageTags = imageTags ? [...imageTags, newTag] : [newTag];
             sendTagsToBackend();
             }
     }
 
     function handleDeleteTag(event){ 
-        tags = tags.filter((tag) => tag !== event.detail.deletedTag);
+        imageTags = imageTags.filter((tag) => tag !== event.detail.deletedTag);
         sendTagsToBackend()
     }
 
     async function sendTagsToBackend() {
-    try {
-      const response = await fetch(`/api/tags`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tags : tags , imageID: imageID})
-        });
+        try {
+            const response = await fetch(`/api/tags`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tags : imageTags , imageID: imageID})
+                });
 
-      if (!response.ok) {
-        throw new Error('Failed to send data to the server');
+            if (!response.ok) {
+                throw new Error('Failed to send data to the server');
+                }
+            
+        } catch (error) {
+        console.error(error);
         }
-      // Do something with success response
-    } catch (error) {
-      console.error(error);
-      // Handle error
-    }
     }
 
 </script>
@@ -56,8 +80,8 @@
         <h3>Tags</h3>
             <div class="tagsContainer">
                 <ul>
-                    {#if tags}
-                        {#each tags as tag }
+                    {#if imageTags}
+                        {#each imageTags as tag }
                             <Tag tag = {tag} edit = {editing} on:message = {handleDeleteTag} ></Tag>
                         {/each}
                     {:else}
@@ -66,7 +90,7 @@
                 </ul>
                 {#if editing}
                 <div class="inputContainer">
-                    <AutoTagInput autocompleteTags={["test","teest", "teeest"]} on:tag = {handleMessage} />
+                    <AutoTagInput autocompleteTags={autoTags} on:tag = {handleMessage} />
                 </div>
                 {/if}
             </div>

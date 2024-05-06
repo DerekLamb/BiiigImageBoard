@@ -1,14 +1,21 @@
 import { json } from '@sveltejs/kit'
-import db from '$lib/db'
-import { imageRepo } from '$lib/imageRepository';
+import imageController from '$lib/server/controllers/imageController';
+import { TagModel } from '$lib/server/models/tagModel';
 
 let tags: string[] = [];
 
 
 export async function GET(event: any) {
-
-
-    return json({ tags: tags})
+    try {
+        tags = await TagModel.getAll();
+        tags.filter((tag) => tag);
+        console.log(tags);
+        return json(tags);
+        
+    } catch (e) {
+        console.error(e);
+        return json({ success: false });
+    }
 }
 
 export async function POST({ request } : Request){
@@ -16,8 +23,7 @@ export async function POST({ request } : Request){
         const body = await request.json();
         console.log(body);
         // Insert the image tags into the collection
-        //await db.collection('testimages').updateOne({genName: body.imageID}, { $set: {'tags':body.tags} });
-        await imageRepo.updateByTimestamp(body.imageID, {tags: body.tags});
+        await imageController.updateImageProperty(body.imageID, "tags", body.tags);
         return json({ success: true });
     } catch (e) {
 

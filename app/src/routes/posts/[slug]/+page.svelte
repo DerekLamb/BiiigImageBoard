@@ -20,7 +20,7 @@ function copyItems() {
 <div class = midContainer>
     <SideBar>
         <SearchBar></SearchBar>
-        <TagSection editable = {true} imageID = {data.image?.uploadDate} tags = {tags}></TagSection>
+        <TagSection editable = {true} imageID = {data.image?._id} imageTags = {tags}></TagSection>
     </SideBar>
     <div class="imageWindow">
         <Image src = "../../{data.image?.imagePath}" 
