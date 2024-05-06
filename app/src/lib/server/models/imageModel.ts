@@ -61,7 +61,7 @@ export const ImageModel = {
     },
 
     async updateImage <ImageProp extends keyof ImageData> (id: string, prop: ImageProp, value: ImageData[ImageProp]) {
-        let updates = { $set: { prop: value }} 
+        let updates = { $set: { [prop]: value }} 
         return await imageCollection.updateOne({ _id: new ObjectId(id) }, updates);
     },
 
