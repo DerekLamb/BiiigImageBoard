@@ -19,12 +19,12 @@ export interface BaseImage { // This is the interface for the image/group data t
     hidden?: string[];
 }
 
-export interface ImageDoc extends BaseImage { // 
+interface ImageDoc extends BaseImage { // 
     _id: ObjectId;
 }
 
-export interface AppImageData extends BaseImage {
-    _id: string,
+interface GroupDoc extends BasicGroup {
+    _id: ObjectId;
 }
 
 export interface BasicGroup {
@@ -36,24 +36,20 @@ export interface BasicGroup {
     groupTags: string[], // tags for the group
 }
 
-export interface GroupDoc extends BasicGroup {
-    _id: ObjectId;
-}
-
-export interface AppGroupData extends BasicGroup {
-    _id: string,
-}
-
 
 // Group + Image Aggregation functions 
 
 
 //aggregation + pagination example to get all top level images + groups 
+
+// function displayGroupLevel( group: AppGroupData ) {
+
+// }
 const topLevel = imageCollection.aggregate([
     {
         $unionWith: {
             coll: collections.groups,
-            pipeline: [$match: { groups: []}]
+            pipeline: [ $match: { groups: [] } ]
         }
     },
     { $match: { groups: [] } },  // Only include top-level folders
@@ -63,4 +59,3 @@ const topLevel = imageCollection.aggregate([
 ])
 
 
-const 
