@@ -7,14 +7,10 @@
     import PageNav from "$lib/pageNav.svelte";
 	import DropDown from "$lib/dropDown.svelte";
     import { improvImageSize, imageCount } from "$lib/stores/searchStore";
+	import type { AppImageData } from "$lib/server/models/imageModel.js";
 
     interface Images {
-        images: {
-            originalName: string;
-            thumbnailPath: string;
-            imagePath: string;
-            uploadDate: string;
-        }[];
+        images: AppImageData[];
         currPage: number;
         pageNum: number;
     }
@@ -35,27 +31,30 @@
         console.log(flatState);
     }
 
-    const handleDragStart = (event, image) => {
-        let draggedImage = image;
+    const handleDragStart = (event) => {
+        draggedImage = event.currentTarget.id;
     }
 
-    const handleDragOver = (event, image) => {
+    const handleDragOver = (event) => {
         event.preventDefault();
-        let draggedOverImage = image;
+        draggedOverImage = event.currentTarget.id;
     }
 
     const  handleDrop = (event) => {
         event.preventDefault();
-        if (draggedImage && draggedOverImage && draggable) {
+        if (draggedImage && draggedOverImage) {
             console.log(draggedImage, "::", draggedOverImage);
-            // Make an API call to update the group IDs on the server
-            //   fetch('api/groups', {
-            //     method: 'POST',
-            //     headers: {
-            //       'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify(updatedImages),
-            //   });
+            //Make an API call to update the group IDs on the server
+              fetch('api/groups', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    draggedImage: draggedImage,
+                    draggedOverImage: draggedOverImage,
+                }),
+              });
         }
 
         draggedImage = null;
@@ -77,7 +76,20 @@
         <DropDown label="Image Count" options={numImages} bind:selectedValue={$imageCount} />
         <ImageBrowser minSize = {$improvImageSize}>
             {#each data.images as image}
-                <Image src = "/{image.thumbnailPath}" link = "/posts/{image.uploadDate}" imageName = {image.originalName} thumbnail={true}></Image>
+
+                    <div class = "imageBox" id = { image._id} on:dragstart = {handleDragStart } on:dragover = {handleDragOver } on:drop = {handleDrop}>
+                        {#if image.thumbnailPath}
+                            <Image src = "/{image.thumbnailPath}" 
+                            mainLink = "/posts/{image.uploadDate}" 
+                            imageName = {image.originalName} 
+                            thumbnail={true}></Image>
+                        {:else}
+                            <Image src = "/{image.imagePath}" 
+                            mainLink = "/posts/{image.uploadDate}" 
+                            imageName = {image.originalName}></Image>
+                        {/if}      
+                    </div>
+      
             {/each}
         </ImageBrowser>
         <PageNav currPage = {data.currPage} numPages = {data.pageNum} />
