@@ -1,35 +1,6 @@
-import type { Collection } from 'mongodb';
 import { ObjectId, type Sort } from 'mongodb';
-import { collections, db} from "$lib/db";
-
-const groupCollection: Collection<GroupDoc> = db.collection(collections.groups);
-
-interface BaseImage{ //used for reference 
-    originalName: string;
-    sanitizedFilename: string;
-    imagePath: string;
-    uploadDate: string;
-    thumbnailPath: string;
-    tags: string[];
-    groups: string[]; // groups image is a member of
-    embPrompt?: string[][];
-    related?: string[];
-    favorite?: string[];
-    hidden?: string[];
-
-}
-
-interface ImageDoc extends BaseImage { 
-    _id: ObjectId;
-}
-
-interface BasicGroup {
-    name:string, // name of group
-    children: ObjectId[], // contains the ids of imageDoc or other GroupDoc(s), will need to handle making sure only goes three levels deep for groups
-    groups: ObjectId[], // TODO: Remove, will create a new collection for groups of groups
-    groupType: string, // possible extension, unsure what to use for now
-    groupTags: string[], // tags for the group
-}
+import { ImageModel } from './imageModel';
+import { imageCollection, groupCollection, type BaseImage, type BasicGroup} from './unifiedModel';
 
 interface GroupDoc extends BasicGroup {
     _id: ObjectId;
@@ -65,11 +36,30 @@ export const GroupModel = {
         return toClient(document);
     },
 
-    async addGroup(groupData: AppGroupData) {
+    async getGroupChildren(id: string) {
+        const document = await groupCollection.findOne({ _id: new ObjectId(id) }) as GroupDoc;
+        return document.children; // returns array of imageIds or groupIds
+    },
+
+    async createGroup(groupData: AppGroupData) {
         return await groupCollection.insertOne(toDatabase(groupData)); 
     },
 
     async addImageToGroup(groupId: string, imageId: string) {
+        const group = await GroupModel.getGroupById(groupId);
+        const childImages = await imageCollection.find({_id: {$in: group.children}}).toArray();
+        console.log(childImages);
+
+        let latestDate: string = "0";
+        childImages.forEach(async (image) => {
+            if (latestDate === undefined) {
+                latestDate = image.uploadDate;
+            } else if (image.uploadDate > latestDate) {
+                latestDate = image.uploadDate;
+            }
+        })
+        console.log(latestDate);
+        await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $set: { uploadDate: latestDate } });
         return await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $push: { children: new ObjectId(imageId) } });
     },
 
