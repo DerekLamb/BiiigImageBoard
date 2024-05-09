@@ -45,17 +45,17 @@ export interface BasicGroup {
 // function displayGroupLevel( group: AppGroupData ) {
 
 // }
-const topLevel = imageCollection.aggregate([
-    {
-        $unionWith: {
-            coll: collections.groups,
-            pipeline: [ $match: { groups: [] } ]
-        }
-    },
-    { $match: { groups: [] } },  // Only include top-level folders
-    { $sort: { uploadDate: -1  } },  // Sort by name or other criteria
-    { $skip: 0 },  // Pagination offset, calculate based on current page
-    { $limit: 10 }  // Number of items per page
-])
+// const topLevel = imageCollection.aggregate([
+//     {
+//         $unionWith: {
+//             coll: collections.groups,
+//             pipeline: [ {$match: { groups: [] } }]
+//         }
+//     },
+//     { $match: { groups: [] } },  // Only include top-level folders
+//     { $sort: { uploadDate: -1  } },  // Sort by name or other criteria
+//     { $skip: 0 },  // Pagination offset, calculate based on current page
+//     { $limit: 10 }  // Number of items per page
+// ])
 
 

@@ -1,5 +1,6 @@
 import { ObjectId, type Sort } from 'mongodb';
 import { ImageModel } from './imageModel';
+import { collections, db } from '$lib/db';
 import { imageCollection, groupCollection, type BaseImage, type BasicGroup} from './unifiedModel';
 
 interface GroupDoc extends BasicGroup {
@@ -36,12 +37,27 @@ export const GroupModel = {
         return toClient(document);
     },
 
-    async getGroupChildren(id: string) {
-        const document = await groupCollection.findOne({ _id: new ObjectId(id) }) as GroupDoc;
-        return document.children; // returns array of imageIds or groupIds
+    async getGroupChildren(id: string, page = 0, limit = 10) {
+        const topLevel = imageCollection.aggregate([
+            {
+                $unionWith: {
+                    coll: collections.groups,
+                    pipeline: [ { $match: { groups: [] } }]
+                }
+            },
+            { $match: { groups: [] } },  // Only include top-level folders
+            { $sort: { uploadDate: -1  } },  // Sort by name or other criteria
+            { $skip: 0 },  // Pagination offset, calculate based on current page
+            { $limit: 10 }  // Number of items per page
+        ])
+
+        for await ( const doc of topLevel ) {
+            console.log(doc);
+        }
+
     },
 
-    async createGroup(groupData: AppGroupData) {
+    async createGroup(groupData: Partial<AppGroupData>) {
         return await groupCollection.insertOne(toDatabase(groupData)); 
     },
 
