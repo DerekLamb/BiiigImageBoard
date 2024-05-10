@@ -19,14 +19,6 @@ export interface BaseImage { // This is the interface for the image/group data t
     hidden?: string[];
 }
 
-interface ImageDoc extends BaseImage { // 
-    _id: ObjectId;
-}
-
-interface GroupDoc extends BasicGroup {
-    _id: ObjectId;
-}
-
 export interface BasicGroup {
     name: string, // name of group
     uploadDate: string, // date group was created
@@ -36,26 +28,26 @@ export interface BasicGroup {
     groupTags: string[], // tags for the group
 }
 
+export const unifiedModel = {
 
-// Group + Image Aggregation functions 
-
-
-//aggregation + pagination example to get all top level images + groups 
-
-// function displayGroupLevel( group: AppGroupData ) {
-
-// }
-// const topLevel = imageCollection.aggregate([
-//     {
-//         $unionWith: {
-//             coll: collections.groups,
-//             pipeline: [ {$match: { groups: [] } }]
-//         }
-//     },
-//     { $match: { groups: [] } },  // Only include top-level folders
-//     { $sort: { uploadDate: -1  } },  // Sort by name or other criteria
-//     { $skip: 0 },  // Pagination offset, calculate based on current page
-//     { $limit: 10 }  // Number of items per page
-// ])
-
+    async getGroupChildren(groupName: string, page = 0, limit = 10) { //used to get children of a group
+        const topLevel = imageCollection.aggregate([
+            {
+                $unionWith: {
+                    coll: collections.groups,
+                    pipeline: [ { $match: { groups: [groupName] } }]
+                }
+            },
+            { $match: { groups: [groupName] } },  // Only include top-level folders
+            { $sort: { uploadDate: -1  } },  // Sort by name or other criteria
+            { $skip: 0 },  // Pagination offset, calculate based on current page
+            { $limit: 10 }  // Number of items per page
+        ])
+    
+        for await ( const doc of topLevel ) {
+            console.log(doc);
+        }
+    
+    }
+}
 
