@@ -25,3 +25,18 @@ export async function POST({ request } : Request){
         
     }
 }
+
+export async function GET({ params }) {
+    try {
+        const {  } = params;
+        const page = 0;
+        const limit = 10;
+
+        const children = await GroupModel.getGroupChildren(id, page, limit);
+        console.log(children);
+        return json({ success: true, children });
+    } catch (e) {
+        console.error(e);
+        return json({ success: false });
+    }
+}
