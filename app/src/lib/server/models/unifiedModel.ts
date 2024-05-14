@@ -36,7 +36,7 @@ interface ImageDoc extends BaseImage { //
     _id: ObjectId;
 }
 
-export const unifiedModel = {
+export const UnifiedModel = {
 
     async getGroupChildren(groupName: string = "", page = 0, limit = 10) { //used to get children of a group
         const skip = page * limit;
