@@ -1,6 +1,7 @@
 <script>
     import { menuOpen } from "$lib/stores/searchStore";
     import { onMount } from "svelte";
+    import SlideMenu from "$lib/svelteComponents/slideMenu.svelte";
 
     function toggleMenu() {
         menuOpen.update((state) => !state);
@@ -10,12 +11,6 @@
    
 <!-- Regular Navbar -->
 <div class="navContainer">
-    <!-- Brand or Logo -->
-    <!-- <div class="brand">
-    b.d
-    </div> -->
-
-    <!-- Menu Items for Desktop -->
     <div class="navbar">
         <a href="/posts">Posts</a>
         <a href="/tags">Tags</a>
@@ -23,32 +18,48 @@
         <a href="/">Home</a>
         <a href="/login">Login</a>
     </div>
-
-    
 </div>
 <!-- Menu Button for Mobile -->
 <button class="menu-button" class:open={$menuOpen} on:click={toggleMenu}>
-    <i></i><i></i><i></i>
+    <i></i>
+    <i></i>
+    <i></i>
 </button>
+
 <!-- Off-Canvas Menu for Mobile -->
-<div class="menu-container" class:open={$menuOpen} on:click={toggleMenu} on:keydown={toggleMenu} role="menu" tabindex=0>
-    <!-- Mobile Menu Content -->
-    <nav>
-        <ul>
-            <li><a href="/posts">Posts</a></li>
-            <li><a href="/tags">Tags</a></li>
-            <li><a href="/upload">Upload</a></li>
-            <li><a href="/">Home</a></li>
-            <li><a href="/login">Login</a></li>
-        </ul>
-    </nav>
-</div>  
+
+<SlideMenu menuOpen = {$menuOpen}>
+    <li><a href="/posts">Posts</a></li>
+    <li><a href="/tags">Tags</a></li>
+    <li><a href="/upload">Upload</a></li>
+    <li><a href="/">Home</a></li>
+    <li><a href="/login">Login</a></li>
+</SlideMenu>
   
-  <style>
+<style>
+    @media (min-width: 600px) {
+        .navbar {
+            display: flex;
+        }
+    
+        .menu-button {
+            display: none;
+        }
+    }
+  
+    @media (max-width: 768px) {
+        .menu-button {
+            display: block;
+        }
+        .navContainer {
+            display: none;
+        }
+
+    }
     .navContainer {
-      display: flex;
-      justify-content: space-between;
-      padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem;
     }
 
     .navbar {
@@ -65,12 +76,25 @@
         display:inline;
     }
 
-    .navbar a:visited{
+    li {
+        list-style-type: none;
         color: #678c9e;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.2rem;
+        margin:10px 30px;
+        text-decoration: none;
     }
 
-    .navbar a:hover{
+    a:hover{
         animation: blinkFade 0.5s cubic-bezier(0,1,.5,.91) forwards;
+    }
+
+    a {
+        color: #678c9e;
+        text-decoration: none;
+    }
+    a:visited{
+        color: #678c9e;
     }
 
     @keyframes blinkFade {
@@ -258,82 +282,5 @@
         100% {
             transform: translateY(-9px) rotate(135deg);
         }
-    }
-    
-    .menu-container {
-        position: fixed;
-        display:flex;
-        flex-direction: column;
-        justify-content: end;
-        top: 0;
-        bottom: 0;
-        left: -200px; /* Menu width */
-        width: 200px;
-        background-color: #fff;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-        transition: left 0.3s;
-        z-index: 1000;
-    }
-
-    .menu-container nav {
-        display:flex;
-        flex-direction: column;
-        justify-content: end;
-        align-items: flex-end;
-        margin: 0;
-        padding: 0;
-    }
-
-    .menu-container nav li {
-        list-style-type: none;
-        color: #678c9e;
-        font-family: 'Montserrat', sans-serif;
-        font-size: 1.2rem;
-        margin:10px 30px;
-        text-decoration: none;
-    }
-
-    .menu-container nav a {
-        color: #678c9e;
-        text-decoration: none;
-    }
-    .menu-container nav a:visited{
-        color: #678c9e;
-    }
-  
-    .menu-container.open {
-      left: 0; /* Slide in */
-    }
-  
-    .backdrop {
-      display: none;
-    }
-  
-    .backdrop.open {
-      display: block;
-    }
-  
-    @media (min-width: 600px) {
-      .navbar {
-        display: flex;
-      }
-  
-      .menu-button {
-        display: none;
-      }
-  
-      .menu-container, .backdrop {
-        display: none;
-      }
-    }
-  
-    @media (max-width: 768px) {
-      .menu-button {
-        display: block;
-      }
-      .navContainer {
-        display: none;
-      }
-
     }
   </style>
