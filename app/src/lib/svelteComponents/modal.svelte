@@ -1,13 +1,14 @@
-<script lang="ts">
+<script lang>
 let detailText: string;
 let dialogBox: string;
 export let show: boolean;
+let dialogBox;
 
 </script>
 
-<dialog bind:this={dialog} 
-    on:close{() => (showModal = false)}
-    on:click|self={() => dialog.close()}>
+<dialog bind:this = {dialogBox} 
+    on:close={() => (show = false)}
+    on:click|self={() => dialogBox.close()}>
     <div class="modal-content">
         <span class="close" on:click={() => show = false}>&times;</span>
         <p>{detailText}</p>
