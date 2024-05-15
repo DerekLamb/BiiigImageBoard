@@ -6,7 +6,6 @@
 
     export let imageID = '';
     export let editable = true;
-    //export let embPrompt = [];
     let autoTags = ["test","test", "test"];
     let editing = false;
 
