@@ -6,6 +6,8 @@ let tags: string[] = [];
 
 
 export async function GET(event: any) {
+    //user access check TODO 
+
     try {
         tags = await TagModel.getAll();
         tags.filter((tag) => tag);
@@ -18,7 +20,9 @@ export async function GET(event: any) {
     }
 }
 
-export async function POST({ request } : Request){
+export async function POST({ request }){
+    //user access check TODO
+
     try {
         const body = await request.json();
         console.log(body);
