@@ -2,24 +2,13 @@
     import AutoTagInput from "./autoTagInput.svelte";
     import Tag from "./tag.svelte";
     import { onMount } from 'svelte';
-    export let imageTags;
 
+    export let imageTags;
     export let imageID = '';
     export let editable = true;
+
     let autoTags = ["test","test", "test"];
     let editing = false;
-
-    // function handleKeyDown(event) {
-    // if (event.key === "Enter") {
-    //     const newTag = event.target.value.trim().replace(/ /g,"_");;
-
-    //     if (newTag !== "") {
-    //         tags = tags ? [...tags, newTag] : [newTag];
-    //         sendTagsToBackend();
-    //         event.target.value = "";
-    //         }
-    //     }
-    // }
 
     onMount(() => {
         fetchTags();
@@ -48,16 +37,16 @@
         const newTag = event.detail.tag.toLowerCase().trim().replace(/ /g,"_");;
         if (newTag !== "") {
             imageTags = imageTags ? [...imageTags, newTag] : [newTag];
-            sendTagsToBackend();
+            updateServerTags();
             }
     }
 
     function handleDeleteTag(event){ 
         imageTags = imageTags.filter((tag) => tag !== event.detail.deletedTag);
-        sendTagsToBackend()
+        updateServerTags()
     }
 
-    async function sendTagsToBackend() {
+    async function updateServerTags() {
         try {
             const response = await fetch(`/api/tags`, {
                 method: 'POST',
@@ -84,7 +73,7 @@
                             <Tag tag = {tag} edit = {editing} on:message = {handleDeleteTag} ></Tag>
                         {/each}
                     {:else}
-                        <p>No tags...</p>
+                        <p>Page left blank on purpose</p>
                     {/if}        
                 </ul>
                 {#if editing}
