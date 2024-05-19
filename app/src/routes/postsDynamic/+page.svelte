@@ -6,6 +6,7 @@
     import Image from "$lib/image.svelte";
     import PageNav from "$lib/pageNav.svelte";
 	import DropDown from "$lib/dropDown.svelte";
+    import Modal from "$lib/svelteComponents/modal.svelte";
     import { improvImageSize, imageCount } from "$lib/stores/searchStore";
 	import type { AppImageData } from "$lib/server/models/imageModel.js";
 
@@ -23,7 +24,13 @@
     let flatState : boolean = true; 
     let draggedImage = null;
     let draggedOverImage = null;
+    let modalShow = false;
     let draggable = false;
+
+    const toggleModal = () => {
+        modalShow = modalShow === false ? true : false;
+        console.log(modalShow);
+    }
 
 
     const toggleView = () => {
@@ -69,7 +76,7 @@
     </SideBar>
     <div class="imageContainer">
         <div class="slideToggle">
-            <button on:click={toggleView} >Toggle View</button>
+            <button on:click={toggleModal} >Toggle View</button>
         </div>
         <PageNav currPage = {data.currPage} numPages = {data.pageNum} />
         <DropDown label="Image Size" options={sizes} bind:selectedValue={$improvImageSize} />
@@ -94,6 +101,7 @@
         </ImageBrowser>
         <PageNav currPage = {data.currPage} numPages = {data.pageNum} />
     </div>
+    <Modal show={modalShow}></Modal>
 </div>
 
 <style>

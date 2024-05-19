@@ -1,11 +1,11 @@
-<script lang>
-let detailText: string;
-let dialogBox: string;
+<script lang="ts">
+let detailText = "Test Message Here ": string;
+let dialogBox
 export let show: boolean;
-let dialogBox;
+
 
 </script>
-
+ 
 <dialog bind:this = {dialogBox} 
     on:close={() => (show = false)}
     on:click|self={() => dialogBox.close()}>
