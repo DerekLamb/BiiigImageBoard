@@ -31,7 +31,7 @@ export const actions = {
     
 
     try {
-        ImageController.updateMissingThumbnails();
+        ImageController.updateAllThumbnails();
         //const body = request.body;
         // let [ missingFiles, missingDB ]  = await fileUtilService.compareDBToDir();
         // if ( missingDB.length > 0 || missingDB instanceof Array ){
