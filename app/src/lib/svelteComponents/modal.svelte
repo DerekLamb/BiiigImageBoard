@@ -1,6 +1,6 @@
 <script lang="ts">
 let detailText = "Test Message Here ": string;
-let dialogBox
+let dialogBox = null;
 export let show: boolean;
 
 
