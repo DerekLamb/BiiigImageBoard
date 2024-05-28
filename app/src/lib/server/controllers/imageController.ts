@@ -56,13 +56,9 @@ class ImageController{
     }
 
     async addImage(imageData: AppImageData, buffer: Buffer){
-        try {
-            await FileModel.write(imageData.imagePath, buffer);
-            return await ImageModel.addImage(imageData);
-        } catch (error) {
-            throw new Error(`Error adding image: ${error}`);
-            return false;
-        }
+        await FileModel.write(imageData.imagePath, buffer);
+        return await ImageModel.addImage(imageData);
+
 
     }
 
@@ -95,8 +91,12 @@ class ImageController{
             const dbResults = await this.addImage(imageDataObj, buffer)
             imageService.updateThumbnail(imageDataObj, buffer);
             return dbResults;
-        } catch (error) {
-            throw new Error(`Error processing file ${file.name}: ${error}`)
+        } catch (error: any) {
+            if (error.code === 11000) {
+              console.error(`Error processing file ${file.name}: MongoServerError: E11000 duplicate key error`);
+            } else {
+              throw new Error(`Error processing file ${file.name}: ${error}`);
+            }
         }
     }
 
