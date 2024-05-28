@@ -11,7 +11,7 @@ export interface AppGroupData extends BasicGroup {
     _id: string,
 }
 
-function toClient(document: GroupDoc): AppGroupData {
+function toClient(document: GroupDoc): AppGroupData { 
     const id = document._id.toString();
     return { ...document, _id: id } as AppGroupData; // Convert ObjectId to string
 }
@@ -21,7 +21,7 @@ function toDatabase(document: Partial<AppGroupData>): GroupDoc {
     return { ...document, _id: id } as GroupDoc; // Convert string to ObjectId
 }
 
-export const GroupModel = { 
+export const GroupModel = { // Feels superficial, why?? (not tied to anything except when remembered) 
     async findGroups(filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 }) {
         const documents = await groupCollection.find(filter).sort(sort).skip(skip).limit(limit).toArray() as GroupDoc[];  
         return documents.map(toClient);
