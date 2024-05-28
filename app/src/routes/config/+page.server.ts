@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import { redirect } from "@sveltejs/kit";
 import { fileUtilService, imageRepo, type ImageData } from "$lib/imageService"
+import ImageController from "$lib/server/controllers/imageController.js";
 import { ObjectId } from "mongodb";
 
 /** @type {import('./$types').Actions} */
@@ -27,43 +28,45 @@ export const actions = {
         redirect(307, '/login');
     }
 
-    try {
-        //const body = request.body;
-        
-        let [ missingFiles, missingDB ]  = await fileUtilService.compareDBToDir();
-        if ( missingDB.length > 0 || missingDB instanceof Array ){
-            const baseTimestamp = Date.now().toString();
-            for(let i = 0; i < missingDB.length; i++){
-                const file = missingDB[i];
-                try{
-                    const buffer = await fs.readFile(`images/${file}`);
-                    const hash = await fileUtilService.hashFile(buffer);
-                    const ext  = file.split('.').pop();
-                    const sequentialTimestamp = (parseInt(baseTimestamp) + i).toString();
-                    const newFileName = `${sequentialTimestamp}.${ext}`;
+    
 
-                    const imageDataObj : ImageData = {
-                        _id: new ObjectId(hash),
-                        originalName: file as string, // need more research on String vs string
-                        sanitizedFilename: newFileName,
-                        imagePath: `images/${newFileName}`, 
-                        uploadDate: sequentialTimestamp,
-                        thumbnailPath: "",
-                        tags: null,
-                    }
-                    console.log(imageDataObj)
-                    const dbResults = await imageRepo.create(imageDataObj)
-                    if(dbResults){
-                        fs.rename(`images/${file}`, `images/${newFileName}`); // rename file
-                        fileUtilService.createThumbnail(imageDataObj, buffer);
-                        console.log(`File ${file} added to DB`);
-                    }
-                } catch (error) {
-                    console.error("Error processing file", file, error);
-                }
+    try {
+        ImageController.updateMissingThumbnails();
+        //const body = request.body;
+        // let [ missingFiles, missingDB ]  = await fileUtilService.compareDBToDir();
+        // if ( missingDB.length > 0 || missingDB instanceof Array ){
+        //     const baseTimestamp = Date.now().toString();
+        //     for(let i = 0; i < missingDB.length; i++){
+        //         const file = missingDB[i];
+        //         try{
+        //             const buffer = await fs.readFile(`images/${file}`);
+        //             const hash = await fileUtilService.hashFile(buffer);
+        //             const ext  = file.split('.').pop();
+        //             const sequentialTimestamp = (parseInt(baseTimestamp) + i).toString();
+        //             const newFileName = `${sequentialTimestamp}.${ext}`;
+
+        //             const imageDataObj : ImageData = {
+        //                 _id: new ObjectId(hash),
+        //                 originalName: file as string, // need more research on String vs string
+        //                 sanitizedFilename: newFileName,
+        //                 imagePath: `images/${newFileName}`, 
+        //                 uploadDate: sequentialTimestamp,
+        //                 thumbnailPath: "",
+        //                 tags: null,
+        //             }
+        //             console.log(imageDataObj)
+        //             const dbResults = await imageRepo.create(imageDataObj)
+        //             if(dbResults){
+        //                 fs.rename(`images/${file}`, `images/${newFileName}`); // rename file
+        //                 fileUtilService.createThumbnail(imageDataObj, buffer);
+        //                 console.log(`File ${file} added to DB`);
+        //             }
+        //         } catch (error) {
+        //             console.error("Error processing file", file, error);
+        //         }
                 
-            }
-        }
+        //     }
+        // }
         
     } 
     catch (error) {
