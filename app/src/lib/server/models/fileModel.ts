@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 
 
-export const FileModel = {
+export const FileModel = { // reassess to Dir(ectory)Model?? 
     async readDir(path: string): Promise<string[]> {
         try {
             return await fs.readdir(path);
