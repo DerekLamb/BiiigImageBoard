@@ -1,9 +1,12 @@
 import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
 import { FileModel } from '$lib/server/models/fileModel';
 
-
+const constDefaultPath = 'images/'; // default path if none specified
 class ImageController{
-    constructor() {
+    defaultPath: string;
+    
+    constructor(defaultPath: string = 'images/') {
+        this.defaultPath = defaultPath;
     }
 
     async getImage(id: string){
@@ -54,10 +57,9 @@ class ImageController{
     async addImage(imageData: AppImageData, buffer: Buffer){
         try {
             await FileModel.write(imageData.imagePath, buffer);
-            // create thumbnail next
             return await ImageModel.addImage(imageData);
         } catch (error) {
-            console.log(`Error adding image: ${imageData._id}`);
+            throw new Error(`Error adding image: ${error}`);
             return false;
         }
 
@@ -70,8 +72,35 @@ class ImageController{
         }
     }
 
+    async newImage(file: imgFile, uniqueID: string){
+        let buffer = Buffer.from(await file.arrayBuffer());
+        let hash = await FileModel.hashFile(buffer);
+        let ext = file.name.split('.').pop();
+        // let uID = uniqueID; 
+        let newFileName = `${uniqueID}.${ext}`;
 
+        const imageDataObj : AppImageData = {
+            _id: hash,
+            originalName: file.name,
+            sanitizedFilename: newFileName,
+            imagePath: `${this.defaultPath}${newFileName}`, 
+            uploadDate: uniqueID,
+            thumbnailPath: "",
+            groups: [],
+            tags: []
+        }
+
+        try{
+            return await this.addImage(imageDataObj, buffer)
+        } catch (error) {
+            throw new Error(`Error processing file ${file.name}: ${error}`)
+        }
+    }
 
 }
 
-export default new ImageController();
+interface imgFile extends File {
+    name: string;
+}
+
+export default new ImageController(constDefaultPath);

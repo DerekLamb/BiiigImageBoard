@@ -30,31 +30,16 @@ import { type AppImageData } from "$lib/server/models/imageModel.js";
 export const actions = {
 
     default: async ({ request }) => {
-        const formdata = await request.formData(); 
-        const files = formdata.getAll("image").filter(file => file instanceof File && file.name);
-        const baseTimestamp = Date.now().toString();
+        let formdata = await request.formData(); 
+        let files = formdata.getAll("image").filter(file => file instanceof File && file.name) as File[]; // readabliity fix TODO
+        let baseTimestamp = Date.now().toString();
         await Promise.all(files.map(async (file, index) => {
                 try {
-                    // add if statement to check file size too large
-                    const buffer = Buffer.from(await file.arrayBuffer());
-                    const hash = await fileUtilService.hashFile(buffer);
-                    const ext = file.name.split('.').pop();
-                    const sequentialTimestamp = (parseInt(baseTimestamp) + index).toString();
-                    const newFileName = `${sequentialTimestamp}.${ext}`;
-
-                    const imageDataObj : AppImageData = {
-                        _id: hash,
-                        originalName: file.name,
-                        sanitizedFilename: newFileName,
-                        imagePath: `images/${newFileName}`, 
-                        uploadDate: sequentialTimestamp,
-                        thumbnailPath: "",
-                        tags: []
-                    }
-    
-                    const dbResults = await imageController.addImage(imageDataObj, buffer)
+                    let sequentialTimestamp = (parseInt(baseTimestamp) + index).toString();
+                    imageController.newImage(file, sequentialTimestamp);
+                    
                 } catch (error) {
-                    console.error("Error processing file", file.name, error);
+                    return { sucess: false, error: `Error processing file ${file.name}: ${error}` };
                 }
         }));
 
