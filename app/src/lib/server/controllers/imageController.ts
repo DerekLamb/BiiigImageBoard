@@ -1,5 +1,6 @@
 import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
 import { FileModel } from '$lib/server/models/fileModel';
+import { imageService } from '$lib/server/services/imageService';
 
 const constDefaultPath = 'images/'; // default path if none specified
 class ImageController{
@@ -91,12 +92,22 @@ class ImageController{
         }
 
         try{
-            return await this.addImage(imageDataObj, buffer)
+            const dbResults = await this.addImage(imageDataObj, buffer)
+            imageService.updateThumbnail(imageDataObj, buffer);
+            return dbResults;
         } catch (error) {
             throw new Error(`Error processing file ${file.name}: ${error}`)
         }
     }
 
+    async updateMissingThumbnails(){
+        const images = await ImageModel.findImages({}, 1000);
+        for (let i = 0; i < images.length; i++){
+            const imageData = images[i];
+            console.log(imageData);
+            await imageService.updateThumbnail(imageData);
+        }
+    }
 }
 
 interface imgFile extends File {
