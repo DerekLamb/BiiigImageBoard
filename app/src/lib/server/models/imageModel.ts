@@ -60,7 +60,7 @@ export const ImageModel = {
         return await imageCollection.estimatedDocumentCount(filter);
     },
 
-    async getAdjacents(key: keyof AppImageData, value: string | string[] | string [][],) { // caution, this requires an index on the used key field for results to be consistent
+    async getAdjacents(key: keyof AppImageData, value: string | string[] | string [][],) { // CAUTION, this requires an index on the used key field for results to be consistent and performant
         const prevFilter = { [key]: { $lt: value } };
         const nextFilter = { [key]: { $gt: value } };
         const prev = await imageCollection.findOne(

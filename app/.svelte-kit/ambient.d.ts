@@ -30,6 +30,7 @@ declare module '$env/static/private' {
 	export const BODY_SIZE_LIMIT: string;
 	export const ALLUSERSPROFILE: string;
 	export const APPDATA: string;
+	export const APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL: string;
 	export const ChocolateyInstall: string;
 	export const ChocolateyLastPathUpdate: string;
 	export const CHROME_CRASHPAD_PIPE_NAME: string;
@@ -41,7 +42,10 @@ declare module '$env/static/private' {
 	export const ComSpec: string;
 	export const DriverData: string;
 	export const EDITOR: string;
-	export const EFC_8224: string;
+	export const EFC_8376: string;
+	export const EFC_8544: string;
+	export const ELECTRON_NO_ATTACH_CONSOLE: string;
+	export const ELECTRON_RUN_AS_NODE: string;
 	export const FPS_BROWSER_APP_PROFILE_STRING: string;
 	export const FPS_BROWSER_USER_PROFILE_STRING: string;
 	export const GIT_ASKPASS: string;
@@ -57,6 +61,7 @@ declare module '$env/static/private' {
 	export const NODE: string;
 	export const NODE_ENV: string;
 	export const NODE_EXE: string;
+	export const NO_PROXY: string;
 	export const NPM_CLI_JS: string;
 	export const npm_command: string;
 	export const npm_config_cache: string;
@@ -86,6 +91,9 @@ declare module '$env/static/private' {
 	export const OS: string;
 	export const Path: string;
 	export const PATHEXT: string;
+	export const PLATFORMIO_CALLER: string;
+	export const PLATFORMIO_IDE: string;
+	export const PLATFORMIO_PATH: string;
 	export const PROCESSOR_ARCHITECTURE: string;
 	export const PROCESSOR_IDENTIFIER: string;
 	export const PROCESSOR_LEVEL: string;
@@ -107,12 +115,22 @@ declare module '$env/static/private' {
 	export const USERDOMAIN_ROAMINGPROFILE: string;
 	export const USERNAME: string;
 	export const USERPROFILE: string;
+	export const VSCODE_AMD_ENTRYPOINT: string;
+	export const VSCODE_CLI: string;
+	export const VSCODE_CODE_CACHE_PATH: string;
+	export const VSCODE_CRASH_REPORTER_PROCESS_TYPE: string;
+	export const VSCODE_CWD: string;
 	export const VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
 	export const VSCODE_GIT_ASKPASS_MAIN: string;
 	export const VSCODE_GIT_ASKPASS_NODE: string;
 	export const VSCODE_GIT_IPC_HANDLE: string;
+	export const VSCODE_HANDLES_UNCAUGHT_ERRORS: string;
 	export const VSCODE_INJECTION: string;
+	export const VSCODE_IPC_HOOK: string;
+	export const VSCODE_L10N_BUNDLE_LOCATION: string;
+	export const VSCODE_NLS_CONFIG: string;
 	export const VSCODE_NONCE: string;
+	export const VSCODE_PID: string;
 	export const windir: string;
 }
 
@@ -149,6 +167,7 @@ declare module '$env/dynamic/private' {
 		BODY_SIZE_LIMIT: string;
 		ALLUSERSPROFILE: string;
 		APPDATA: string;
+		APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL: string;
 		ChocolateyInstall: string;
 		ChocolateyLastPathUpdate: string;
 		CHROME_CRASHPAD_PIPE_NAME: string;
@@ -160,7 +179,10 @@ declare module '$env/dynamic/private' {
 		ComSpec: string;
 		DriverData: string;
 		EDITOR: string;
-		EFC_8224: string;
+		EFC_8376: string;
+		EFC_8544: string;
+		ELECTRON_NO_ATTACH_CONSOLE: string;
+		ELECTRON_RUN_AS_NODE: string;
 		FPS_BROWSER_APP_PROFILE_STRING: string;
 		FPS_BROWSER_USER_PROFILE_STRING: string;
 		GIT_ASKPASS: string;
@@ -176,6 +198,7 @@ declare module '$env/dynamic/private' {
 		NODE: string;
 		NODE_ENV: string;
 		NODE_EXE: string;
+		NO_PROXY: string;
 		NPM_CLI_JS: string;
 		npm_command: string;
 		npm_config_cache: string;
@@ -205,6 +228,9 @@ declare module '$env/dynamic/private' {
 		OS: string;
 		Path: string;
 		PATHEXT: string;
+		PLATFORMIO_CALLER: string;
+		PLATFORMIO_IDE: string;
+		PLATFORMIO_PATH: string;
 		PROCESSOR_ARCHITECTURE: string;
 		PROCESSOR_IDENTIFIER: string;
 		PROCESSOR_LEVEL: string;
@@ -226,12 +252,22 @@ declare module '$env/dynamic/private' {
 		USERDOMAIN_ROAMINGPROFILE: string;
 		USERNAME: string;
 		USERPROFILE: string;
+		VSCODE_AMD_ENTRYPOINT: string;
+		VSCODE_CLI: string;
+		VSCODE_CODE_CACHE_PATH: string;
+		VSCODE_CRASH_REPORTER_PROCESS_TYPE: string;
+		VSCODE_CWD: string;
 		VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
 		VSCODE_GIT_ASKPASS_MAIN: string;
 		VSCODE_GIT_ASKPASS_NODE: string;
 		VSCODE_GIT_IPC_HANDLE: string;
+		VSCODE_HANDLES_UNCAUGHT_ERRORS: string;
 		VSCODE_INJECTION: string;
+		VSCODE_IPC_HOOK: string;
+		VSCODE_L10N_BUNDLE_LOCATION: string;
+		VSCODE_NLS_CONFIG: string;
 		VSCODE_NONCE: string;
+		VSCODE_PID: string;
 		windir: string;
 		[key: `PUBLIC_${string}`]: undefined;
 		[key: `${string}`]: string | undefined;

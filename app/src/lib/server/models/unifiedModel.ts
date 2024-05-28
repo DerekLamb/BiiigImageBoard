@@ -10,7 +10,7 @@ export interface BaseImage { // This is the interface for the image/group data t
     sanitizedFilename: string;
     imagePath: string;
     uploadDate: string;
-    thumbnailPath: string;
+    thumbnailPath: string; //thumbnail exists as path to file
     groups: string[];
     tags: string[];
     embPrompt?: string[][]; //needs 2b fleshed out
