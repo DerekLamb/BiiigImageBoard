@@ -100,12 +100,15 @@ class ImageController{
         }
     }
 
-    async updateMissingThumbnails(){
-        const images = await ImageModel.findImages({}, 1000);
-        for (let i = 0; i < images.length; i++){
-            const imageData = images[i];
-            console.log(imageData);
-            await imageService.updateThumbnail(imageData);
+    async updateAllThumbnails(){
+        const total = await ImageModel.countImages();
+        const page = total / 500;
+        for (let i = 0; i < page; i++){
+            const images = await ImageModel.findImages({}, 500, i * 500);
+            for (let j = 0; j < images.length; j++){
+                const imageData = images[j];
+                await imageService.updateThumbnail(imageData);
+            }
         }
     }
 }
