@@ -1,5 +1,6 @@
 import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
 import { FileModel } from '$lib/server/models/fileModel';
+import { UnifiedModel } from '$lib/server/models/unifiedModel';
 import { imageService } from '$lib/server/services/imageService';
 
 const constDefaultPath = 'images/'; // default path if none specified
@@ -28,7 +29,7 @@ class ImageController{
         return await ImageModel.getAdjacents(sort, value);
     }
 
-    async getPage(params: {page: number, length: number, search?: string, sort?: string}){
+    async getImagePage(params: {page: number, length: number, search?: string, sort?: string}){
         const length = params.length;
         const skip = (params.page - 1) * length;
         const sort = params.sort;
