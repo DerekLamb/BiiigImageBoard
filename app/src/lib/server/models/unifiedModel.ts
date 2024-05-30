@@ -25,7 +25,7 @@ export interface BasicGroup {
     children: ObjectId[], // contains the ids of imageDoc or other GroupDoc(s), will need to handle making sure only goes three levels deep for groups
     groups: ObjectId[], // needs considerations 
     groupType: string, // possible extension, unsure what to use for now
-    groupTags: string[], // tags for the group
+    groupTags: string[], // tags for the group 
 }
 
 interface GroupDoc extends BasicGroup {
