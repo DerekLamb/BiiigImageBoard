@@ -1,7 +1,6 @@
 import fs from 'fs/promises';
 import crypto from 'crypto';
 import sharp from 'sharp';
-//Very naked file model, should be abstracted over to handle more complex file operations
 
 export const FileModel = {
     async readDir(path: string): Promise<string[]> {
@@ -11,7 +10,7 @@ export const FileModel = {
             throw new Error(`Error reading directory: ${error}`);
         }
     },
-
+    
     async read(path: string): Promise<Buffer> {
         try {
             return await fs.readFile(path);
@@ -49,7 +48,7 @@ export const FileModel = {
         let buffer: Buffer;
 
         if (typeof file === 'string') {
-            buffer = await this.read(file); //add safety here 
+            buffer = await this.read(file);  
         } else if (typeof file === 'object' && file instanceof Buffer) {
             buffer = file;
         } else {

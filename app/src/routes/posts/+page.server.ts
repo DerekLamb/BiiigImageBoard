@@ -20,7 +20,7 @@ export const load = (async ({ url, locals}) => {
         lengthNum = 24; 
     }
     
-    const images = await imageController.getPage({page: currPage, length: lengthNum, search: searchTerm})
+    const images = await imageController.getImagePage({page: currPage, length: lengthNum, search: searchTerm})
 
     const pageLength = lengthNum || 24;
 
