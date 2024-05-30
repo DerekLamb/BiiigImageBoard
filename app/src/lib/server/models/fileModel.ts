@@ -1,6 +1,5 @@
 import fs from 'fs/promises';
 import crypto from 'crypto';
-import { createThumbnail } from '$lib/processFiles';
 import sharp from 'sharp';
 //Very naked file model, should be abstracted over to handle more complex file operations
 
@@ -68,7 +67,7 @@ export const FileModel = {
         }
     },
 
-    async createThumbnail(file: string | Buffer , scale: number = 200): Promise<Buffer> {
+    async createThumbnail(file: string | Buffer , scale: number = 200): Promise<Buffer> { // want to add webm support for thumbnail creation TODO
         let buffer: Buffer;
 
         if (typeof file === 'string') {
@@ -85,8 +84,8 @@ export const FileModel = {
                 .webp()
                 .toBuffer();
         } catch (error) {
-            console.log(`${error}`)
-            //throw new Error(`Error creating thumbnail: ${error}`);
+            throw new Error(`Error creating thumbnail: ${error}`);
         }
+
     }
 }

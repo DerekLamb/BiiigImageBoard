@@ -4,21 +4,24 @@ import { FileModel } from "../models/fileModel"
 
 
 export const imageService = {
-    async updateThumbnail(image: AppImageData, buffer?: Buffer ){
-        // if(image.thumbnailPath !== '' || image.thumbnailPath === undefined){
-        //     return true;
-        // }
+    async updateThumbnail(image: AppImageData, buffer?: Buffer , overwrite = false){
 
-        if(await FileModel.checkExists(image.thumbnailPath)){
-            return true;
+        const thumbnailExists = await FileModel.checkExists(image.thumbnailPath);
+
+        if (thumbnailExists) {
+            if (overwrite) {
+                await FileModel.delete(image.thumbnailPath);
+            } else {
+                return false;
+            }
         }
-
+    
         buffer = buffer ? buffer : await FileModel.read(image.imagePath);
         const thumbnail = await FileModel.createThumbnail(buffer);
         const thumbnailname = `${image.sanitizedFilename}_thmb.webp`;
         const thumbnailPath = `thumb/${thumbnailname}`;
         try{
-            await ImageModel.updateImage(image._id, "thumbnailPath", thumbnailPath);
+            await ImageModel.updateImage(image._id, "thumbnailPath", thumbnailPath); // I know I know, reusing thumbnailPath twice. I want to replace with a constant from a central lib file TODO 
 
             try{
                 console.log(thumbnail);

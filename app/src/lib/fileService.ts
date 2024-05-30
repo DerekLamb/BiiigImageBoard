@@ -85,13 +85,13 @@ class FileRepository {
         }
     }
 
-    async readFile(fileName: string): Promise<Buffer|void>{
+    async readFile(fileName: string): Promise<Buffer>{
         let imgFileObj = new ImageFile(this.dirPath, fileName);
         if(await imgFileObj.exists()){
             return imgFileObj.read();
         }
         else {
-            console.log(`cannot find file ${fileName}`)
+            throw new Error(`cannot find file ${fileName}`)
         }
     }
 

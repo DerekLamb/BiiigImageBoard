@@ -29,3 +29,4 @@ nginx/certs/privkey.pem
 /nginx/certbot/conf/accounts
 images/
 thumb/
+/app/.svelte-kit

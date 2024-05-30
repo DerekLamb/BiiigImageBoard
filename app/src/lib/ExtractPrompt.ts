@@ -1,3 +1,7 @@
+// old implememntation, works for automatic1111 but not for comfy ui
+
+// use this for better implementation https://www.nayuki.io/page/png-file-chunk-inspector TODO
+
 export default function promptDecode(data:Buffer) {
     let prompt = '';
     let promptParts = [];
