@@ -3,6 +3,10 @@ import { FileModel } from '$lib/server/models/fileModel';
 import { imageService } from '$lib/server/services/imageService';
 
 const constDefaultPath = 'images/'; // default path if none specified
+
+interface imgFile extends File {
+    name: string;
+}
 class ImageController{
     defaultPath: string;
     
@@ -58,8 +62,6 @@ class ImageController{
     async addImage(imageData: AppImageData, buffer: Buffer){
         await FileModel.write(imageData.imagePath, buffer);
         return await ImageModel.addImage(imageData);
-
-
     }
 
     async updateImageProperty<ImageProp extends keyof AppImageData>(id: string, propToUpdate: ImageProp, value: AppImageData[ImageProp]) {
@@ -111,10 +113,15 @@ class ImageController{
             }
         }
     }
+
+    async updateMissingThumbnails(){
+        const images = await ImageModel.findImages({thumbnailPath: ''});
+        for (let i = 0; i < images.length; i++){
+            const imageData = images[i];
+            await imageService.updateThumbnail(imageData);
+        }
+    }
 }
 
-interface imgFile extends File {
-    name: string;
-}
 
 export default new ImageController(constDefaultPath);
