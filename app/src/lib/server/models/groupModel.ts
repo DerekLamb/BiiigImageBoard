@@ -8,7 +8,7 @@ import { imageCollection,
 function toClient(document: GroupDoc): AppGroupData { 
     const id = document._id.toString();
     let children = document.children.map((child) => { return child.toString() });
-    return { ...document, _id: id, children: children} as AppGroupData; // Convert ObjectId to string
+    return { ...document, _id: id} as AppGroupData; // Convert ObjectId to string
 }
 
 function toDatabase(document: Partial<AppGroupData>): GroupDoc {

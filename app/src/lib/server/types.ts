@@ -8,17 +8,17 @@ export const groupCollection: Collection<GroupDoc> = db.collection(collections.g
 
 export interface BaseImage {
     type: "image";
-    originalName: string;
+    name: string;
+    uploadDate: string;
     sanitizedFilename: string;
     imagePath: string;
-    uploadDate: string;
     thumbnailPath: string; //thumbnail exists as path to file
     groups: string[];
     tags: string[];
     embPrompt?: string[][]; //needs 2b fleshed out
     related?: string[];
-    favorite?: string[];
-    hidden?: string[];
+    favorite?: boolean;
+    hidden?: boolean;
 }
 
 export interface ImageDoc extends BaseImage {
@@ -31,10 +31,10 @@ export interface AppImageData extends BaseImage {
 
 export interface BasicGroup {
     type: "group";
-    name: string; // name of group, used mainly for organization and display
-    uploadDate: string; // date group was created
-    groups: ObjectId[]; // needs considerations 
-    groupTags: string[]; // tags for the group 
+    name: string; 
+    uploadDate: string; 
+    groups: string[]; 
+    groupTags: string[]; 
 }
 
 export interface GroupDoc extends BasicGroup {
