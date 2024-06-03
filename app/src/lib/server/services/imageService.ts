@@ -1,5 +1,5 @@
 import { ImageModel } from "../models/imageModel"
-import { type AppImageData } from "../models/imageModel"
+import { type AppImageData } from "../types";
 import { FileModel } from "../models/fileModel"
 
 

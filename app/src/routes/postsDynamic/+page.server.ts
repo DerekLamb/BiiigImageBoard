@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import imageController from '$lib/server/controllers/imageController';
-import { UnifiedModel } from '$lib/server/models/unifiedModel';
+import {aggregateController} from '$lib/server/controllers/aggController';
 
 import type { PageServerLoad } from './$types';
 
@@ -20,7 +20,7 @@ export const load = (async ({ url, locals}) => {
         lengthNum = 24; 
     }
     
-    const images = await imageController.getImagePage({page: currPage, length: lengthNum, search: searchTerm})
+    const images = await aggregateController.getAggregated({page: currPage, length: lengthNum})
 
     const pageLength = lengthNum || 24;
 

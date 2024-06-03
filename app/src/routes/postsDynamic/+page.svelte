@@ -8,7 +8,7 @@
 	import DropDown from "$lib/dropDown.svelte";
     import Modal from "$lib/svelteComponents/modal.svelte";
     import { improvImageSize, imageCount } from "$lib/stores/searchStore";
-	import type { AppImageData } from "$lib/server/models/imageModel.js";
+	import type { AppImageData } from "$lib/server/types";
 
     interface Images {
         images: AppImageData[];
@@ -84,16 +84,18 @@
         <ImageBrowser minSize = {$improvImageSize}>
             {#each data.images as image}
 
-                    <div class = "imageBox" id = { image._id} on:dragstart = {handleDragStart } on:dragover = {handleDragOver } on:drop = {handleDrop}>
+                    <div class="imageBox" id={image._id} on:dragstart={handleDragStart} on:dragover={handleDragOver} on:drop={handleDrop} role="presentation">
                         {#if image.thumbnailPath}
-                            <Image src = "/{image.thumbnailPath}" 
-                            mainLink = "/posts/{image.uploadDate}" 
-                            imageName = {image.originalName} 
+                            <Image src="/{image.thumbnailPath}" 
+                            mainLink="/posts/{image.uploadDate}" 
+                            imageName={image.originalName} 
                             thumbnail={true}></Image>
                         {:else}
-                            <Image src = "/{image.imagePath}" 
-                            mainLink = "/posts/{image.uploadDate}" 
-                            imageName = {image.originalName}></Image>
+                            <Image src="/{image.imagePath}" 
+                            alt={image.originalName}
+                            mainLink="/posts/{image.uploadDate}" 
+                            imageName={image.originalName}
+                            ></Image>
                         {/if}      
                     </div>
       

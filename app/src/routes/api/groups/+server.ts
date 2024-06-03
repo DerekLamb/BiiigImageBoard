@@ -1,7 +1,8 @@
 import { json } from '@sveltejs/kit'
-import { GroupModel } from '$lib/server/models/groupModel';
-import { TagModel } from '$lib/server/models/tagModel';
-import { UnifiedModel } from '$lib/server/models/unifiedModel.js';
+import groupController from '$lib/server/controllers/groupController.js';
+import { UUID } from 'mongodb';
+import { imageCollection } from '$lib/server/types.js';
+import imageController from '$lib/server/controllers/imageController.js';
 
 export async function POST({ request } : Request){
     // user access check here TODO
@@ -9,14 +10,16 @@ export async function POST({ request } : Request){
         const body = await request.json();
         console.log(body);
 
-        GroupModel.createGroup({name: new Date().toISOString(), 
-            uploadDate: new Date().toISOString(), 
-            children: [body.draggedImage, body.draggedOverImage], 
-            groups: [], 
-            groupType: 'default', 
-            groupTags: []});
+        let name = body.name || "new group:" + new UUID().toString().slice(0, 5);
+        let results = await groupController.createGroup(name, [body.draggedImage, body.draggedOverImage]);
+        
+        let insertedId = results.insertedId.toString();
+        console.log(insertedId);
+        imageCollection.updateOne({ _id: body.draggedImage }, { $push: { groups: insertedId } });
+        imageCollection.updateOne({ _id: body.draggedOverImage }, { $push: { groups: insertedId } });
+        
 
-        GroupModel.getGroupChildren(body.id, body.page, body.limit);
+        //GroupModel.getGroupChildren(body.id, body.page, body.limit);
         // Insert image into group collection if first element is image 
 
         return json({ success: true });
@@ -36,7 +39,7 @@ export async function GET({ params }) {
         const page = 0;
         const limit = 10;
 
-        const children = await UnifiedModel.getGroupChildren(groupId, page, limit);
+        const children = [];
         console.log(children);
         return json({ success: true, children });
     } catch (e) {

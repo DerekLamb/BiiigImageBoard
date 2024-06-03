@@ -1,7 +1,7 @@
 import { fileUtilService } from "$lib/imageService"
 import imageController from "$lib/server/controllers/imageController.js";
 
-import { type AppImageData } from "$lib/server/models/imageModel.js";
+import { type AppImageData } from "$lib/server/types";
 
 // async function checkFiles(){
 //     const filelist = await mainFileRepo.updateFiles()

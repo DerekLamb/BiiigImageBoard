@@ -1,15 +1,6 @@
-import { ObjectId, type Sort, type Collection } from "mongodb";
-import { collections, db } from "$lib/db";
-import { type BaseImage, imageCollection } from "./unifiedModel";
-
-interface ImageDoc extends BaseImage { // 
-    _id: ObjectId;
-}
-
-export interface AppImageData extends BaseImage {
-    _id: string,
-}
- 
+import { ObjectId, type Sort } from "mongodb";
+import { imageCollection } from "$lib/server/types";
+import type { ImageDoc, AppImageData } from "../types";
 
 function toClient(document: ImageDoc): AppImageData {
     const id = document._id.toString();
@@ -42,8 +33,13 @@ export const ImageModel = {
         return await imageCollection.insertOne(toDatabase(imageData)); 
     },
 
-    async updateImage <ImageProp extends keyof AppImageData> (id: string, prop: ImageProp, value: AppImageData[ImageProp]) {
+    async updateImage <ImageProp extends keyof AppImageData> (id: string, prop: ImageProp, value: AppImageData[ImageProp] ) {
         let updates = { $set: { [prop]: value }} 
+        return await imageCollection.updateOne({ _id: new ObjectId(id) }, updates);
+    },
+
+    async updateArrayPropertyImage(id: string, prop: keyof AppImageData, value: any) {
+        let updates = { $push: { [prop]: value } }
         return await imageCollection.updateOne({ _id: new ObjectId(id) }, updates);
     },
 

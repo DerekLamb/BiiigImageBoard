@@ -6,21 +6,17 @@ import SideBar from "$lib/sideBar.svelte";
 import SearchBar from "$lib/searchBar.svelte";
 import { onMount, beforeUpdate } from "svelte";
 import { goto } from "$app/navigation";
+import type { AppImageData } from "$lib/server/types";
 
 /** @type {import('./$types').PageData} */ 
 
-interface Images {
-    images: {
-        originalName: string;
-        thumbnailPath: string;
-        imagePath: string;
-        uploadDate: string;
-    }[];
+interface clientResponseData {
+    images: AppImageData[];
     currPage: number;
     pageNum: number;
 }
 
-export let data : Images;
+export let data : clientResponseData;
 
 let nextPage: string | null = null;
 let prevPage: string | null = null;
@@ -37,7 +33,7 @@ function reloadCurrPage() {
     goto(url.toString());
 }
 
-const calculatePages = () => {
+const calculatePages = () => { // rebuild using URL object and params TODO
     if ($imageCount !== 24) {
         reloadCurrPage();
     }

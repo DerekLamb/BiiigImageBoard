@@ -1,6 +1,6 @@
-import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
+import { ImageModel } from '$lib/server/models/imageModel';
+import { type AppImageData } from "../types";
 import { FileModel } from '$lib/server/models/fileModel';
-import { UnifiedModel } from '$lib/server/models/unifiedModel';
 import { imageService } from '$lib/server/services/imageService';
 
 const constDefaultPath = 'images/'; // default path if none specified
@@ -64,23 +64,17 @@ class ImageController{
         await FileModel.write(imageData.imagePath, buffer);
         return await ImageModel.addImage(imageData);
     }
-
-    async updateImageProperty<ImageProp extends keyof AppImageData>(id: string, propToUpdate: ImageProp, value: AppImageData[ImageProp]) {
-        const results = ImageModel.updateImage(id, propToUpdate, value);
-        if(!results){
-            console.log("No Updates made to ", id)
-        }
-    }
-
+    
     async newImage(file: imgFile, uniqueID: string){
         let buffer = Buffer.from(await file.arrayBuffer());
         let hash = await FileModel.hashFile(buffer);
         let ext = file.name.split('.').pop();
         // let uID = uniqueID; 
         let newFileName = `${uniqueID}.${ext}`;
-
+        
         const imageDataObj : AppImageData = {
             _id: hash,
+            type: "image",
             originalName: file.name,
             sanitizedFilename: newFileName,
             imagePath: `${this.defaultPath}${newFileName}`, 
@@ -89,17 +83,24 @@ class ImageController{
             groups: [],
             tags: []
         }
-
+        
         try{
             const dbResults = await this.addImage(imageDataObj, buffer)
             imageService.updateThumbnail(imageDataObj, buffer);
             return dbResults;
         } catch (error: any) {
             if (error.code === 11000) {
-              console.error(`Error processing file ${file.name}: MongoServerError: E11000 duplicate key error`);
+                console.error(`Error processing file ${file.name}: MongoServerError: E11000 duplicate key error`);
             } else {
-              throw new Error(`Error processing file ${file.name}: ${error}`);
+                throw new Error(`Error processing file ${file.name}: ${error}`);
             }
+        }
+    }
+    
+    async updateImageProperty<ImageProp extends keyof AppImageData>(id: string, propToUpdate: ImageProp, value: AppImageData[ImageProp]) {
+        const results = ImageModel.updateImage(id, propToUpdate, value);
+        if(!results){
+            console.log("No Updates made to ", id)
         }
     }
 

@@ -1,18 +1,19 @@
-import { UnifiedModel } from "../models/unifiedModel";
+import { AggregateModel } from "../models/aggregateModel";
 
 class AggregateController {
     constructor() {}
     
-    async getAggregateData(params: {page: number, length: number, group?: string, sort?: string}) {
+    async getAggregated(params: {page: number, length: number, group?: string, sort?: string}) {
         const length = params.length;
         const skip = (params.page - 1) * length;
         const sort = params.sort;
         const group = params.group || '';
-        //const filter =  search ? { tags: { $regex: search, $options: 'i' }} : {};
-    
-        const images = await ImageModel.findImages( length, skip, sort);
-        const documents = await UnifiedModel.getChildren({group});
-        return images
+        const filter =  group ? { group: { $regex: group, $options: 'i' }} : {};
+
+        let documents = await AggregateModel.findAggregated(filter, length, skip, sort);
+        return documents
         
     }
 }
+
+export const aggregateController = new AggregateController();

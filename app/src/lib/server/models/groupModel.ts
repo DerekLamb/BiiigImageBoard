@@ -1,19 +1,14 @@
 import { ObjectId, type Sort } from 'mongodb';
-import { ImageModel } from './imageModel';
-import { collections, db } from '$lib/db';
-import { imageCollection, groupCollection, type BaseImage, type BasicGroup} from './unifiedModel';
+import { imageCollection,
+        groupCollection,
+        type AppGroupData,
+        type GroupDoc } from "$lib/server/types";
 
-interface GroupDoc extends BasicGroup {
-    _id: ObjectId;
-}
-
-export interface AppGroupData extends BasicGroup {
-    _id: string,
-}
 
 function toClient(document: GroupDoc): AppGroupData { 
     const id = document._id.toString();
-    return { ...document, _id: id } as AppGroupData; // Convert ObjectId to string
+    let children = document.children.map((child) => { return child.toString() });
+    return { ...document, _id: id, children: children} as AppGroupData; // Convert ObjectId to string
 }
 
 function toDatabase(document: Partial<AppGroupData>): GroupDoc {
@@ -21,7 +16,7 @@ function toDatabase(document: Partial<AppGroupData>): GroupDoc {
     return { ...document, _id: id } as GroupDoc; // Convert string to ObjectId
 }
 
-export const GroupModel = { 
+export const GroupModel = {
     async findGroups(filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 }) {
         const documents = await groupCollection.find(filter).sort(sort).skip(skip).limit(limit).toArray() as GroupDoc[];  
         return documents.map(toClient);
@@ -38,30 +33,31 @@ export const GroupModel = {
     },
 
     async createGroup(groupData: Partial<AppGroupData>) {
-        return await groupCollection.insertOne(toDatabase(groupData)); 
+        let result =  await groupCollection.insertOne(toDatabase(groupData), {}); 
+        return result;
     },
 
-    async addImageToGroup(groupId: string, imageId: string) {
+    async addDocToGroup(groupId: string, docId: string) {
         const group = await GroupModel.getGroupById(groupId);
-        const childImages = await imageCollection.find({_id: {$in: group.children}}).toArray();
+        const childImages = await imageCollection.find({_id: {$in: group.children}}).toArray(); // replace with AggregateModel.findAggregated
         console.log(childImages);
 
-        let latestDate: string = "0";
-        childImages.forEach(async (image) => {
-            if (latestDate === undefined) {
-                latestDate = image.uploadDate;
-            } else if (image.uploadDate > latestDate) {
-                latestDate = image.uploadDate;
-            }
-        })
+        let latestDate: string = Date.now().toString();
+        // childImages.forEach(async (image) => {
+        //     if (latestDate === undefined) {
+        //         latestDate = image.uploadDate;
+        //     } else if (image.uploadDate > latestDate) {
+        //         latestDate = image.uploadDate;
+        //     }
+        // })
         console.log(latestDate);
         await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $set: { uploadDate: latestDate } });
-        return await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $push: { children: new ObjectId(imageId) } });
+        return await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $push: { children: new ObjectId(docId) } });
     },
 
-    // async updateGroup(id: string, updates: Partial<AppGroupData>) {
-    //     return await groupCollection.updateOne({ _id: new ObjectId(id) }, { $set: toDatabase(updates) });
-    // },
+    async updateGroup(id: string, updates: Partial<AppGroupData>) {
+        return await groupCollection.updateOne({ _id: new ObjectId(id) }, { $set: toDatabase(updates) });
+    },
 
     async deleteGroup(id: string) {
         return await groupCollection.deleteOne({ _id: new ObjectId(id) });
