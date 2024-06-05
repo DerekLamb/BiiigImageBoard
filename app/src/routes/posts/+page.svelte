@@ -93,14 +93,14 @@ beforeUpdate(() => {
                 <div class = "imageBox">
                     <Image src = "/{image.thumbnailPath}" 
                     mainLink = "/posts/{image.uploadDate}" 
-                    imageName = {image.originalName} 
+                    imageName = {image.name} 
                     thumbnail={true}></Image>
                 </div>
             {:else}
                 <div class = "imageBox">
                     <Image src = "/{image.imagePath}" 
                     mainLink = "/posts/{image.uploadDate}" 
-                    imageName = {image.originalName} ></Image>
+                    imageName = {image.name} ></Image>
                 </div>
             {/if}
         {/each}

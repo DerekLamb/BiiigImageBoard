@@ -88,13 +88,13 @@
                         {#if image.thumbnailPath}
                             <Image src="/{image.thumbnailPath}" 
                             mainLink="/posts/{image.uploadDate}" 
-                            imageName={image.originalName} 
+                            imageName={image.name} 
                             thumbnail={true}></Image>
                         {:else}
                             <Image src="/{image.imagePath}" 
-                            alt={image.originalName}
+                            alt={image.name}
                             mainLink="/posts/{image.uploadDate}" 
-                            imageName={image.originalName}
+                            imageName={image.name}
                             ></Image>
                         {/if}      
                     </div>

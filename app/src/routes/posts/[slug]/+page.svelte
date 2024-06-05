@@ -24,7 +24,7 @@ function copyItems() {
     </SideBar>
     <div class="imageWindow">
         <Image src = "../../{data.image?.imagePath}" 
-            imageName={data.image?.originalName} 
+            imageName={data.image?.name} 
             leftLink = {data.adjacents?.next?.uploadDate}
             rightLink = {data.adjacents?.prev?.uploadDate}>
         </Image>
@@ -37,7 +37,7 @@ function copyItems() {
             {/if}
         </div>
         <div class="imageInfo">
-            <p><span>Image Name: </span>{data.image?.originalName}</p>
+            <p><span>Image Name: </span>{data.image?.name}</p>
             <p><span>Filename: </span>{data.image?.sanitizedFilename}</p>
             <p><span>File Location: </span>{data.image?.imagePath}</p>
             <p><span>Image Id:</span>{data.image?._id}</p>

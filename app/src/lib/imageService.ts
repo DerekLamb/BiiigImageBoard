@@ -15,7 +15,7 @@ interface ImageAddr {
 export interface ImageData {
     _id?: ObjectId,
     strId?: string, // for passing to client (Weird work around)
-    originalName: string;
+    name: string;
     sanitizedFilename: string;
     imagePath: string;
     uploadDate: string;
@@ -224,10 +224,10 @@ class ImageRepoService{
     async create(imageData : ImageData): Promise<string | null>{
         try {
             await this.imageCollection.insertOne(imageData)
-            console.log(`File ${imageData.sanitizedFilename}, ${imageData.originalName} written to DB and filesystem`)
+            console.log(`File ${imageData.sanitizedFilename}, ${imageData.name} written to DB and filesystem`)
             return "written to DB"
         } catch (error) {
-            console.log(`Error writing ${imageData.sanitizedFilename}, ${imageData.originalName} to DB`)
+            console.log(`Error writing ${imageData.sanitizedFilename}, ${imageData.name} to DB`)
             return null
         }
     }

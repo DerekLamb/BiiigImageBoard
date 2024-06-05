@@ -75,10 +75,10 @@ class ImageController{
         const imageDataObj : AppImageData = {
             _id: hash,
             type: "image",
-            originalName: file.name,
+            name: file.name,
+            uploadDate: uniqueID,
             sanitizedFilename: newFileName,
             imagePath: `${this.defaultPath}${newFileName}`, 
-            uploadDate: uniqueID,
             thumbnailPath: "",
             groups: [],
             tags: []

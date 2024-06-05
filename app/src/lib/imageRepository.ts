@@ -5,7 +5,7 @@ import txtToSearchParam from "./SearchTxtToFilter";
 
 interface ImageData {
     _id?: ObjectId,
-    originalName: string;
+    name: string;
     sanitizedFilename: string;
     imagePath: string;
     uploadDate: string;
