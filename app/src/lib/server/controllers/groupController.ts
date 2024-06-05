@@ -18,30 +18,37 @@ class GroupController {
 
     async createGroup(name: string, children?: string[]) {
 
-        let objIdChildren = children ? children.map((child) => { return new ObjectId(child) }) : [];
-
         let groupData: Partial<AppGroupData> = {
             //_id handled by mongo
             type: 'group',
             name: name, 
             uploadDate: Date.now().toString(), 
-            children: objIdChildren,
+            children: children || [],
             groups: [], 
-            groupType: 'default', 
             groupTags: []
+        }
+
+        children?.forEach(async (child) => {
+            //get type of child and add to groups array
+            await GroupModel.addDocToCurrent(groupData._id, child);
         }
 
         return await GroupModel.createGroup(groupData);
     }
 
-    async addDocToGroup(groupId: string, documentId: string, type: "image" | "group") {
-        await GroupModel.addDocToGroup(groupId, documentId);
-        if(type === 'image') {
-            await ImageModel.updateArrayPropertyImage(documentId, "groups", groupId);
-        } else { 
-            await GroupModel.updateGroup(documentId, { groups: groupId })
+    async addToGroup(groupId: string, documentId: string, type: "image" | "group") {
+        await GroupModel.addDocToCurrent(groupId, documentId);
+        try {
+            if(type === 'image') {
+                await ImageModel.updateArrayPropertyImage(documentId, "groups", groupId);
+            } else { 
+                await GroupModel.addCurrentToGroup(documentId, groupId)
+            }
+        } catch (error) {
+            throw new Error("Error adding document to group");
         }
-        return await GroupModel.addDocToGroup(groupId, documentId);
+
+        return await GroupModel.addDocToCurrent(groupId, documentId);
     }
 
     async updateGroup(groupId: string, updates: Partial<AppGroupData>) {

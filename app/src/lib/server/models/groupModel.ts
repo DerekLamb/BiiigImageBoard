@@ -7,7 +7,6 @@ import { imageCollection,
 
 function toClient(document: GroupDoc): AppGroupData { 
     const id = document._id.toString();
-    let children = document.children.map((child) => { return child.toString() });
     return { ...document, _id: id} as AppGroupData; // Convert ObjectId to string
 }
 
@@ -33,11 +32,11 @@ export const GroupModel = {
     },
 
     async createGroup(groupData: Partial<AppGroupData>) {
-        let result =  await groupCollection.insertOne(toDatabase(groupData), {}); 
+        let result =  await groupCollection.insertOne(toDatabase(groupData)); 
         return result;
     },
 
-    async addDocToGroup(groupId: string, docId: string) {
+    async addDocToCurrent(groupId: string, docId: string) {
         const group = await GroupModel.getGroupById(groupId);
         const childImages = await imageCollection.find({_id: {$in: group.children}}).toArray(); // replace with AggregateModel.findAggregated
         console.log(childImages);
@@ -51,8 +50,12 @@ export const GroupModel = {
         //     }
         // })
         console.log(latestDate);
-        await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $set: { uploadDate: latestDate } });
-        return await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $push: { children: new ObjectId(docId) } });
+        await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $set: { uploadDate: latestDate } }); 
+        return await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $push: { children: docId } });
+    },
+
+    async addCurrentToGroup(groupId: string, childGroupId: string) { 
+        return await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $push: { groups: childGroupId } });
     },
 
     async updateGroup(id: string, updates: Partial<AppGroupData>) {

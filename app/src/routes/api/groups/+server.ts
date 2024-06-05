@@ -4,14 +4,16 @@ import { UUID } from 'mongodb';
 import { imageCollection } from '$lib/server/types.js';
 import imageController from '$lib/server/controllers/imageController.js';
 
-export async function POST({ request } : Request){
+export async function POST( request: Request ){
     // user access check here TODO
     try {
         const body = await request.json();
         console.log(body);
-
+        // check if group exists 
         let name = body.name || "new group:" + new UUID().toString().slice(0, 5);
         let results = await groupController.createGroup(name, [body.draggedImage, body.draggedOverImage]);
+        imageCollection.updateOne({ _id: body.draggedImage }, { $push: { groups: insertedId } });
+        imageCollection.updateOne({ _id: body.draggedOverImage }, { $push: { groups: insertedId } });
         
         let insertedId = results.insertedId.toString();
         console.log(insertedId);
@@ -31,7 +33,7 @@ export async function POST({ request } : Request){
     }
 }
 
-export async function GET({ params }) {
+export async function GET({ params } ) {
     // user access check TODO
     // returns children of group specified or top level groups if no group specified
     try {
