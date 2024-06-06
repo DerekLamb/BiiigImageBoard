@@ -6,10 +6,22 @@ import imageController from '$lib/server/controllers/imageController.js';
 
 export async function POST( request: Request ){
     // user access check here TODO
+    if (!locals.user) {
+        console.log("no user");
+        redirect(307, '/login');
+    }
+
+    const body = await request.json();
+
+    if(!body.hasOwnProperty('draggedImage') || !body.hasOwnProperty('draggedOverImage')) {
+        return json({ success: false, message: "missing draggedImage or draggedOverImage" });
+    }
+
     try {
-        const body = await request.json();
+        
         console.log(body);
         // check if group exists 
+        // check child group type
         let name = body.name || "new group:" + new UUID().toString().slice(0, 5);
         let results = await groupController.createGroup(name, [body.draggedImage, body.draggedOverImage]);
         imageCollection.updateOne({ _id: body.draggedImage }, { $push: { groups: insertedId } });
@@ -35,6 +47,11 @@ export async function POST( request: Request ){
 
 export async function GET({ params } ) {
     // user access check TODO
+    if (!locals.user) {
+        console.log("no user");
+        redirect(307, '/login');
+    }
+
     // returns children of group specified or top level groups if no group specified
     try {
         const groupId = params;
