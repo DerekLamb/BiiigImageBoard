@@ -13,17 +13,27 @@ export async function POST( request: Request ){
 
     const body = await request.json();
 
-    if(!body.hasOwnProperty('draggedImage') || !body.hasOwnProperty('draggedOverImage')) {
-        return json({ success: false, message: "missing draggedImage or draggedOverImage" });
+    // expected body: { group: { name: string}, addDocuments: { id: string, }[] } 
+
+    if(!body.hasOwnProperty('group') || !body.hasOwnProperty('addDocuments')) {
+        return json({ success: false, message: "missing group or addDocuments" });
     }
 
     try {
         
         console.log(body);
         // check if group exists 
-        // check child group type
-        let name = body.name || "new group:" + new UUID().toString().slice(0, 5);
-        let results = await groupController.createGroup(name, [body.draggedImage, body.draggedOverImage]);
+        let group = await groupController.getGroupByName(body.group.name);
+        
+        if(!group) {
+            // create group 
+            let name = body.name || "new group:" + new UUID().toString().slice(0, 5);
+            let results = await groupController.createGroup(name, [body.draggedImage, body.draggedOverImage]);
+        }
+        
+        
+
+
         imageCollection.updateOne({ _id: body.draggedImage }, { $push: { groups: insertedId } });
         imageCollection.updateOne({ _id: body.draggedOverImage }, { $push: { groups: insertedId } });
         

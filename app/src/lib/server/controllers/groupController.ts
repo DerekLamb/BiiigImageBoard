@@ -5,6 +5,11 @@ import { ObjectId } from 'mongodb';
 
 class GroupController {
     constructor() {}
+
+    async getGroupByName(name: string) {
+        return GroupModel.getGroupByName(name);
+
+    }
     
     async getGroupChildren(groupId: string, page: number, limit: number) {
         const length = limit;
