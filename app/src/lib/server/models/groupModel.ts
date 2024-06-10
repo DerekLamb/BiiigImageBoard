@@ -49,7 +49,7 @@ export const GroupModel = {
         //         latestDate = image.uploadDate;
         //     }
         // })
-        console.log(latestDate);
+        
         await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $set: { uploadDate: latestDate } }); 
         return await groupCollection.updateOne({ _id: new ObjectId(groupId) }, { $push: { children: docId } });
     },

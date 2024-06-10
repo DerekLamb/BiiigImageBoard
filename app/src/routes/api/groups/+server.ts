@@ -4,7 +4,6 @@ import { UUID } from 'mongodb';
 import { imageCollection } from '$lib/server/types.js';
 import imageController from '$lib/server/controllers/imageController.js';
 
-<<<<<<< Updated upstream
 export async function POST( request: Request ){
     // user access check here TODO
     if (!locals.user) {
@@ -19,40 +18,32 @@ export async function POST( request: Request ){
     if(!body.hasOwnProperty('group') || !body.hasOwnProperty('addDocuments')) {
         return json({ success: false, message: "missing group or addDocuments" });
     }
-
-=======
-export async function POST({ request } : Request){
     
-    if (!locals.user) {
-        console.log("no user");
-        redirect(307, '/login');
-    }
-    // take in group id, dragged image, dragged over image 
-
-    // check if group id is new/exists ( create if new )
-
     // get existing children documents
     // $addToSet dragged image to children
     // user access check here TODO
     // return success or failure
-
     
->>>>>>> Stashed changes
-    try {
-        
+    try { 
         console.log(body);
-<<<<<<< Updated upstream
-        // check if group exists 
-        let group = await groupController.getGroupByName(body.group.name);
+
+        // group id, dragged image, dragged over image
+        let groupID = body.group;
+        let newChildren : string[] = body.addDocuments;
+
+        let parentGroup = groupController.getGroupById(groupID);
         
-        if(!group) {
+        // check if group id is new/exists ( create if new )
+        if(!parentGroup) {
             // create group 
             let name = body.name || "new group:" + new UUID().toString().slice(0, 5);
             let results = await groupController.createGroup(name, [body.draggedImage, body.draggedOverImage]);
+            parentGroup = results.insertedId.toString();
+        } else {
+            // add children to existing group
+            let results = await groupController.addToGroup(groupID, [body.draggedImage, body.draggedOverImage]);
         }
         
-        
-
 
         imageCollection.updateOne({ _id: body.draggedImage }, { $push: { groups: insertedId } });
         imageCollection.updateOne({ _id: body.draggedOverImage }, { $push: { groups: insertedId } });
@@ -62,11 +53,6 @@ export async function POST({ request } : Request){
         imageCollection.updateOne({ _id: body.draggedImage }, { $push: { groups: insertedId } });
         imageCollection.updateOne({ _id: body.draggedOverImage }, { $push: { groups: insertedId } });
         
-
-        //GroupModel.getGroupChildren(body.id, body.page, body.limit);
-=======
-        let groupID = body.group;
-        let parentGroup  = GroupModel.getGroupById(groupID);
 
         if(!parentGroup){
             GroupModel.createGroup({name: new Date().toISOString(), 
@@ -78,7 +64,6 @@ export async function POST({ request } : Request){
             
         }
 
->>>>>>> Stashed changes
         // Insert image into group collection if first element is image 
 
         return json({ success: true });

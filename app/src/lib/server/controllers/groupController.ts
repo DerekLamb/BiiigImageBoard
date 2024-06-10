@@ -6,6 +6,10 @@ import { ObjectId } from 'mongodb';
 class GroupController {
     constructor() {}
 
+    async getGroupById(id: string) {
+        return GroupModel.getGroupById(id);
+    }
+
     async getGroupByName(name: string) {
         return GroupModel.getGroupByName(name);
 
