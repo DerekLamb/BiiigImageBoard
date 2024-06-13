@@ -15,7 +15,7 @@ export async function POST( request: Request ){
 
     // expected body: { group: { name: string}, addDocuments: { id: string, }[] } 
 
-    if(!body.hasOwnProperty('group') || !body.hasOwnProperty('addDocuments')) {
+    if( !body.hasOwnProperty('group') || !body.hasOwnProperty('addDocuments') ) {
         return json({ success: false, message: "missing group or addDocuments" });
     }
     
@@ -27,22 +27,26 @@ export async function POST( request: Request ){
     try { 
         console.log(body);
 
-        // group id, dragged image, dragged over image
+        // group id
         let groupID = body.group;
         let newChildren : string[] = body.addDocuments;
 
         let parentGroup = groupController.getGroupById(groupID);
         
-        // check if group id is new/exists ( create if new )
+        // check if group id is new/exists ( create if new ) TODO: change to group name
         if(!parentGroup) {
             // create group 
             let name = body.name || "new group:" + new UUID().toString().slice(0, 5);
             let results = await groupController.createGroup(name, [body.draggedImage, body.draggedOverImage]);
-            parentGroup = results.insertedId.toString();
-        } else {
-            // add children to existing group
-            let results = await groupController.addToGroup(groupID, [body.draggedImage, body.draggedOverImage]);
-        }
+            
+        } 
+        // add children to existing group
+        let results = await groupController.addToGroup(groupID, [body.draggedImage, body.draggedOverImage]);
+
+        newChildren.forEach( async (child) => { 
+            let image =  imageController.getImage(child);
+            // imageController function here ( add to group in a safe non destructive way)
+        })
         
 
         imageCollection.updateOne({ _id: body.draggedImage }, { $push: { groups: insertedId } });
