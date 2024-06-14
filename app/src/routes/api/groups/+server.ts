@@ -3,6 +3,7 @@ import groupController from '$lib/server/controllers/groupController.js';
 import { UUID } from 'mongodb';
 import { imageCollection } from '$lib/server/types.js';
 import imageController from '$lib/server/controllers/imageController.js';
+import { aggregateController } from '$lib/server/controllers/aggController';
 
 export async function POST( request: Request ){
     // user access check here TODO
@@ -37,14 +38,16 @@ export async function POST( request: Request ){
         if(!parentGroup) {
             // create group 
             let name = body.name || "new group:" + new UUID().toString().slice(0, 5);
-            let results = await groupController.createGroup(name, [body.draggedImage, body.draggedOverImage]);
+            await groupController.createGroup(name, [body.draggedImage, body.draggedOverImage]);
             
         } 
         // add children to existing group
-        let results = await groupController.addToGroup(groupID, [body.draggedImage, body.draggedOverImage]);
+        // let results = await groupController.addToGroup(groupID, [body.draggedImage, body.draggedOverImage]);
 
         newChildren.forEach( async (child) => { 
-            let image =  imageController.getImage(child);
+            
+            let document =  aggregateController.getAggregated({page: 0, length: 10, group: child, sort: 'uploadDate'}); //TODO HERE
+            await groupController.addToGroup(groupID, document, document.type );
             // imageController function here ( add to group in a safe non destructive way)
         })
         

@@ -14,6 +14,9 @@ class AggregateController {
         return documents
         
     }
+
+    async getOneAggregated(id: string) {
+        AggregateModel.findAggregated({ _id: id });
 }
 
 export const aggregateController = new AggregateController();

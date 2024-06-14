@@ -50,7 +50,7 @@ class GroupController {
         try {
             if(type === 'image') {
                 await ImageModel.updateArrayPropertyImage(documentId, "groups", groupId);
-            } else { 
+            } else if (type === 'group') { 
                 await GroupModel.addCurrentToGroup(documentId, groupId)
             }
         } catch (error) {
