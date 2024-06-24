@@ -1,7 +1,6 @@
 import { GroupModel } from "../models/groupModel";
 import { ImageModel } from "../models/imageModel";
 import { type AppGroupData } from "../types";
-import { ObjectId } from 'mongodb';
 
 class GroupController {
     constructor() {}
@@ -28,7 +27,7 @@ class GroupController {
     async createGroup(name: string, children?: string[]) {
 
         let groupData: Partial<AppGroupData> = {
-            //_id handled by mongo
+            //_id handled by mongo supposedly.....
             type: 'group',
             name: name, 
             uploadDate: Date.now().toString(), 
@@ -36,13 +35,14 @@ class GroupController {
             groups: [], 
             groupTags: []
         }
+        let results = await GroupModel.createGroup(groupData);
 
-        children?.forEach(async (child) => {
-            //get type of child and add to groups array
-            await GroupModel.addDocToCurrent(groupData._id, child);
+        if(results.insertedId) {
+            console.log("Group created: ", results.insertedId.toString());
+            return results.insertedId.toString();
+        } else {
+            throw new Error("Error creating group"); 
         }
-
-        return await GroupModel.createGroup(groupData);
     }
 
     async addToGroup(groupId: string, documentId: string, type: "image" | "group") {
@@ -57,7 +57,7 @@ class GroupController {
             throw new Error("Error adding document to group");
         }
 
-        return await GroupModel.addDocToCurrent(groupId, documentId);
+        return 1
     }
 
     async updateGroup(groupId: string, updates: Partial<AppGroupData>) {

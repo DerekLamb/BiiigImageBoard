@@ -34,15 +34,14 @@ export interface BasicGroup {
     name: string; 
     uploadDate: string; 
     groups: string[]; 
+    children: string[];
     groupTags: string[]; 
 }
 
 export interface GroupDoc extends BasicGroup {
     _id: ObjectId;
-    children: ObjectId[];
 }
 export interface AppGroupData extends BasicGroup {
     _id: string;
-    children: string[];
 }
 

@@ -69,7 +69,6 @@ class ImageController{
         let buffer = Buffer.from(await file.arrayBuffer());
         let hash = await FileModel.hashFile(buffer);
         let ext = file.name.split('.').pop();
-        // let uID = uniqueID; 
         let newFileName = `${uniqueID}.${ext}`;
         
         const imageDataObj : AppImageData = {

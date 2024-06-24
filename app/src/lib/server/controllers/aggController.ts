@@ -1,5 +1,6 @@
 import { AggregateModel } from "../models/aggregateModel";
-
+import { ObjectId } from "mongodb";
+import type { AppGroupData, AppImageData } from "../types";
 class AggregateController {
     constructor() {}
     
@@ -15,8 +16,12 @@ class AggregateController {
         
     }
 
-    async getOneAggregated(id: string) {
-        AggregateModel.findAggregated({ _id: id });
+    async getOneAggregated(id: string) : Promise<AppGroupData | AppImageData | null> {
+        let objId = new ObjectId(id);
+        let documents = await AggregateModel.findAggregated({ _id: objId }, 1);
+        let document = documents ? documents[0] : null;
+        return document;
+    }
 }
 
 export const aggregateController = new AggregateController();

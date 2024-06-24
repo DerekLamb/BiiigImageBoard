@@ -7,8 +7,11 @@
     import PageNav from "$lib/pageNav.svelte";
 	import DropDown from "$lib/dropDown.svelte";
     import Modal from "$lib/svelteComponents/modal.svelte";
+
+    //script imports
     import { improvImageSize, imageCount } from "$lib/stores/searchStore";
 	import type { AppImageData } from "$lib/server/types";
+    import { groupNameGenerator } from "$lib/utilityModel";
 
     interface Images {
         images: AppImageData[];
@@ -47,21 +50,52 @@
         draggedOverImage = event.currentTarget.id;
     }
 
-    const  handleDrop = (event) => {
+    const  handleDrop = async (event) => {
         event.preventDefault();
         if (draggedImage && draggedOverImage) {
             console.log(draggedImage, "::", draggedOverImage);
-            //Make an API call to update the group IDs on the server
-              fetch('api/groups', {
+            let groupName = groupNameGenerator();
+
+            // Make POST request to create the group
+            const postResponse = await fetch('api/groups', {
                 method: 'POST',
                 headers: {
-                  'Content-Type': 'application/json',
+                'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    draggedImage: draggedImage,
-                    draggedOverImage: draggedOverImage,
+                group: { name: groupName },
                 }),
-              });
+            });
+
+            if (!postResponse.ok) {
+                throw new Error('Failed to create group');
+            }
+
+            const postData = await postResponse.json();
+            
+            const putResponse = await fetch(`api/groups`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    parentGroupId: postData.parentGroupId,
+                    addDocuments: [draggedOverImage, draggedImage]
+                }),
+            });
+
+            if (!putResponse.ok) {
+                throw new Error('Failed to update group');
+            }
+
+            const putData = await putResponse.json();
+
+            if (putData.success) {
+                console.log('Group updated successfully');
+                // Here you might want to update your UI or state
+            } else {
+                console.error('Failed to update group:', putData.message);
+            }
         }
 
         draggedImage = null;

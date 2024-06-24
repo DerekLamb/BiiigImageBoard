@@ -83,7 +83,7 @@ export const FileModel = {
                 .webp()
                 .toBuffer();
         } catch (error) {
-            throw new Error(`Error creating thumbnail: ${error}`);
+            console.log(`Error creating thumbnail: ${error}`);
         }
 
     }

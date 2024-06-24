@@ -1,88 +1,104 @@
-import { json } from '@sveltejs/kit'
+import { json, redirect } from '@sveltejs/kit'
 import groupController from '$lib/server/controllers/groupController.js';
-import { UUID } from 'mongodb';
-import { imageCollection } from '$lib/server/types.js';
-import imageController from '$lib/server/controllers/imageController.js';
 import { aggregateController } from '$lib/server/controllers/aggController';
+import { groupNameGenerator } from '$lib/utilityModel.js';
+import type { AppImageData, AppGroupData  } from '$lib/server/types.js';
 
-export async function POST( request: Request ){
-    // user access check here TODO
+export async function POST( {request, locals} ){
+    // user authentication check
+    if (!locals.user) {
+        console.log("no user");
+        redirect(307, '/login');
+    }
+    
+    // Request body validation ( group: { name: string } )
+    let groupName: string;
+    try {
+        const body = await request.json();
+        groupName = body.group?.name;
+        
+        if (!groupName) {
+            return json({ success: false, message: 'Missing group name' }, { status: 400 });
+        }
+    } catch (e) {
+        console.error('Error parsing request body:', e);
+        return json({ success: false, message: 'Invalid request body' }, { status: 400 });
+    }
+
+    try {
+        // Check if group already exists
+        const existingGroup = await groupController.getGroupByName(groupName);
+        
+        if (existingGroup) {
+            return json({ 
+                success: true, 
+                parentGroupId: existingGroup._id, 
+                message: 'Group already exists' 
+            });
+        }
+
+        // Create new group
+        const newGroupId = await groupController.createGroup(groupName);
+        
+        return json({ 
+            success: true, 
+            parentGroupId: newGroupId,
+            message: 'Group created successfully'
+        }, { status: 201 });
+
+    } catch (e) {
+        console.error('Error in group operation:', e);
+        return json({ 
+            success: false, 
+            message: 'An error occurred while processing the request' 
+        }, { status: 500 });
+    }
+}
+
+
+export async function PUT({request, locals}) {
+    // user authentication check
     if (!locals.user) {
         console.log("no user");
         redirect(307, '/login');
     }
 
-    const body = await request.json();
+    let groupName;
+    let childDocuments;
 
-    // expected body: { group: { name: string}, addDocuments: { id: string, }[] } 
-
-    if( !body.hasOwnProperty('group') || !body.hasOwnProperty('addDocuments') ) {
-        return json({ success: false, message: "missing group or addDocuments" });
-    }
-    
-    // get existing children documents
-    // $addToSet dragged image to children
-    // user access check here TODO
-    // return success or failure
-    
-    try { 
-        console.log(body);
-
-        // group id
-        let groupID = body.group;
-        let newChildren : string[] = body.addDocuments;
-
-        let parentGroup = groupController.getGroupById(groupID);
+    // Request body validation ( group: { name: string }, addDocuments: string[])
+    try {
+        const body = await request.json();
+        groupName = body.group?.name;
+        childDocuments = body.addDocuments;
         
-        // check if group id is new/exists ( create if new ) TODO: change to group name
-        if(!parentGroup) {
-            // create group 
-            let name = body.name || "new group:" + new UUID().toString().slice(0, 5);
-            await groupController.createGroup(name, [body.draggedImage, body.draggedOverImage]);
-            
-        } 
-        // add children to existing group
-        // let results = await groupController.addToGroup(groupID, [body.draggedImage, body.draggedOverImage]);
-
-        newChildren.forEach( async (child) => { 
-            
-            let document =  aggregateController.getAggregated({page: 0, length: 10, group: child, sort: 'uploadDate'}); //TODO HERE
-            await groupController.addToGroup(groupID, document, document.type );
-            // imageController function here ( add to group in a safe non destructive way)
-        })
-        
-
-        imageCollection.updateOne({ _id: body.draggedImage }, { $push: { groups: insertedId } });
-        imageCollection.updateOne({ _id: body.draggedOverImage }, { $push: { groups: insertedId } });
-        
-        let insertedId = results.insertedId.toString();
-        console.log(insertedId);
-        imageCollection.updateOne({ _id: body.draggedImage }, { $push: { groups: insertedId } });
-        imageCollection.updateOne({ _id: body.draggedOverImage }, { $push: { groups: insertedId } });
-        
-
-        if(!parentGroup){
-            GroupModel.createGroup({name: new Date().toISOString(), 
-                uploadDate: new Date().toISOString(), 
-                children: [body.draggedImage, body.draggedOverImage], 
-                groups: [], 
-                groupType: 'default', 
-                groupTags: []});
-            
+        if (!groupName || !childDocuments) {
+            return json({ success: false, message: 'Missing group name' }, { status: 400 });
         }
-
-        // Insert image into group collection if first element is image 
-
-        return json({ success: true });
     } catch (e) {
-
-        console.error(e);
-        return json({ success: false });
-        
+        console.error('Error parsing request body:', e);
+        return json({ success: false, message: 'Invalid request body' }, { status: 400 });
     }
+
+    let parentGroup = await groupController.getGroupByName(groupName);
+    if( !parentGroup ) return json({ success: false, message: "group not found" });
+    let parentGroupId = parentGroup._id;
+
+    childDocuments.forEach( async (childId: string) => {
+        try{
+            let child = await aggregateController.getOneAggregated(childId); // should return one document matching the id 
+            if( !child ) return json({ success: false, message: childId + " child not found" });
+
+            await groupController.addToGroup(parentGroupId, childId, child.type);
+
+            } catch (e) {
+                console.error('Error adding document to group:', e);
+                return json({ success: false, message: 'An error occurred while processing the request' }, { status: 500 });
+        }
+    });
 }
 
-export async function GET({ params } ) {
+export async function GET({ params, locals } ) {
     // user access check TODO
     if (!locals.user) {
         console.log("no user");

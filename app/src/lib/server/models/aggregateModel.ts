@@ -2,6 +2,7 @@ import type { ImageDoc, AppImageData, AppGroupData, GroupDoc } from "$lib/server
 import { groupCollection, imageCollection } from "$lib/server/types";
 import { collections } from "$lib/db";
 import { ObjectId, type Sort } from "mongodb";
+import type { NullLiteral } from "typescript";
 
 
 
@@ -19,8 +20,7 @@ function toDatabase(document: Partial<AppImageData>): ImageDoc | GroupDoc {
 
 export const AggregateModel = {
 
-    async findAggregated(filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1}) : Promise<(AppImageData | AppGroupData)[]>{ //used to get children of a group
-
+    async findAggregated(filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1}) : Promise<(AppImageData | AppGroupData)[] | null>{ //used to get children of a group
         const topLevel = imageCollection.aggregate([
             {
                 $unionWith: {
@@ -34,10 +34,14 @@ export const AggregateModel = {
             { $limit: limit }  // Number of items per page
         ])
 
+        if( await topLevel.hasNext() === false) { 
+            return null;
+        }
+        
         let aggDocs =  await topLevel.toArray() as (ImageDoc | GroupDoc)[];
         console.log(aggDocs);
         let toClientDocs = aggDocs.map(toClient);
         return toClientDocs;
     }
     
-} // type hell :3 
+}
