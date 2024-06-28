@@ -8,7 +8,6 @@ services:
         build: ./nginx
         restart: always
         ports: 
-        # - "80:80"
         - "3043:443"
         depends_on:
             - biiig-image-app
@@ -37,6 +36,7 @@ services:
 
     biiig-image-db:
         image: mongo:latest
+        restart: always
         # environment:
             # - MONGO_INITDB_ROOT_USERNAME=root
             # - MONGO_INITDB_ROOT_PASSWORD=example
