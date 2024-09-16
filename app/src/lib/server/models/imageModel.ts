@@ -74,4 +74,11 @@ export const ImageModel = {
         const nextImage = next ? toClient(next) : null;
         return { prev: prevImage || null, next: nextImage};
         },
+
+    async repairImageDoc(id: string) {
+        return 0; //todo later
+        // obj = {currName = "", oldNames = [] }
+        // if properties.map( in oldNames, change to newName. Break on err if multiple found )
+                
+    }
 }
