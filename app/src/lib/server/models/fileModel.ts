@@ -70,7 +70,12 @@ export const FileModel = {
         let buffer: Buffer;
 
         if (typeof file === 'string') {
-            buffer = await this.read(file); //add safety here 
+            try {
+                buffer = await this.read(file);
+            }
+            catch (error) {
+                throw new Error(`Error reading file path: ${error}`)
+            }
         } else if (typeof file === 'object' && file instanceof Buffer) {
             buffer = file;
         } else {
