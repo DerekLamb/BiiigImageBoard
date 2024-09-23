@@ -37,6 +37,7 @@ class ImageController{
         const filter =  search ? { tags: { $regex: search, $options: 'i' }} : {};
 
         const images = await ImageModel.findImages(filter, length, skip, sort);
+        //Should break model up into classes for repository, imageDocuments, FileSystem
 
         return images
     }
