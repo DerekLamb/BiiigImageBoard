@@ -1,6 +1,7 @@
 import { ImageModel } from "../models/imageModel"
 import { type AppImageData } from "../models/imageModel"
 import { FileModel } from "../models/fileModel"
+import { imageUtil } from "../utility/imageUtil"
 
 
 export const imageService = {
@@ -17,7 +18,7 @@ export const imageService = {
         }
     
         buffer = buffer ? buffer : await FileModel.read(image.imagePath);
-        const thumbnail = await FileModel.createThumbnail(buffer);
+        const thumbnail = await imageUtil.createThumbnail(buffer);
         const thumbnailname = `${image.sanitizedFilename}_thmb.webp`;
         const thumbnailPath = `thumb/${thumbnailname}`;
         try{
