@@ -1,8 +1,10 @@
 import sharp from "sharp";
 
-export const imageUtil = {
+export const imageFileUtil = {
 
-    async createThumbnail(imgBuffer: Buffer , scale: number = 200): Promise<Buffer> { // want to add webm support for thumbnail creation TODO
+    async createImageThumbnail(imgBuffer: Buffer , scale: number = 200): Promise<Buffer> { // want to add webm support for thumbnail creation TODO
+        // file extension check here
+
         try {
             return await sharp(imgBuffer)
                 .resize({ width: scale})
@@ -11,6 +13,6 @@ export const imageUtil = {
         } catch (error) {
             throw new Error(`Error creating thumbnail: ${error}`);
         }
-    }
+    },
     
 }

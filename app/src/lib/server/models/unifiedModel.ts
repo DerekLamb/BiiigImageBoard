@@ -28,6 +28,15 @@ export interface BasicGroup {
     groupTags: string[], // tags for the group 
 }
 
+export interface BaseDoc {
+    name: string;
+    filePath: string;
+    createDate: string;
+    thumbnailPath: string;
+    groups: string[];
+    tags: string[];
+}
+
 interface GroupDoc extends BasicGroup {
     _id: ObjectId;
 }
