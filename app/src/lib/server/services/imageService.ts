@@ -17,28 +17,26 @@ export const imageService = {
             }
         }
     
-        buffer = buffer ? buffer : await FileModel.read(image.imagePath);
-        const thumbnail = await imageFileUtil.createImageThumbnail(buffer);
-        const thumbnailname = `${image.sanitizedFilename}_thmb.webp`;
-        const thumbnailPath = `thumb/${thumbnailname}`;
         try{
+            buffer = buffer ? buffer : await FileModel.read(image.imagePath);
+            const thumbnail = await imageFileUtil.createImageThumbnail(buffer);
+            const thumbnailname = `${image.sanitizedFilename}_thmb.webp`;
+            const thumbnailPath = `thumb/${thumbnailname}`;
             
             await ImageModel.updateImage(image._id, "thumbnailPath", thumbnailPath); // I know I know, reusing thumbnailPath twice. I want to replace with a constant from a central lib file TODO 
 
             try{
-                console.log(thumbnail);
                 await FileModel.write(thumbnailPath, thumbnail);
-                console.log(`${thumbnailPath} ${image._id}`);
-                
             } catch{
-                console.log(`Error writing thumbnail for ${image._id}`);
                 await ImageModel.updateImage(image._id, "thumbnailPath", '');
                 return false;
             }
         } catch {
             console.log(`Error updating thumbnail for ${image._id}`);
             return false;
-        } 
+        }
+
+        return true;
         
     }
 }
