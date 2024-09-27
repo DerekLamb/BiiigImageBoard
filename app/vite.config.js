@@ -14,8 +14,12 @@ const config = {
 	],
 	server: {
 		host: true,
-		
-	}
+		fs: {
+			allow: [
+				'thumb/'
+			],
+		},
+	},
 };
 
 

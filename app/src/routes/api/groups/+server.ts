@@ -9,14 +9,15 @@ export async function POST({ request } : Request){
         const body = await request.json();
         console.log(body);
 
-        GroupModel.createGroup({name: new Date().toISOString(), 
-            uploadDate: new Date().toISOString(), 
+        GroupModel.createGroup({name: Date.now().toString(), 
+            uploadDate: Date.now().toString(), 
             children: [body.draggedImage, body.draggedOverImage], 
             groups: [], 
             groupType: 'default', 
             groupTags: []});
-
-        GroupModel.getGroupChildren(body.id, body.page, body.limit);
+        
+        
+        // GroupModel.getGroupChildren(body.id, body.page, body.limit);
         // Insert image into group collection if first element is image 
 
         return json({ success: true });

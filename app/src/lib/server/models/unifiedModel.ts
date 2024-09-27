@@ -2,6 +2,9 @@ import { ObjectId, type Collection } from "mongodb";
 import { collections, db } from "$lib/db";
 
 
+
+
+
 export const imageCollection : Collection<ImageDoc> = db.collection(collections.images);
 export const groupCollection : Collection<GroupDoc> = db.collection(collections.groups);
 
@@ -45,25 +48,47 @@ interface ImageDoc extends BaseImage { //
     _id: ObjectId;
 }
 
+function toClient(document: ImageDoc): AppImageData {
+
+}
+
+
 export const UnifiedModel = {
 
     async getChildren(groupName: string = "", page = 0, limit = 10) { //used to get children of a group
         const skip = page * limit;
 
+        imageCollection.updateMany(
+            {},
+            { 
+              $unset: { groups: "" },
+              $set: { group: [] }
+            }
+          )
+
         const topLevel = imageCollection.aggregate([
             {
                 $unionWith: {
                     coll: collections.groups,
-                    pipeline: [ { $match: { groups: [groupName] } }]
+                    pipeline: [ { $match: { groups: [] } }]
                 }
             },
-            { $match: { groups: [groupName] } },  // Only include top-level folders when empty
+            { $match: { group: [] } },  // Only include top-level folders when empty
             { $sort: { uploadDate: -1  } },  // Sort by name or other criteria
             { $skip: skip },  // Pagination offset, calculate based on current page
             { $limit: limit }  // Number of items per page
         ])
 
-        return topLevel.toArray();
+        let aggArr = await topLevel.toArray()
+        const processedDocuments = aggArr.map(document => {
+            const { _id, ...rest } = document;
+            return {
+                ...rest,
+                _id: _id.toString()
+            };
+        });
+
+        return processedDocuments;
     }
 }
 
