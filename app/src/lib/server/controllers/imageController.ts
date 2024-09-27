@@ -30,12 +30,12 @@ class ImageController{
     }
 
     async getImagePage(params: {page: number, length: number, search?: string, sort?: string}){
+        const search = params.search || '';
+        const filter =  search ? { tags: { $regex: search, $options: 'i' }} : {};
         const length = params.length;
         const skip = (params.page - 1) * length;
         const sort = params.sort;
-        const search = params.search || '';
-        const filter =  search ? { tags: { $regex: search, $options: 'i' }} : {};
-
+        
         const images = await ImageModel.findImages(filter, length, skip, sort);
         //Should break model up into classes for repository, imageDocuments, FileSystem
 

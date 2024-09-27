@@ -5,7 +5,6 @@ import { db } from '$lib/db'
 
 export async function GET({ request } : Request){
     try{
-
         interface Filter {
             tags?: { $all: string[]} | { $not: {$in: string[] } };
           }
