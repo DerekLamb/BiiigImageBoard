@@ -161,6 +161,6 @@ class FileRepository {
 }
 
 const mainFileRepo : FileRepository = new FileRepository("images")
-const thumbFileRepo : FileRepository = new FileRepository("thumb")
+const unused_thumbFileRepo : FileRepository = new FileRepository("thumb")
 
 export {ImageFile, FileRepository, mainFileRepo, thumbFileRepo};
