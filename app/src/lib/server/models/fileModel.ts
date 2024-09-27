@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import sharp from 'sharp';
 
 export const FileModel = {
-    async readDir(path: string): Promise<string[]> {
+    async listDir(path: string): Promise<string[]> {
         try {
             return await fs.readdir(path);
         } catch (error) {
