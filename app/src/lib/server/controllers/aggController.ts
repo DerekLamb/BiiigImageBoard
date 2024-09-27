@@ -10,9 +10,11 @@ class AggregateController {
         const group = params.group || '';
         //const filter =  search ? { tags: { $regex: search, $options: 'i' }} : {};
     
-        const images = await ImageModel.findImages( length, skip, sort);
-        const documents = await UnifiedModel.getChildren({group});
-        return images
+        // const images = await ImageModel.findImages( length, skip, sort);
+        const documents = await UnifiedModel.getChildren();
+        return documents
         
     }
 }
+
+export const aggController = new AggregateController();
