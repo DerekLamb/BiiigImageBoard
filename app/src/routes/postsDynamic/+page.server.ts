@@ -21,15 +21,15 @@ export const load = (async ({ url, locals}) => {
     }
     
     //const images = await imageController.getImagePage({page: currPage, length: lengthNum, search: searchTerm})
-    const images = await aggController.getAggregateData({page: currPage, length: lengthNum})
-    console.log(currPage, lengthNum,images);
+    const documents = await aggController.getAggregateData({page: currPage, length: lengthNum})
+    console.log(currPage, lengthNum, documents);
     const pageLength = lengthNum || 24;
 
     const numPages = Math.ceil(await imageController.getImageCount() / pageLength);
 
     return{
         status: 200,
-        images: images,
+        documents: documents,
         pageNum: numPages,
         currPage: currPage,
         len: lengthNum,

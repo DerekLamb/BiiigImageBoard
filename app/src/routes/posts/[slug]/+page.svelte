@@ -70,7 +70,7 @@ function copyItems() {
         <div>
             
             <p>Comments</p>
-            <div class = "imageWindow"> Here be comments</div>
+            <div class = "imageWindow">{data.image?.groups}</div>
             <div class = "imageWindow"> Here be comments</div>
             <div class = "imageWindow"> Here be comments</div>
             <div class = "imageWindow"> Here be comments</div>

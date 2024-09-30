@@ -58,19 +58,11 @@ export const UnifiedModel = {
     async getChildren(groupName: string = "", page = 0, limit = 10) { //used to get children of a group
         const skip = page * limit;
 
-        imageCollection.updateMany(
-            {},
-            { 
-              $unset: { groups: "" },
-              $set: { group: [] }
-            }
-          )
-
         const topLevel = imageCollection.aggregate([
             {
                 $unionWith: {
                     coll: collections.groups,
-                    pipeline: [ { $match: { groups: [] } }]
+                    pipeline: [ { $match: { group: [] } }]
                 }
             },
             { $match: { group: [] } },  // Only include top-level folders when empty
