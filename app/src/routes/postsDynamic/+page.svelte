@@ -8,15 +8,15 @@
 	import DropDown from "$lib/dropDown.svelte";
     import Modal from "$lib/svelteComponents/modal.svelte";
     import { improvImageSize, imageCount } from "$lib/stores/searchStore";
-	import type { AppImageData } from "$lib/server/models/imageModel.js";
+	import type { AppImageData, AppGroupData, AppContent } from "$lib/customTypes/DocTypes";
 
-    interface Images {
-        images: AppImageData[];
+    interface DataResponse {
+        documents: AppContent[];
         currPage: number;
         pageNum: number;
     }
 
-    export let data : Images;
+    export let data : DataResponse;
 
     const sizes = [100, 110, 150, 200, 300];
     const numImages = [24, 32, 48, 60, 72, 84, 96];
@@ -82,18 +82,18 @@
         <DropDown label="Image Size" options={sizes} bind:selectedValue={$improvImageSize} />
         <DropDown label="Image Count" options={numImages} bind:selectedValue={$imageCount} />
         <ImageBrowser minSize = {$improvImageSize}>
-            {#each data.images as image}
+            {#each data.documents as element}
 
-                    <div class = "imageBox" id = { image._id} on:dragstart = {handleDragStart } on:dragover = {handleDragOver } on:drop = {handleDrop}>
-                        {#if image.thumbnailPath}
-                            <Image src = "/{image.thumbnailPath}" 
-                            mainLink = "/posts/{image.uploadDate}" 
-                            imageName = {image.originalName} 
+                    <div class = "imageBox" id = { element._id} on:dragstart = {handleDragStart } on:dragover = {handleDragOver } on:drop = {handleDrop}>
+                        {#if element.thumbnailPath}
+                            <Image src = "/{element.thumbnailPath}" 
+                            mainLink = "/posts/{element.uploadDate}" 
+                            imageName = {element.originalName} 
                             thumbnail={true}></Image>
                         {:else}
-                            <Image src = "/{image.imagePath}" 
-                            mainLink = "/posts/{image.uploadDate}" 
-                            imageName = {image.originalName}></Image>
+                            <Image src = "https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg" 
+                            mainLink = "/posts/{element.uploadDate}" 
+                            imageName = {element.originalName}></Image>
                         {/if}      
                     </div>
       
