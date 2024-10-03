@@ -13,8 +13,8 @@ export const databaseDocumentUtil = {
         };
     },
     
-    toDatabase(document: {_id: string}): {} {
+    convertStringToId(doc: WithStringId<T>): WithObjectId<T> {
         const id = new ObjectId(document._id);
-        return { ...document, _id: id } as ImageDoc; // Convert string to ObjectId
+        return { ...document, _id: id }; // Convert string to ObjectId
     },
 }
