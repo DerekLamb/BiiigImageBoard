@@ -1,7 +1,7 @@
 import { GroupModel } from "../models/groupModel";
 import type { AppGroup } from "$lib/customTypes/DocTypes"
 
-class groupController {
+class GroupController {
     constructor() {
 
     }
@@ -17,3 +17,5 @@ class groupController {
         }
     }
 }
+
+export const groupModel = new GroupController();
