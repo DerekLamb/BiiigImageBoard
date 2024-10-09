@@ -1,6 +1,7 @@
 import { ObjectId, type Sort, type Collection } from "mongodb";
 import { collections, db } from "$lib/db";
 import { type BaseImage, imageCollection } from "./unifiedModel";
+import { databaseDocumentUtil as dbUtil} from "$lib/server/utility/dbUtil";
 
 interface ImageDoc extends BaseImage { // 
     _id: ObjectId;
@@ -10,14 +11,12 @@ export interface AppImageData extends BaseImage {
     _id: string,
 }
  
-function toClient(document: ImageDoc): AppImageData {
-    const id = document._id.toString();
-    return { ...document, _id: id } as AppImageData; // Convert ObjectId to string
+function toClient(document: ImageDoc) {
+    return dbUtil.convertIdToString(document); // Convert ObjectId to string
 }
 
-function toDatabase(document: Partial<AppImageData>): ImageDoc {
-    const id = new ObjectId(document._id);
-    return { ...document, _id: id } as ImageDoc; // Convert string to ObjectId
+function toDatabase(document: Partial<AppImageData>) {
+    return dbUtil.convertStringToId(document);
 }
 
 export const ImageModel = {
@@ -28,7 +27,7 @@ export const ImageModel = {
 
     async getImageById(id: string) {
         const document = await imageCollection.findOne({ _id: new ObjectId(id) }) as ImageDoc;
-        return toClient(document);
+        return toClient(document) ;
     },
 
     async getImageByTimestamp(timestamp: string) {

@@ -1,7 +1,7 @@
 import {ObjectId} from 'mongodb'
 
 type WithStringId<T> = Omit<T, '_id'> & { _id: string };
-type WithObjectId<T> = T & { _id: ObjectId };
+type WithObjectId<T> = Omit<T, '_id'> & { _id: ObjectId };
 
 export const databaseDocumentUtil = {
 
@@ -10,11 +10,11 @@ export const databaseDocumentUtil = {
         return {
         ...rest,
         _id: _id.toString()
-        };
+        } as WithStringId<T>;
     },
     
-    convertStringToId(doc: WithStringId<T>): WithObjectId<T> {
-        const id = new ObjectId(document._id);
-        return { ...document, _id: id }; // Convert string to ObjectId
+    convertStringToId<T>(doc: WithStringId<T>): WithObjectId<T> {
+        const id = new ObjectId(doc._id);
+        return { ...doc, _id: id }; // Convert string to ObjectId
     },
 }
