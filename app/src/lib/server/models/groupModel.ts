@@ -1,17 +1,15 @@
 import { ObjectId, type Sort } from 'mongodb';
 import { imageCollection, groupCollection, } from '$lib/server/models/unifiedModel'
 import type { AppGroup, GroupDoc  } from '$lib/customTypes/DocTypes';
-
+import { databaseDocumentUtil as dbUtil} from "$lib/server/utility/dbUtil";
 
 
 function toClient(document: GroupDoc): AppGroup { 
-    const id = document._id.toString();
-    return { ...document, _id: id } as AppGroup; // Convert ObjectId to string
+    return dbUtil.convertIdToString(document) as AppGroup; // Convert ObjectId to string
 }
 
 function toDatabase(document: Partial<AppGroup>): GroupDoc {
-    const id = new ObjectId(document._id);
-    return { ...document, _id: id } as GroupDoc; // Convert string to ObjectId
+    return dbUtil.convertStringToId(document) as GroupDoc; // Convert string to ObjectId
 }
 
 export const GroupModel = { 
