@@ -6,7 +6,7 @@ class GroupController {
 
     }
 
-    async updateGroup(groupData: AppGroup) {
+    async ensureGroup(groupData: AppGroup) {
         const existingGroup = await GroupModel.getGroupById(groupData._id);
 
         if(!existingGroup){
@@ -15,6 +15,10 @@ class GroupController {
         else {
             GroupModel.updateGroup(groupData._id, groupData);
         }
+    }
+
+    async insertImage(groupId: string, imageId: string){
+        return 0;
     }
 }
 
