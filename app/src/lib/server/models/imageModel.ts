@@ -1,6 +1,6 @@
 import { ObjectId, type Sort, type Collection } from "mongodb";
 import { type BaseImage, imageCollection } from "./unifiedModel";
-import { databaseDocumentUtil as dbUtil} from "$lib/server/utility/dbUtil";
+import { databaseDocUtil as dbUtil} from "$lib/server/utility/dbUtil";
 
 
 interface ImageDoc extends BaseImage { // 

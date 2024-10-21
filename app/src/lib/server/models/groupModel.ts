@@ -21,17 +21,17 @@ export const GroupModel = {
         .limit(limit)
         .toArray() as GroupDoc[];  
 
-        return documents.map(databaseDocUtil.convertIdToString);
+        return documents.map(dbUtil.convertIdToString);
     },
 
     async getGroupById(id: string) {
         const document = await groupCollection.findOne({ _id: new ObjectId(id) }) as GroupDoc;
-        return databaseDocUtil.convertIdToString(document);
+        return dbUtil.convertIdToString(document);
     },
 
     async getGroupByName(name: string) {
         const document = await groupCollection.findOne({ name }) as GroupDoc;
-        return databaseDocUtil.convertIdToString(document);
+        return dbUtil.convertIdToString(document);
     },
 
     async createGroup(groupData: Partial<AppGroup>) {
@@ -60,5 +60,9 @@ export const GroupModel = {
 
     async deleteGroup(id: string) {
         return await groupCollection.deleteOne({ _id: new ObjectId(id) });
+    },
+
+    async getGroupCount(filter = {}) {
+        return await groupCollection.estimatedDocumentCount(filter);
     },
 }

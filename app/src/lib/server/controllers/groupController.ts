@@ -6,8 +6,8 @@ class GroupController {
 
     }
 
-    async getGroup(){
-        return false;
+    async getGroup(groupId: string){
+        return GroupModel.getGroupById(groupId);
     }
 
     async getGroupPage(params: {page: number, length: number, search?: string, sort?: string}){
@@ -23,7 +23,7 @@ class GroupController {
     }
 
     async getGroupCount(){
-        return 20
+        return GroupModel.getGroupCount();
     }
 
     async ensureGroup(groupData: AppGroup) {

@@ -1,7 +1,8 @@
 import { json } from '@sveltejs/kit'
-import { GroupModel } from '$lib/server/models/groupModel';
+import { groupCollection } from '$lib/server/models/unifiedModel.js';
 import { TagModel } from '$lib/server/models/tagModel';
 import { UnifiedModel } from '$lib/server/models/unifiedModel.js';
+import { groupController } from '$lib/server/controllers/groupController.js';
 
 export async function POST({ request } : Request){
     // user access check here TODO
@@ -34,10 +35,10 @@ export async function GET({ params }) {
     // returns children of group specified or top level groups if no group specified
     try {
         const groupId = params;
-        const page = 0;
-        const limit = 10;
+        const page = 1;
+        const length = 10;
 
-        const children = await UnifiedModel.getGroupChildren(groupId, page, limit);
+        const children = await groupController.getGroupPage({page, length,})
         console.log(children);
         return json({ success: true, children });
     } catch (e) {
