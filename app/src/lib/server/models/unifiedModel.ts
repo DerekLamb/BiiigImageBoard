@@ -48,10 +48,6 @@ interface ImageDoc extends BaseImage { //
     _id: ObjectId;
 }
 
-function toClient(document: ImageDoc): AppImageData {
-
-}
-
 
 export const UnifiedModel = {
 
