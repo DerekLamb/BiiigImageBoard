@@ -26,7 +26,7 @@ class GroupController {
         return 20
     }
 
-    async safeCreateGroup(groupData: AppGroup) {
+    async ensureGroup(groupData: AppGroup) {
         const existingGroup = await GroupModel.getGroupById(groupData._id);
 
         if(!existingGroup){
