@@ -1,17 +1,12 @@
 import { ObjectId, type Sort } from 'mongodb';
 import { imageCollection, groupCollection, } from '$lib/server/models/unifiedModel'
 import type { AppGroup, GroupDoc  } from '$lib/customTypes/DocTypes';
+import { databaseDocUtil } from '../utility/dbUtil';
 
-
-
-function toClient(document: GroupDoc): AppGroup { 
-    const id = document._id.toString();
-    return { ...document, _id: id } as AppGroup; // Convert ObjectId to string
-}
 
 function toDatabase(document: Partial<AppGroup>): GroupDoc {
     const id = new ObjectId(document._id);
-    return { ...document, _id: id } as GroupDoc; // Convert string to ObjectId
+    return { ...document, _id: id } as GroupDoc;
 }
 
 export const GroupModel = { 
@@ -23,17 +18,17 @@ export const GroupModel = {
         .limit(limit)
         .toArray() as GroupDoc[];  
 
-        return documents.map(toClient);
+        return documents.map(databaseDocUtil.convertIdToString);
     },
 
     async getGroupById(id: string) {
         const document = await groupCollection.findOne({ _id: new ObjectId(id) }) as GroupDoc;
-        return toClient(document);
+        return databaseDocUtil.convertIdToString(document);
     },
 
     async getGroupByName(name: string) {
         const document = await groupCollection.findOne({ name }) as GroupDoc;
-        return toClient(document);
+        return databaseDocUtil.convertIdToString(document);
     },
 
     async createGroup(groupData: Partial<AppGroup>) {
