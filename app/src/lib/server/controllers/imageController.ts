@@ -1,6 +1,5 @@
 import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
 import { FileModel } from '$lib/server/models/fileModel';
-import { UnifiedModel } from '$lib/server/models/unifiedModel';
 import { imageService } from '$lib/server/services/imageService';
 
 const constDefaultPath = 'images/'; // default path if none specified

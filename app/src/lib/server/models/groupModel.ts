@@ -34,6 +34,14 @@ export const GroupModel = {
         return dbUtil.convertIdToString(document);
     },
 
+    async getGroupChildren(groupName, page, limit, sort = { uploadDate: -1}){
+        const documents = await groupCollection.findOne({ name: groupName });
+        if(documents.hasOwnProperty(children)){
+            documents.children.map(dbUtil.convertIdToString);
+            // does this work?? TODO 
+        }
+    }
+
     async createGroup(groupData: Partial<AppGroup>) {
         return await groupCollection.insertOne(toDatabase(groupData)); 
     },

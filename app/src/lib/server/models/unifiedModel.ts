@@ -1,9 +1,8 @@
-import { ObjectId, type Collection } from "mongodb";
+import { ObjectId, type Collection, type Sort } from "mongodb";
 import { collections, db } from "$lib/db";
 
-
-
-
+import { databaseDocUtil  as dbUtil } from "$lib/server/utility/dbUtil";
+import { GroupModel } from "$lib/server/models/groupModel";
 
 export const imageCollection : Collection<ImageDoc> = db.collection(collections.images);
 export const groupCollection : Collection<GroupDoc> = db.collection(collections.groups);
@@ -51,8 +50,28 @@ interface ImageDoc extends BaseImage { //
 
 export const UnifiedModel = {
 
-    async getChildren(groupName: string = "", page = 0, limit = 10) { //used to get children of a group
+    async getNodeChildren(groupName: string = "", page = 1, limit = 10, sort = { uploadDate: -1}) { //used to get children of a group/node
         const skip = page * limit;
+        let processedDocuments = []
+
+        if(page < 1){
+            throw Error(
+                 "Unified Model: Cannot have negative page number "
+            )
+        }
+
+        if(groupName == "" || groupName == null) {
+            processedDocuments = await this.getBaseNode(page, limit, skip, sort)
+        }
+        else {
+            processedDocuments = await GroupModel.getGroupByName(groupName)
+        }
+            
+        return processedDocuments;
+    },
+
+    async getBaseNode(page = 1, limit = 10,  skip = 0, sort: Sort = { uploadDate: -1 }) {
+
 
         const topLevel = imageCollection.aggregate([
             {
@@ -62,20 +81,13 @@ export const UnifiedModel = {
                 }
             },
             { $match: { group: [] } },  // Only include top-level folders when empty
-            { $sort: { uploadDate: -1  } },  // Sort by name or other criteria
+            { $sort: { sort  } },  // Sort by name or other criteria
             { $skip: skip },  // Pagination offset, calculate based on current page
             { $limit: limit }  // Number of items per page
         ])
-
+        
         let aggArr = await topLevel.toArray()
-        const processedDocuments = aggArr.map(document => {
-            const { _id, ...rest } = document;
-            return {
-                ...rest,
-                _id: _id.toString()
-            };
-        });
-
+        const processedDocuments = aggArr.map(dbUtil.convertIdToString);
         return processedDocuments;
     }
 }
