@@ -1,3 +1,4 @@
+import { redirect } from '@sveltejs/kit'
 /** @type {import('./$types').PageServerLoad} */
 
 
@@ -20,7 +21,7 @@ export const load = (async ({ url, locals}) => {
         lengthNum = 24; 
     }
     
-    const images = await groupController.getGroupPage({page: currPage, length: lengthNum, search: searchTerm})
+    const groups = await groupController.getGroupPage({page: currPage, length: lengthNum, search: searchTerm})
 
     const pageLength = lengthNum || 24;
 
@@ -28,7 +29,7 @@ export const load = (async ({ url, locals}) => {
 
     return{
         status: 200,
-        images: images,
+        groups: groups,
         pageNum: numPages,
         currPage: currPage,
         len: lengthNum,

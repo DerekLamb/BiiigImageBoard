@@ -9,7 +9,7 @@ class AggregateController {
         const group = params.group || '';
         //const filter =  search ? { tags: { $regex: search, $options: 'i' }} : {};
     
-        const documents = await UnifiedModel.getNodeChildren(group, params.page, params.length);
+        const documents = await UnifiedModel.findNodeChildren(group, length, skip)
         return documents
         
     }

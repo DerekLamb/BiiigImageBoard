@@ -21,7 +21,7 @@ export const GroupModel = {
         .limit(limit)
         .toArray() as GroupDoc[];  
 
-        return documents.map(dbUtil.convertIdToString);
+        return documents.map(dbUtil.convertIdToString) as AppGroup[];
     },
 
     async getGroupById(id: string) {
