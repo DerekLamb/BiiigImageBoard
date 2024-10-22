@@ -24,8 +24,8 @@ export interface BaseImage { // This is the interface for the image/group data t
 export interface BasicGroup {
     name: string, // name of group
     uploadDate: string, // date group was created
-    children: ObjectId[], // contains the ids of imageDoc or other GroupDoc(s), will need to handle making sure only goes three levels deep for groups
-    groups: ObjectId[], // needs considerations 
+    children: string[], // contains the ids of imageDoc or other GroupDoc(s), will need to handle making sure only goes three levels deep for groups
+    groups: string[], // needs considerations 
     groupType: string, // possible extension, unsure what to use for now
     groupTags: string[], // tags for the group 
 }
@@ -37,6 +37,7 @@ export interface BaseDoc {
     thumbnailPath: string;
     groups: string[];
     tags: string[];
+    type: "image" | "group";
 }
 
 interface GroupDoc extends BasicGroup {
@@ -50,18 +51,11 @@ interface ImageDoc extends BaseImage { //
 
 export const UnifiedModel = {
 
-    async getNodeChildren(groupName: string = "", page = 1, limit = 10, sort = { uploadDate: -1}) { //used to get children of a group/node
-        const skip = page * limit;
-        let processedDocuments = []
-
-        if(page < 1){
-            throw Error(
-                 "Unified Model: Cannot have negative page number "
-            )
-        }
+    async findNodeChildren(groupName: string = "", limit = 10, skip = 0, sort = { uploadDate: -1}) { //used to get children of a group/node
+        let processedDocuments
 
         if(groupName == "" || groupName == null) {
-            processedDocuments = await this.getBaseNode(page, limit, skip, sort)
+            processedDocuments = await this.getBaseNodeChildren( limit, skip, sort)
         }
         else {
             processedDocuments = await GroupModel.getGroupByName(groupName)
@@ -70,7 +64,7 @@ export const UnifiedModel = {
         return processedDocuments;
     },
 
-    async getBaseNode(page = 1, limit = 10,  skip = 0, sort: Sort = { uploadDate: -1 }) {
+    async getBaseNodeChildren( limit = 10,  skip = 0, sort: Sort = { uploadDate: -1 } ) {
 
 
         const topLevel = imageCollection.aggregate([
@@ -80,8 +74,8 @@ export const UnifiedModel = {
                     pipeline: [ { $match: { group: [] } }]
                 }
             },
-            { $match: { group: [] } },  // Only include top-level folders when empty
-            { $sort: { sort  } },  // Sort by name or other criteria
+            { $match: { group: [] } },  
+            { $sort: { sort  } },
             { $skip: skip },  // Pagination offset, calculate based on current page
             { $limit: limit }  // Number of items per page
         ])
