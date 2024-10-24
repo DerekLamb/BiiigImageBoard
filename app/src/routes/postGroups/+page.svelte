@@ -3,9 +3,9 @@
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import SearchBar from "$lib/searchBar.svelte";
+	import Tagbar from "$lib/tagbar.svelte";
 
 /** @type {import('./$types').PageData} */ 
-
 
 interface ServerData {
     groups:{
@@ -24,17 +24,18 @@ interface ServerData {
 
 export let data : ServerData;
 
-
+console.log(data.groups)
 
 </script>
 
-<div class = midContainer>
+<div class = midContainer >
     <SideBar>
         <SearchBar />
-        <TagSection editable = {false} />
+        <TagSection editable={false}/>
     </SideBar>
     <div class = "groupBrowser">
         {#each data.groups as group}
-            <p><group class="name"></group></p>
+            <p>{group.name}</p>
+        {/each}
     </div>
 </div>

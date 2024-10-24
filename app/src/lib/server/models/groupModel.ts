@@ -19,7 +19,7 @@ export const GroupModel = {
         .sort(sort)
         .skip(skip)
         .limit(limit)
-        .toArray() as GroupDoc[];  
+        .toArray();  
 
         return documents.map(dbUtil.convertIdToString) as AppGroup[];
     },
@@ -40,7 +40,7 @@ export const GroupModel = {
             documents.children.map(dbUtil.convertIdToString);
             // does this work?? TODO 
         }
-    }
+    },
 
     async createGroup(groupData: Partial<AppGroup>) {
         return await groupCollection.insertOne(toDatabase(groupData)); 

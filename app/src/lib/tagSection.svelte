@@ -19,10 +19,9 @@
         try {
             const response = await fetch(`/api/tags`);
             if (response.ok) {
-                console.log(response);
                 const data = await response.json();
                 autoTags = data;
-                console.log(autoTags);
+                //console.log(autoTags);
             } else {
                 throw new Error('Failed to fetch tags');
             }
