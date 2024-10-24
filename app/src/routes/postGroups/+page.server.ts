@@ -3,6 +3,8 @@ import { redirect } from '@sveltejs/kit'
 
 
 import { groupController } from '$lib/server/controllers/groupController';
+import { GroupModel } from '$lib/server/models/groupModel'
+
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url, locals}) => {
@@ -22,7 +24,7 @@ export const load = (async ({ url, locals}) => {
     }
     
     const groups = await groupController.getGroupPage({page: currPage, length: lengthNum, search: searchTerm})
-
+    
     const pageLength = lengthNum || 24;
 
     const numPages = Math.ceil(await groupController.getGroupCount() / pageLength);
