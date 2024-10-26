@@ -1,4 +1,4 @@
-import { collections, db } from "$lib/db";
+import { collections, db } from "$lib/db.server";
 import { Collection , ObjectId } from "mongodb";
 
 const imageCollection : Collection<ImageDoc> = db.collection(collections.images);

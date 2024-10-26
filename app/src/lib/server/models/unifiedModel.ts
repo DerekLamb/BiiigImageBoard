@@ -1,5 +1,5 @@
 import { ObjectId, type Collection, type Sort } from "mongodb";
-import { collections, db } from "$lib/db";
+import { collections, db } from "$lib/db.server";
 
 import { databaseDocUtil  as dbUtil } from "$lib/server/utility/dbUtil";
 import { GroupModel } from "$lib/server/models/groupModel";
