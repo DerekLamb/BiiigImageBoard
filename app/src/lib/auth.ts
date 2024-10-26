@@ -1,6 +1,6 @@
 import { Lucia, generateId } from 'lucia';
 import { MongodbAdapter } from '@lucia-auth/adapter-mongodb';
-import { db } from '$lib/db';
+import { db } from '$lib/db.server';
 import type { Collection } from 'mongodb';
 import { Argon2id } from 'oslo/password';
 

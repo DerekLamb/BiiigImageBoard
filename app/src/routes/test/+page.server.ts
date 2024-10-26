@@ -1,5 +1,5 @@
 import { page } from '$app/stores';
-import { db } from '$lib/db';
+import { db } from '$lib/db.server';
 
 
 import type { PageServerLoad } from './$types';
