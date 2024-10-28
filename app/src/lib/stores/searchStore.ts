@@ -23,8 +23,10 @@ export const createPersistentStore = (name: string, initialValue: any) => {
   
 
 export const improvSearch = createPersistentStore("search", "");
-export const improvImageSize = createPersistentStore("imageSize", 200);
 export const improvCurrPage = createPersistentStore("currPage", 1);
-export const imageCount = createPersistentStore("imageCount", 24);
 export const menuOpen = createPersistentStore("menuOpen", false);
+export const improvImageSize = createPersistentStore("imageSize", 200);
+export const imageCount = createPersistentStore("imageCount", 24);
+export const groupSize = createPersistentStore("imageSize", 200);
+export const groupCount = createPersistentStore("imageCount", 24);
 //eventually add a store for history of searches per user

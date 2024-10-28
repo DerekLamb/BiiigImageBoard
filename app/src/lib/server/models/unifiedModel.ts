@@ -64,7 +64,7 @@ export const UnifiedModel = {
         return processedDocuments;
     },
 
-    async getBaseNodeChildren( limit = 10,  skip = 0, sort: Sort = { uploadDate: -1 } ) {
+    async getBaseNodeChildren( limit = 10,  skip = 0, sort = { uploadDate: -1 } ) {
 
 
         const topLevel = imageCollection.aggregate([
@@ -75,11 +75,10 @@ export const UnifiedModel = {
                 }
             },
             { $match: { group: [] } },  
-            { $sort: { sort  } },
+            { $sort: sort },
             { $skip: skip },  // Pagination offset, calculate based on current page
             { $limit: limit }  // Number of items per page
         ])
-        
         let aggArr = await topLevel.toArray()
         const processedDocuments = aggArr.map(dbUtil.convertIdToString);
         return processedDocuments;
