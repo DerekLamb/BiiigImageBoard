@@ -5,7 +5,7 @@
     import ImageBrowser from "$lib/imageBrowser.svelte";
     import Image from "$lib/image.svelte";
     import PageNav from "$lib/pageNav.svelte";
-	import DropDown from "$lib/dropDown.svelte";
+	import DropDown from "$lib/svelteComponents/dropDown.svelte";
     import Modal from "$lib/svelteComponents/modal.svelte";
     import { improvImageSize, imageCount } from "$lib/stores/searchStore";
 	import type { AppImageData, AppGroupData, AppContent } from "$lib/customTypes/DocTypes";
@@ -83,8 +83,21 @@
         <DropDown label="Image Count" options={numImages} bind:selectedValue={$imageCount} />
         <ImageBrowser minSize = {$improvImageSize}>
             {#each data.documents as element}
-
-                    <div class = "imageBox" id = { element._id} on:dragstart = {handleDragStart } on:dragover = {handleDragOver } on:drop = {handleDrop}>
+                {#if element.groupType}
+                    <div class = "imageBox" id = { element._id } on:dragstart = { handleDragStart } on:dragover = { handleDragOver } on:drop = {handleDrop}>
+                        {#if element.thumbnailPath}
+                            <Image src = "/{ element.thumbnailPath }" 
+                            mainLink = "/api/group" 
+                            imageName = { element.originalName } 
+                            thumbnail={ true }></Image>
+                        {:else}
+                            <Image src = "https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg" 
+                            mainLink = "/api/groups" 
+                            imageName = {element.originalName}></Image>
+                        {/if}      
+                    </div>                
+                    {:else}
+                    <div class = "imageBox" id = { element._id } on:dragstart = { handleDragStart } on:dragover = { handleDragOver } on:drop = {handleDrop}>
                         {#if element.thumbnailPath}
                             <Image src = "/{element.thumbnailPath}" 
                             mainLink = "/posts/{element.uploadDate}" 
@@ -96,6 +109,7 @@
                             imageName = {element.originalName}></Image>
                         {/if}      
                     </div>
+                {/if}
       
             {/each}
         </ImageBrowser>
