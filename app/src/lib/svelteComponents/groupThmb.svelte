@@ -3,7 +3,7 @@
     export let alt = "Err";
     export let name = "";
     export let mainLink = "";
-
+    
 </script>
 
 <div class="groupCont">
