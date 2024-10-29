@@ -2,10 +2,8 @@
 <script>
     export let src = '';
     export let alt = "TestAlt";
-    export let imageName = "";
+    export let name = "";
     export let thumbnail = false;
-    export let leftLink = "";
-    export let rightLink = "";
     export let mainLink = "";
     let imgClass = "full-img"
     if(thumbnail){
@@ -17,24 +15,19 @@
             window.location.href = mainLink;
             return;
         }
-        const bounds = event.target.getBoundingClientRect();
-        const x = event.clientX - bounds.left;
-        if (x < bounds.width / 2) {
-        window.location.href = leftLink; // Navigate to left link
-        } else {
-        window.location.href = rightLink; // Navigate to right link
-        }
   }
 
 </script>
 
 <div class="container">
-    
-    <img class="{imgClass}" src={src} alt={alt} on:click={handleClick}/>
+    <a>
+        <img class="{imgClass}" src={src} alt={alt} on:click={handleClick}/>
+    </a>
+
     {#if upScore == -1 && downScore == -1}
-            <span class = "imgName ">{imageName}</span>
+            <span class = "name ">{name}</span>
     {:else}
-            <span class = "imgName">{imageName}</span>
+            <span class = "imgName">{name}</span>
             <span class = "score">{upScore} &#x1F446 {downScore} &#x1F447 </span>
     {/if}
     
