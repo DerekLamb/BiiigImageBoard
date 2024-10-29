@@ -4,11 +4,12 @@
     import TagSection from "$lib/tagSection.svelte";
     import ImageBrowser from "$lib/imageBrowser.svelte";
     import Image from "$lib/image.svelte";
+    import GroupThmb from "$lib/svelteComponents/groupThmb.svelte";
     import PageNav from "$lib/pageNav.svelte";
 	import DropDown from "$lib/svelteComponents/dropDown.svelte";
     import Modal from "$lib/svelteComponents/modal.svelte";
     import { improvImageSize, imageCount } from "$lib/stores/searchStore";
-	import type { AppImageData, AppGroupData, AppContent } from "$lib/customTypes/DocTypes";
+	import type { AppContent } from "$lib/customTypes/DocTypes";
 
     interface DataResponse {
         documents: AppContent[];
@@ -71,32 +72,31 @@
 </script>
 <div class="midContainer">
     <SideBar>
-        <SearchBar/>
-        <TagSection/>
+        <SearchBar />
+        <TagSection />
     </SideBar>
     <div class="imageContainer">
         <div class="slideToggle">
-            <button on:click={toggleModal} >Toggle View</button>
+            <button on:click={ toggleModal } >Toggle View</button>
         </div>
-        <PageNav currPage = {data.currPage} numPages = {data.pageNum} />
-        <DropDown label="Image Size" options={sizes} bind:selectedValue={$improvImageSize} />
-        <DropDown label="Image Count" options={numImages} bind:selectedValue={$imageCount} />
-        <ImageBrowser minSize = {$improvImageSize}>
+        <PageNav currPage = { data.currPage } numPages = { data.pageNum } />
+        <DropDown label="Image Size" options={ sizes } bind:selectedValue={ $improvImageSize } />
+        <DropDown label="Image Count" options={ numImages } bind:selectedValue={ $imageCount } />
+        <ImageBrowser minSize = { $improvImageSize }>
             {#each data.documents as element}
                 {#if element.groupType}
-                    <div class = "imageBox" id = { element._id } on:dragstart = { handleDragStart } on:dragover = { handleDragOver } on:drop = {handleDrop}>
+                    <div class = "imageBox" id = { element._id } on:dragstart = { handleDragStart } on:dragover = { handleDragOver } on:drop = { handleDrop }>
                         {#if element.thumbnailPath}
-                            <Image src = "/{ element.thumbnailPath }" 
-                            mainLink = "/api/group" 
-                            imageName = { element.originalName } 
-                            thumbnail={ true }></Image>
+                            <GroupThmb 
+                            src = { element.thumbnailPath } 
+                            name = { element.name } />
                         {:else}
-                            <Image src = "https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg" 
-                            mainLink = "/api/groups" 
-                            imageName = {element.originalName}></Image>
+                            <GroupThmb 
+                            src = "https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg" 
+                            name = { element.name } />
                         {/if}      
                     </div>                
-                    {:else}
+                {:else}
                     <div class = "imageBox" id = { element._id } on:dragstart = { handleDragStart } on:dragover = { handleDragOver } on:drop = {handleDrop}>
                         {#if element.thumbnailPath}
                             <Image src = "/{element.thumbnailPath}" 
