@@ -5,7 +5,7 @@ import { aggController } from '$lib/server/controllers/aggController';
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url, locals}) => {
-    if (!locals.user) {
+    if (!locals.user) { // auth check
         console.log("no user");
         redirect(307, '/login');
     }

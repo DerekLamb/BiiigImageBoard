@@ -87,12 +87,14 @@
                 {#if element.groupType}
                     <div class = "imageBox" id = { element._id } on:dragstart = { handleDragStart } on:dragover = { handleDragOver } on:drop = { handleDrop }>
                         {#if element.thumbnailPath}
-                            <GroupThmb 
-                            src = { element.thumbnailPath } 
+                            <GroupThmb
+                            anchorLink = { element._id} 
+                            thmbSrc = { element.thumbnailPath } 
                             name = { element.name } />
                         {:else}
                             <GroupThmb 
-                            src = "https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg" 
+                            thmbSrc = "https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg" 
+                            anchorLink = { element._id}
                             name = { element.name } />
                         {/if}      
                     </div>                
