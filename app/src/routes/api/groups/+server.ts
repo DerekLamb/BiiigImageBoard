@@ -1,7 +1,4 @@
 import { json } from '@sveltejs/kit'
-import { groupCollection } from '$lib/server/models/unifiedModel.js';
-import { TagModel } from '$lib/server/models/tagModel';
-import { UnifiedModel } from '$lib/server/models/unifiedModel.js';
 import { groupController } from '$lib/server/controllers/groupController.js';
 
 export async function POST({ request } : Request){
@@ -10,13 +7,12 @@ export async function POST({ request } : Request){
         const body = await request.json();
         console.log(body);
 
-        GroupModel.createGroup({name: Date.now().toString(), 
+        groupController.ensureGroup({name: Date.now().toString(), 
             uploadDate: Date.now().toString(), 
             children: [body.draggedImage, body.draggedOverImage], 
             group: [], 
             groupType: 'default', 
-            groupTags: []});
-        
+            groupTags: []})  
         
         // GroupModel.getGroupChildren(body.id, body.page, body.limit);
         // Insert image into group collection if first element is image 
