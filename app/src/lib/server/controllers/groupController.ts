@@ -27,14 +27,14 @@ class GroupController {
     }
 
     async ensureGroup(groupData: AppGroup) {
-        const existingGroup = await GroupModel.getGroupById(groupData._id);
+        const existingGroup = await GroupModel.getGroupByName(groupData.name);
 
         if(!existingGroup){
             return await GroupModel.createGroup(groupData);
         }
         else {
-            console.log(groupData._id ,", ", groupData.name, "already exists");
-            return false;
+            console.log(groupData._id ,", ", groupData.name, "already exists"); 
+            return existingGroup;
         }
     }
 

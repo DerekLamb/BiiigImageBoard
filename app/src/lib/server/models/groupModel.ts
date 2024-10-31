@@ -1,6 +1,6 @@
 import { ObjectId, type Sort } from 'mongodb';
 import { imageCollection, groupCollection, } from '$lib/server/models/unifiedModel'
-import type { AppGroup, GroupDoc  } from '$lib/customTypes/DocTypes';
+import type { AppGroup, GroupDoc } from '$lib/customTypes/DocTypes';
 import { databaseDocUtil as dbUtil} from "$lib/server/utility/dbUtil";
 
 
@@ -31,6 +31,9 @@ export const GroupModel = {
 
     async getGroupByName(name: string) {
         const document = await groupCollection.findOne({ name }) as GroupDoc;
+        if(!document) {
+            return false;
+        }
         return dbUtil.convertIdToString(document);
     },
 
@@ -43,7 +46,10 @@ export const GroupModel = {
     },
 
     async createGroup(groupData: Partial<AppGroup>) {
-        return await groupCollection.insertOne(toDatabase(groupData)); 
+
+        let modifiedGroupData = {...groupData, _id : new ObjectId()} as GroupDoc;
+
+        return await groupCollection.insertOne(modifiedGroupData); 
     },
 
     async addImageToGroup(groupId: string, imageId: string) {

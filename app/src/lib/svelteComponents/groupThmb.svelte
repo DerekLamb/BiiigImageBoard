@@ -1,14 +1,14 @@
 <script lang="ts">
-    export let src = '';
+    export let thmbSrc = '';
+    export let anchorLink = '';
     export let alt = "Err";
     export let name = "";
-    export let mainLink = "";
     
 </script>
 
 <div class="groupCont">
-    <a href = {mainLink}>
-        <img class="thmb" src={src} alt={alt}/>
+    <a href = {anchorLink}>
+        <img class="thmb" src={thmbSrc} alt={alt}/>
     </a>
     <span class = "name ">{name}</span>
     

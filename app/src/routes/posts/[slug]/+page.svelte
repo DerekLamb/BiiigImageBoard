@@ -45,9 +45,9 @@ function copyItems() {
                 <div>embeddedPrompt:
                     <p>
                         {#each embPrompt as item}
-                            <span>
+                            
                             <td>{item},</td>
-                            </span>
+                            
                         {/each}
                     </p>
                 </div>
