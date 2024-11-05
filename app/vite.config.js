@@ -19,7 +19,7 @@ const config = {
 				'thumb/'
 			],
 		},
-		proxy:{},
+		proxy:{}, //unsure why but needed for dev https
 	},
 };
 
