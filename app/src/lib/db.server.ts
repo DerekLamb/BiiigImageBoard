@@ -17,7 +17,10 @@ export const collections = {
 
 export function start_mongo() {
     console.log("Connecting to MongoDB");
+
+    // setup indexes + other 
     client.db(dbName).collection(collections.images).createIndex({uploadDate: 1});
+    
     return client.connect();
 }
 
