@@ -50,6 +50,10 @@ interface ImageDoc extends BaseImage { //
 
 
 export const UnifiedModel = {
+    
+    async getDocumentById(id: string){
+        let document = false; //todo
+    },
 
     async findNodeChildren(groupName: string = "", limit = 10, skip = 0, sort = { uploadDate: -1}) { //used to get children of a group/node
         let processedDocuments
@@ -65,16 +69,21 @@ export const UnifiedModel = {
     },
 
     async getBaseNodeChildren( limit = 10,  skip = 0, sort = { uploadDate: -1 } ) {
+        return await this.getNodeByGroupName("", limit, skip, sort);
+    },
 
+    async getNodeByGroupName(groupName = "", limit = 10,  skip = 0, sort = { uploadDate: -1 } ) {
+
+        const matchStage = groupName ? { $match: { group: groupName } } : { $match: { group: [] } }
 
         const topLevel = imageCollection.aggregate([
             {
                 $unionWith: {
                     coll: collections.groups,
-                    pipeline: [ { $match: { group: [] } }]
+                    pipeline: [ matchStage]
                 }
             },
-            { $match: { group: [] } },  
+            matchStage,  
             { $sort: sort },
             { $skip: skip },  // Pagination offset, calculate based on current page
             { $limit: limit }  // Number of items per page
