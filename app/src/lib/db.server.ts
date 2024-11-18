@@ -1,4 +1,4 @@
-import { Collection, MongoClient, ObjectId, type Filter } from "mongodb";
+import { MongoClient, } from "mongodb";
 import { env } from "$env/dynamic/private";
 import { databaseDocUtil as dbUtil } from "$lib/server/utility/dbUtil";
 
@@ -14,51 +14,6 @@ export const collections = {
     sessions : "sessions",
     groups: "groups",
     //config : "config"
-}
-
-
-
-export const createMongoCollection = (collection: Collection) => {
-    return {
-        async find( query = {} ) {
-            const mongoQuery = dbUtil.convertStringToId(query);
-            const docs = await collection.find(mongoQuery).toArray();
-            return docs.map(dbUtil.convertIdToString);
-        },
-        async findOne( query = {} ) {
-            const mongoQuery = dbUtil.convertIdToString(query);
-            const result = collection.findOne(mongoQuery)
-            return dbUtil.convertIdToString(result)
-        }, 
-        
-        async insertOne( document: Array<any> ) {
-            try {
-                const mongoDoc = dbUtil.convertIdToString(document)
-                const result = await collection.insertOne(mongoDoc);
-                return dbUtil.convertStringToId(result);
-            } catch (error: any) {
-                throw new Error(`InsertOne operation failed: ${error.message}`);
-              }
-        },
-
-        async updateOne( query = {}, update: any  | { $set: any }) {
-            try {
-            const mongoQuery = dbUtil.convertStringToId(query);
-            const updateDoc = update.$set ? update : { $set: update };
-              
-            const result = await collection.findOneAndUpdate(
-                mongoQuery,
-                updateDoc,
-                { returnDocument: 'after' }
-            );
-        
-                return dbUtil.convertIdToString(result);
-            } catch (error) {
-                throw new Error(`UpdateOne operation failed: ${error.message}`);
-            }
-          },
-
-    }
 }
 
 export function start_mongo() {
