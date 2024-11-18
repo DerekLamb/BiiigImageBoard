@@ -1,20 +1,28 @@
-import {ObjectId} from 'mongodb'
+import { ObjectId, type Document} from 'mongodb'
 
-type WithStringId<T> = Omit<T, '_id'> & { _id: string };
-type WithObjectId<T> = Omit<T, '_id'> & { _id: ObjectId };
+interface appDocument extends Document { 
+    id? : string;
+    [key: string] : any;
+}
+
+interface dbDocument extends Document { 
+    id? : ObjectId;
+    [key: string] : any;
+}
+
 
 export const databaseDocUtil = {
 
-    convertIdToString<T>(doc: WithObjectId<T>): WithStringId<T> {
+    convertIdToString<T>(doc: dbDocument): appDocument {
         const { _id, ...rest } = doc;
         return {
         ...rest,
         _id: _id.toString()
-        } as WithStringId<T>;
+        } as appDocument;
     },
     
-    convertStringToId<T>(doc: WithStringId<T>): WithObjectId<T> {
+    convertStringToId<T>(doc: appDocument): dbDocument {
         const id = new ObjectId(doc._id);
-        return { ...doc, _id: id }; // Convert string to ObjectId
+        return { ...doc, _id: id } as dbDocument; // Convert string to ObjectId
     },
 }
