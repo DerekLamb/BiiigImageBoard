@@ -1,7 +1,9 @@
 import { ObjectId, type Sort, type Collection } from "mongodb";
 import { type BaseImage, imageCollection } from "./unifiedModel";
 import { databaseDocUtil as dbUtil} from "$lib/server/utility/dbUtil";
+import { createMongoCollection } from "../collectionLayer";
 
+const imageCollectionTest = createMongoCollection(imageCollection)
 
 interface ImageDoc extends BaseImage { // 
     _id: ObjectId;
@@ -26,8 +28,8 @@ export const ImageModel = {
     },
 
     async getImageById(id: string) {
-        const document = await imageCollection.findOne({ _id: new ObjectId(id) }) as ImageDoc;
-        return toClient(document) ;
+        const document = await imageCollectionTest.findOne({_id: id}) as ImageDoc;
+        return document ;
     },
 
     async getImageByTimestamp(timestamp: string) {
@@ -60,16 +62,19 @@ export const ImageModel = {
     async getAdjacents(key: keyof AppImageData, value: string | string[] | string [][],) { // CAUTION, this requires an index on the used key field for results to be consistent and performant
         const prevFilter = { [key]: { $lt: value } };
         const nextFilter = { [key]: { $gt: value } };
+        
         const prev = await imageCollection.findOne(
             prevFilter, 
             { sort: { [key]: -1 } }) as ImageDoc;
+
         const prevImage = prev ? toClient(prev) : null;
 
         const next = await imageCollection.findOne(
             nextFilter, 
             { sort: { [key]: 1 } }) as ImageDoc;
+
         const nextImage = next ? toClient(next) : null;
-        return { prev: prevImage || null, next: nextImage};
+        return { prev: prevImage, next: nextImage};
         },
 
     async repairImageDoc(id: string) {

@@ -3,7 +3,6 @@ import SearchBar from "$lib/searchBar.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import Image from "$lib/image.svelte";
-import PromptSection from "$lib/promptSection.svelte";
 
 
 /** @type {import('./$types').PageData} */ 
@@ -15,13 +14,16 @@ function copyItems() {
       const copyText = embPrompt.join(",");
       navigator.clipboard.writeText(copyText);
     }
+
 </script>
 
 <div class = midContainer>
+
     <SideBar>
         <SearchBar></SearchBar>
         <TagSection editable = {true} imageID = {data.image?._id} imageTags = {tags}></TagSection>
     </SideBar>
+
     <div class="imageWindow">
         <Image src = "../../{data.image?.imagePath}" 
             imageName={data.image?.originalName} 
@@ -29,10 +31,10 @@ function copyItems() {
             rightLink = {data.adjacents?.prev?.uploadDate}>
         </Image>
         <div class="pageNumContainer">
-            {#if data.adjacents?.next}
+            {#if data.adjacents?.next != null}
             <a href="/posts/{data.adjacents.next.uploadDate}" class="pageNum">&lt&lt&lt</a>
             {/if}
-            {#if data.adjacents?.prev}
+            {#if data.adjacents?.prev != null}
             <a href="/posts/{data.adjacents.prev.uploadDate}" class="pageNum">&gt&gt&gt</a>
             {/if}
         </div>
@@ -46,7 +48,7 @@ function copyItems() {
                     <p>
                         {#each embPrompt as item}
                             
-                            <td>{item},</td>
+                            <span>{item},</span>
                             
                         {/each}
                     </p>
@@ -57,10 +59,10 @@ function copyItems() {
             <form method="post" action="?/delete">
                 <button type="submit">Delete Image</button>
                 <input type="hidden" name="strId" value="{data.image?._id}">
-                {#if data.adjacents?.next}
+                {#if data.adjacents?.next != null}
                 <input type="hidden" name="next" value="{data.adjacents.next.uploadDate}">
                 {/if}
-                {#if data.adjacents?.prev}
+                {#if data.adjacents?.prev != null}
                 <input type="hidden" name="prev" value="{data.adjacents.prev.uploadDate}">
                 {/if}
             </form>
@@ -127,7 +129,7 @@ function copyItems() {
         }
     }
 
-    td {
+    span {
         padding: 8px;
         border: 1px solid #ddd;
     }
