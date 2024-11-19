@@ -92,22 +92,24 @@ beforeUpdate(() => {
                 {/each}
         </span>
         <div class = "imageGrid" style="grid-template-columns: repeat(auto-fit, minmax({$improvImageSize}px, 1fr)">
-        {#each data.images as image}
-            {#if image.thumbnailPath}
-                <div class = "imageBox">
-                    <Image src = "/{image.thumbnailPath}" 
-                    mainLink = "/posts/{image.uploadDate}" 
-                    imageName = {image.originalName} 
-                    thumbnail={true}></Image>
-                </div>
-            {:else}
-                <div class = "imageBox">
-                    <Image src = "/{image.imagePath}" 
-                    mainLink = "/posts/{image.uploadDate}" 
-                    imageName = {image.originalName} ></Image>
-                </div>
-            {/if}
-        {/each}
+        {#if data.images}
+            {#each data.images as image}
+                {#if image.thumbnailPath}
+                    <div class = "imageBox">
+                        <Image src = "/{image.thumbnailPath}" 
+                        mainLink = "/posts/{image.uploadDate}" 
+                        imageName = {image.originalName} 
+                        thumbnail={true}></Image>
+                    </div>
+                {:else}
+                    <div class = "imageBox">
+                        <Image src = "/{image.imagePath}" 
+                        mainLink = "/posts/{image.uploadDate}" 
+                        imageName = {image.originalName} ></Image>
+                    </div>
+                {/if}
+            {/each}
+        {/if}
         </div>
         <div class = "pgnumCont">
             <div class="prevPageCont">

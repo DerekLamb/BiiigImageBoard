@@ -2,64 +2,50 @@ import { ObjectId, type Sort } from 'mongodb';
 import { imageCollection, groupCollection, } from '$lib/server/models/unifiedModel'
 import type { AppGroup, GroupDoc } from '$lib/customTypes/DocTypes';
 import { databaseDocUtil as dbUtil} from "$lib/server/utility/dbUtil";
+import { createMongoCollection  } from '$lib/server/collectionLayer';
 
-
-function toClient(document: GroupDoc): AppGroup { 
-    return dbUtil.convertIdToString(document) as AppGroup; // Convert ObjectId to string
-}
-
-function toDatabase(document: Partial<AppGroup>): GroupDoc {
-    return dbUtil.convertStringToId(document) as GroupDoc; // Convert string to ObjectId
-}
+const groupColl = createMongoCollection(groupCollection);
 
 export const GroupModel = { 
     async findGroups(filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 }) {
-        const documents = await groupCollection
-        .find(filter)
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .toArray();  
-
-        return documents.map(dbUtil.convertIdToString) as AppGroup[];
+        const documents = await groupColl.findPage(filter, limit, skip, sort);
+        return documents as AppGroup[];
     },
 
     async getGroupById(id: string) {
-        const document = await groupCollection.findOne({ _id: new ObjectId(id) }) as GroupDoc;
-        return dbUtil.convertIdToString(document);
+        const document = await groupColl.findOne({ _id:id }) as GroupDoc;
+        return document;
     },
 
     async getGroupByName(name: string) {
-        const document = await groupCollection.findOne({ name }) as GroupDoc;
+        const document = await groupCollection.findOne({ name }) as GroupDoc | null;
         if(!document) {
             return false;
         }
         return dbUtil.convertIdToString(document);
     },
 
-    async getGroupChildren(groupName, page, limit, sort = { uploadDate: -1}){
-        const documents = await groupCollection.findOne({ name: groupName });
-        if(documents.hasOwnProperty(children)){
-            documents.children.map(dbUtil.convertIdToString);
-            // does this work?? TODO 
-        }
-    },
+    // async getGroupChildren(query, page, limit, sort = { uploadDate: -1}){         // Wanna move this to controller logic 
+    //     const documents = await groupCollection.findOne({ name: groupName });
+    //     if(documents.hasOwnProperty(children)){
+    //         documents.children.map(dbUtil.convertIdToString);
+    //         // does this work?? TODO 
+    //     }
+    // },
 
     async createGroup(groupData: Partial<AppGroup>) {
-
-        let modifiedGroupData = {...groupData, _id : new ObjectId()} as GroupDoc;
-
-        return await groupCollection.insertOne(modifiedGroupData); 
+        const result = await groupColl.insertOne(groupData); 
+        return result
     },
 
     async addImageToGroup(groupId: string, imageId: string) {
-        const group = await GroupModel.getGroupById(groupId);
-        const childImages = await imageCollection.find({_id: {$in: group.children}}).toArray();
+        const parentGroup = await GroupModel.getGroupById(groupId);
+        const childImages = await imageCollection.find( { _id: { $in: parentGroup.children }} ).toArray();
         console.log(childImages);
 
         const latestDate = childImages.reduce((latest, image) => image.uploadDate > latest ? image.uploadDate : latest, "0");
 
-        return await groupCollection.updateOne(
+        return await groupColl.updateOne(
             { _id: new ObjectId(groupId) }, 
             { 
                 $set: { uploadDate: latestDate },
@@ -69,14 +55,14 @@ export const GroupModel = {
     },
 
     async updateGroup(id: string, updates: Partial<AppGroup>) {
-        return await groupCollection.updateOne({ _id: new ObjectId(id) }, { $set: toDatabase(updates) });
+        return await groupColl.updateOne({ _id: id }, { $set: updates });
     },
 
     async deleteGroup(id: string) {
-        return await groupCollection.deleteOne({ _id: new ObjectId(id) });
+        return await groupColl.deleteOne({ _id: id });
     },
 
-    async getGroupCount(filter = {}) {
-        return await groupCollection.estimatedDocumentCount(filter);
+    async getGroupCount() {
+        return await groupColl.estimateDocumentCount();
     },
 }
