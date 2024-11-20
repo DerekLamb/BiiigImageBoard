@@ -18,20 +18,14 @@ export const GroupModel = {
     },
 
     async getGroupByName(name: string) {
-        const document = await groupCollection.findOne({ name }) as GroupDoc | null;
-        if(!document) {
-            return false;
-        }
-        return dbUtil.convertIdToString(document);
+        const document = await groupColl.findOne({ name }) as GroupDoc | null;
+        return document
     },
 
-    // async getGroupChildren(query, page, limit, sort = { uploadDate: -1}){         // Wanna move this to controller logic 
-    //     const documents = await groupCollection.findOne({ name: groupName });
-    //     if(documents.hasOwnProperty(children)){
-    //         documents.children.map(dbUtil.convertIdToString);
-    //         // does this work?? TODO 
-    //     }
-    // },
+    async getAllGroups() {
+        const documents = await groupColl.find();
+        return documents
+    }
 
     async createGroup(groupData: Partial<AppGroup>) {
         const result = await groupColl.insertOne(groupData); 

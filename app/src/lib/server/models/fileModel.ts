@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import crypto from 'crypto';
 import sharp from 'sharp';
-import ffmpeg from 'ffmpeg';
+import Ffmpeg from 'fluent-ffmpeg';
 
 export const FileModel = {
     async listDir(path: string): Promise<string[]> {
@@ -94,15 +94,17 @@ export const FileModel = {
 
     },
 
-    async createVideoThumbnail(filePath: string , thumbnailPath: string, scale: number = 200, type?: string )  {
+    async createVideoThumbnail(filePath: string , thumbnailPath: string)  {
+        try { 
+            await Ffmpeg(filePath)
+            .takeScreenshots({
+                count: 1,
+                timemarks: [ '1' ] // number of seconds
+              }, thumbnailPath);
+        } catch (error) {
+            throw new Error(`Error creating video thumbnail: ${error}`);
+        }
 
-        const thumbnail = new ffmpeg(filePath)
-        .takeScreenshots({
-            count: 1,
-            timemarks: [ '600' ] // number of seconds
-          }, thumbnailPath, function(error) {
-          console.log('screenshots were saved')
-        });
         return 0
     }
 }
