@@ -6,6 +6,8 @@ WORKDIR /biiib
 
 COPY . .
 
+RUN apt-get update -qq && apt-get install ffmpeg -y
+
 RUN npm ci
 
 RUN npm run build 
