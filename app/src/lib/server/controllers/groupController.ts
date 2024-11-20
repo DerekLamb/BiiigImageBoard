@@ -22,6 +22,11 @@ class GroupController {
         return Groups
     }
 
+    async getAllGroups(){
+        const Groups = await GroupModel.getAllGroups()
+        return Groups
+    }
+
     async getGroupCount(){
         return GroupModel.getGroupCount();
     }
