@@ -38,7 +38,7 @@ export async function GET( { params, locals } ) {
 
 }
 
-export async function POST( { params, request, locals } ) {
+export async function PUT( { params, request, locals } ) {
     if (!locals.user) { // auth check
         console.log("no user");
         throw redirect(307, '/login');
@@ -64,6 +64,9 @@ export async function POST( { params, request, locals } ) {
         const body = json(request.body)
 
         const groupUpdate = body.group
+    } catch (err) {
+        console.log(err)
+    }
     
     
 }
