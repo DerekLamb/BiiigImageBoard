@@ -45,7 +45,7 @@ export async function PUT( { params, request, locals } ) {
     }
 
     if (!params.slug) { // params check
-        throw error(400, {
+        throw error(404, {
             message: 'Group ID is required'
         });
     }
@@ -53,19 +53,38 @@ export async function PUT( { params, request, locals } ) {
 
     try {
 
-        const group = await groupController.getGroup(params.slug);
+        const existingGroup = await groupController.getGroup(params.slug);
 
-        if (!group) {
-            throw error(404, {
+        if (!existingGroup) {
+            throw error(400, {
                 message: `Group with ID ${params.slug} not found`
             });
         }
 
-        const body = json(request.body)
+        const body = json(request.body).catch(() => {
+            throw error(400, {
+                message: 'Invalid JSON payload'
+            });
+        });
 
-        const groupUpdate = body.group
+        
+        console.log(body.group);
+
+        // groupController.updateGroup()
+
+        return json({
+            status: 200,
+            data: {
+                message: 'Group updated successfully',
+            }
+        });
+
     } catch (err) {
         console.log(err)
+
+        throw error(500, {
+            message: 'An unexpected error occurred while updating the group'
+        });
     }
     
     
