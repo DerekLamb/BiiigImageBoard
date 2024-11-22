@@ -1,7 +1,6 @@
 import fs from "fs/promises";
 import { createReadStream } from "fs";
 import { constants } from 'fs';
-import { createMissingThumbnails } from "./processFiles";
 import { error } from "console";
 
 class ImageFile {
@@ -163,4 +162,4 @@ class FileRepository {
 const mainFileRepo : FileRepository = new FileRepository("images")
 const unused_thumbFileRepo : FileRepository = new FileRepository("thumb")
 
-export {ImageFile, FileRepository, mainFileRepo, thumbFileRepo};
+export {ImageFile, FileRepository, mainFileRepo};
