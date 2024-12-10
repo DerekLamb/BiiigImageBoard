@@ -3,7 +3,7 @@
     import Tag from "./tag.svelte";
     import { onMount } from 'svelte';
 
-    export let imageTags = {};
+    export let imageTags = false ;
     export let imageID = '';
     export let editable = true;
 
