@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import crypto from 'crypto';
 import sharp from 'sharp';
+import Ffmpeg from 'fluent-ffmpeg';
 
 export const FileModel = {
     async listDir(path: string): Promise<string[]> {
@@ -66,7 +67,7 @@ export const FileModel = {
         }
     },
 
-    async createThumbnail(file: string | Buffer , scale: number = 200): Promise<Buffer> { // want to add webm support for thumbnail creation TODO
+    async createThumbnail(file: string | Buffer , scale: number = 200, type?: string ): Promise<Buffer> { // want to add webm/avif support for thumbnail creation TODO
         let buffer: Buffer;
 
         if (typeof file === 'string') {
@@ -91,5 +92,19 @@ export const FileModel = {
             throw new Error(`Error creating thumbnail: ${error}`);
         }
 
+    },
+
+    async createVideoThumbnail(filePath: string , thumbnailPath: string)  {
+        try { 
+            await Ffmpeg(filePath)
+            .takeScreenshots({
+                count: 1,
+                timemarks: [ '1' ] // number of seconds
+              }, thumbnailPath);
+        } catch (error) {
+            throw new Error(`Error creating video thumbnail: ${error}`);
+        }
+
+        return 0
     }
 }
