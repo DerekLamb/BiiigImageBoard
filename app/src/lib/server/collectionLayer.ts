@@ -1,4 +1,4 @@
-import { Collection } from "mongodb";
+import { Collection, type Document, type Sort } from "mongodb";
 import { databaseDocUtil as dbUtil } from "./utility/dbUtil";
 
 
@@ -9,13 +9,21 @@ export const createMongoCollection = (collection: Collection) => {
             const docs = await collection.find(mongoQuery).toArray();
             return docs.map(dbUtil.convertIdToString);
         },
+
+        async findPage( query = {}, limit = 10, skip = 0, sort: Sort = {uploadDate: -1}  ){
+            const mongoQuery = dbUtil.convertStringToId(query);
+
+            const result = await collection.find(mongoQuery).sort(sort).skip(skip).limit(limit).toArray()
+            return result.map(dbUtil.convertIdToString)
+        },
+
         async findOne( query = {} ) {
             const mongoQuery = dbUtil.convertIdToString(query);
             const result = collection.findOne(mongoQuery)
             return dbUtil.convertIdToString(result)
         }, 
         
-        async insertOne( document: Array<any>, options?:Array) {
+        async insertOne( document: Document ) {
             try {
                 const mongoDoc = dbUtil.convertIdToString(document)
                 const result = await collection.insertOne(mongoDoc);
@@ -25,9 +33,9 @@ export const createMongoCollection = (collection: Collection) => {
               }
         },
 
-        async updateOne( query = {}, update: any  | { $set: any }) {
+        async updateOne( query = {}, update: any | { $set: any } ) {
             try {
-            const mongoQuery = dbUtil.convertStringToId(query);
+            const mongoQuery = dbUtil.convertStringToId( query );
             const updateDoc = update.$set ? update : { $set: update };
               
             const result = await collection.findOneAndUpdate(
@@ -38,11 +46,11 @@ export const createMongoCollection = (collection: Collection) => {
         
                 return dbUtil.convertIdToString(result);
             } catch (error) {
-                throw new Error(`UpdateOne operation failed: ${error.message}`);
+                throw new Error(`UpdateOne operation failed: ${error}`);
             }
           },
 
-        async replaceOne( query = {}, newDocument: Array<any>) {
+        async replaceOne( query = {}, newDocument: Document ) {
             if( Object.keys(query).length === 0 ){
                 throw Error("Unsafe replaceOne Operation | Empty Query")
             }
@@ -57,9 +65,13 @@ export const createMongoCollection = (collection: Collection) => {
             if( Object.keys(query).length === 0 ){
                 throw Error("Unsafe deleteOne Operation | Empty Query")
             }
+
+            const result = collection.deleteOne(query);
+
+            return result
         },
 
-        async estimateQueryCount() {
+        async estimateDocumentCount() {
             return collection.estimatedDocumentCount();
         }
     }

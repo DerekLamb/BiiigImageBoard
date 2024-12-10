@@ -1,9 +1,9 @@
-import { ObjectId, type Sort, type Collection } from "mongodb";
+import { ObjectId, type Sort, } from "mongodb";
 import { type BaseImage, imageCollection } from "./unifiedModel";
 import { databaseDocUtil as dbUtil} from "$lib/server/utility/dbUtil";
 import { createMongoCollection } from "../collectionLayer";
 
-const imageCollectionTest = createMongoCollection(imageCollection)
+const imageColl = createMongoCollection(imageCollection)
 
 interface ImageDoc extends BaseImage { // 
     _id: ObjectId;
@@ -17,46 +17,42 @@ function toClient(document: ImageDoc) {
     return dbUtil.convertIdToString(document); // Convert ObjectId to string
 }
 
-function toDatabase(document: Partial<AppImageData>) {
-    return dbUtil.convertStringToId(document);
-}
-
 export const ImageModel = {
     async findImages(filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 }) {
-        const documents = await imageCollection.find(filter).sort(sort).skip(skip).limit(limit).toArray() as ImageDoc[];  
-        return documents.map(toClient);
+        const documents = await imageColl.findPage(filter, limit, skip, sort);
+        return documents as AppImageData[];
     },
 
     async getImageById(id: string) {
-        const document = await imageCollectionTest.findOne({_id: id}) as ImageDoc;
+        const document = await imageColl.findOne({_id: id}) as ImageDoc;
         return document ;
     },
 
-    async getImageByTimestamp(timestamp: string) {
-        const document = await imageCollection.findOne({ uploadDate: timestamp }) as ImageDoc;
-        return toClient(document);
+    async getImageByTimestamp( timestamp: string ) {
+        const document = await imageColl.findOne({ uploadDate: timestamp }) as ImageDoc;
+        return document;
     },
 
-    async addImage(imageData: AppImageData) {
-        return await imageCollection.insertOne(toDatabase(imageData)); 
+    async addImage( imageData: AppImageData ) {
+        return await imageColl.insertOne( imageData ); 
     },
 
     async updateImage <ImageProp extends keyof AppImageData> (id: string, prop: ImageProp, value: AppImageData[ImageProp]) {
         let updates = { $set: { [prop]: value }} 
-        return await imageCollection.updateOne({ _id: new ObjectId(id) }, updates);
+        return await imageColl.updateOne({ _id: id }, updates );
     },
 
     async replaceImage(imageData: AppImageData) {
-        const document = toDatabase(imageData);
-        return await imageCollection.replaceOne({_id: document._id}, document);
+        const document = imageData;
+        return await imageColl.replaceOne({_id: document._id}, document );
     },
 
     async deleteImage(id: string) {
-        return await imageCollection.deleteOne({ _id: new ObjectId(id) });
+        return await imageColl.deleteOne({ _id: id });
     },
 
-    async countImages(filter = {}) {
-        return await imageCollection.estimatedDocumentCount(filter);
+    async countImages() {
+        return await imageColl.estimateDocumentCount();
     },
 
     async getAdjacents(key: keyof AppImageData, value: string | string[] | string [][],) { // CAUTION, this requires an index on the used key field for results to be consistent and performant

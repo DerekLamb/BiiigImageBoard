@@ -1,11 +1,16 @@
-import { json } from '@sveltejs/kit'
+import { json, redirect, error } from '@sveltejs/kit'
 import { groupController } from '$lib/server/controllers/groupController.js';
 
-export async function POST({ request } : Request){
-    // user access check here TODO
+export async function POST({ request, locals }){
+    if (!locals.user) {
+        console.log("no user");
+        throw redirect(307, '/login');
+    }
+
     try {
-        const body = await request.json();
-        console.log(body);
+        const body = await request.json().catch(() => {
+            throw { code: 'INVALID JSON', message: 'Invalid JSON Message'}
+        });
 
         groupController.ensureGroup({name: Date.now().toString(), 
             uploadDate: Date.now().toString(), 
@@ -19,26 +24,25 @@ export async function POST({ request } : Request){
 
         return json({ success: true });
     } catch (e) {
-
         console.error(e);
         return json({ success: false });
-        
     }
 }
 
-export async function GET({ params }) {
-    // user access check TODO
-    // returns children of group specified or top level groups if no group specified
-    try {
-        const groupId = params;
-        const page = 1;
-        const length = 10;
+export async function GET({ locals }) { // returns all groups
+    if (!locals.user) {
+        console.log("no user");
+        redirect(307, '/login');
+    }
 
-        const children = await groupController.getGroupPage({page, length,})
-        console.log(children);
-        return json({ success: true, children });
-    } catch (e) {
-        console.error(e);
-        return json({ success: false });
+    try {
+        const groups = groupController.getAllGroups(); 
+        return json({ success: true, groups: groups });
+    } catch (err) {
+        console.log(`Error fetching groups:`, err);
+
+        throw error(500, {
+            message: 'An unexpected error occurred while fetching the group'
+        });
     }
 }

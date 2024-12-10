@@ -23,7 +23,7 @@ export const imageService = {
             const thumbnailname = `${image.sanitizedFilename}_thmb.webp`;
             const thumbnailPath = `thumb/${thumbnailname}`;
             
-            await ImageModel.updateImage(image._id, "thumbnailPath", thumbnailPath); // I know I know, reusing thumbnailPath twice. I want to replace with a constant from a central lib file TODO 
+            await ImageModel.updateImage(image._id, "thumbnailPath", thumbnailPath);
 
             try{
                 await FileModel.write(thumbnailPath, thumbnail);
@@ -37,6 +37,5 @@ export const imageService = {
         }
 
         return true;
-        
     }
 }
