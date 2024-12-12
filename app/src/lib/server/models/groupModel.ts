@@ -25,7 +25,7 @@ export const GroupModel = {
     async getAllGroups() {
         const documents = await groupColl.find();
         return documents
-    }
+    },
 
     async createGroup(groupData: Partial<AppGroup>) {
         const result = await groupColl.insertOne(groupData); 

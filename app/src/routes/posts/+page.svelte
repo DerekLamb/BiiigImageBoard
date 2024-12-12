@@ -150,8 +150,8 @@ beforeUpdate(() => {
         display: flex;
         flex-wrap: wrap;
         flex-grow: 1;
+        padding: 0px 1rem;
     }
-
     .imageGrid{
         display: grid;
         gap:10px;
