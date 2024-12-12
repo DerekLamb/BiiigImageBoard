@@ -19,7 +19,11 @@ export const createMongoCollection = (collection: Collection) => {
 
         async findOne( query = {} ) {
             const mongoQuery = dbUtil.convertIdToString(query);
-            const result = collection.findOne(mongoQuery)
+            const result = await collection.findOne(mongoQuery)
+            if( !result ){
+                throw new Error("findOne result query: " + query + " found no results");
+                
+            }
             return dbUtil.convertIdToString(result)
         }, 
         

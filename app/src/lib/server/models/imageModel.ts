@@ -18,12 +18,12 @@ function toClient(document: ImageDoc) {
 }
 
 export const ImageModel = {
-    async findImages(filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 }) {
+    async findImages( filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 } ) {
         const documents = await imageColl.findPage(filter, limit, skip, sort);
         return documents as AppImageData[];
     },
 
-    async getImageById(id: string) {
+    async getImageById( id: string ) {
         const document = await imageColl.findOne({_id: id}) as ImageDoc;
         return document ;
     },
@@ -37,7 +37,7 @@ export const ImageModel = {
         return await imageColl.insertOne( imageData ); 
     },
 
-    async updateImage <ImageProp extends keyof AppImageData> (id: string, prop: ImageProp, value: AppImageData[ImageProp]) {
+    async updateImage <ImageProp extends keyof AppImageData> ( id: string, prop: ImageProp, value: AppImageData[ImageProp] ) {
         let updates = { $set: { [prop]: value }} 
         return await imageColl.updateOne({ _id: id }, updates );
     },
