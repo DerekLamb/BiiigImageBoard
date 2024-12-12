@@ -7,12 +7,13 @@ export const load: PageServerLoad = async ({ params, locals }) => {
         console.log("no user");
         redirect(307, '/login');
     }
-
+    console.log( params.slug );
+    console.log( typeof params.slug )
     const image = await imageController.getImageByTimestamp(params.slug);
-
+    
     if(!image){
         return{
-            status: 200,
+            status: 404,
             image: null,
         }
     }

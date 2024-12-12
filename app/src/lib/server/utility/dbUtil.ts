@@ -1,28 +1,45 @@
-import { ObjectId, type Document} from 'mongodb'
+import { ObjectId, type Document, } from 'mongodb'
 
 interface appDocument extends Document { 
-    id? : string;
+    _id? : string;
     [key: string] : any;
 }
 
 interface dbDocument extends Document { 
-    id? : ObjectId;
+    _id? : ObjectId;
     [key: string] : any;
 }
 
 
 export const databaseDocUtil = {
 
-    convertIdToString<T>(doc: dbDocument): appDocument {
+    convertIdToString<T>( doc: dbDocument ): appDocument {
         const { _id, ...rest } = doc;
+
+        if( !_id ) {
+            return { 
+                ...rest,
+            }
+        }
+
         return {
         ...rest,
         _id: _id.toString()
         } as appDocument;
     },
     
-    convertStringToId<T>(doc: appDocument): dbDocument {
-        const id = new ObjectId(doc._id);
-        return { ...doc, _id: id } as dbDocument; // Convert string to ObjectId
+    convertStringToId<T>( doc: appDocument ): dbDocument {
+        const { _id, ...rest } = doc;
+
+        if( !_id ) {
+            return { 
+                ...rest,
+            }
+        }
+
+        const id = new ObjectId( doc._id ); // possibly add auto id generate
+        return { ...rest, _id: id } as dbDocument; // Convert string to ObjectId
     },
+
+    
 }
