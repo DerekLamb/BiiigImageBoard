@@ -3,6 +3,7 @@
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import SearchBar from "$lib/searchBar.svelte";
+import Image from "$lib/image.svelte";
 import { groupSize, groupCount } from "$lib/stores/searchStore";
 import { onMount, beforeUpdate } from "svelte";
 /** @type {import('./$types').PageData} */ 
@@ -57,38 +58,48 @@ beforeUpdate(() => {
 
 </script>
 
-<div class = midContainer >
+<div class = "midContainer" >
     <SideBar>
         <SearchBar />
         <TagSection editable={false}/>
     </SideBar>
-    <div class = "pgnumCont">
-        <div class="prevPageCont">
-            <a href={firstPage} class="pageNum">&lt&lt/</a>
-            <a href={nextPage} class="pageNum">&lt&lt&lt</a>
+    <div class = "groupBrowser" style="grid-template-columns: repeat(auto-fit, minmax({110}px, 1fr)">
+        <div class = "pgnumCont">
+            <div class="prevPageCont">
+                <a href={firstPage} class="pageNum">&lt&lt/</a>
+                <a href={nextPage} class="pageNum">&lt&lt&lt</a>
+            </div>
+            <div class="nextPageCont">
+                <a href={prevPage} class="pageNum">&gt&gt&gt</a>
+                <a href={lastPage} class="pageNum">\&gt&gt</a>
+            </div>
         </div>
-        <div class="nextPageCont">
-            <a href={prevPage} class="pageNum">&gt&gt&gt</a>
-            <a href={lastPage} class="pageNum">\&gt&gt</a>
-        </div>
-    </div>
-    <span> Size:
-        <select  >
-            {#each sizes as size}
-                <option value={size}>{size}</option>
-            {/each}
-        </select>
-    </span>
-    <span> Length:
-        <select  >
-            {#each numImages as num}
-                <option value={num}>{num}</option>
-            {/each}
-    </span>
-    <div class = "groupBrowser">
+        <span> Size:
+            <select  >
+                {#each sizes as size}
+                    <option value={size}>{size}</option>
+                {/each}
+            </select>
+        </span>
+        <span> Length:
+            <select  >
+                {#each numImages as num}
+                    <option value={num}>{num}</option>
+                {/each}
+        </span>
         <div class="groupGrid">
         {#each data.groups as group}
             <p>{group.name}</p>
+            {#each group.children as image}
+                {#await }
+                    <p>Loading...</p>
+                {:then } 
+                    <Image src = "/{image.thumbnailPath}" 
+                    mainLink = "/posts/{image.uploadDate}" 
+                    imageName = {image.originalName} 
+                    thumbnail={true}></Image>
+                {/await}   
+            {/each}
         {/each}
         </div>
     </div>
