@@ -11,8 +11,8 @@ export const createMongoCollection = (collection: Collection) => {
         },
 
         async findPage( query = {}, limit = 10, skip = 0, sort: Sort = {uploadDate: -1}  ){
-            const mongoQuery = dbUtil.convertStringToId(query);
-
+            let mongoQuery = dbUtil.convertStringToId(query);
+            console.log(mongoQuery);
             const result = await collection.find(mongoQuery).sort(sort).skip(skip).limit(limit).toArray()
             return result.map(dbUtil.convertIdToString)
         },
@@ -21,7 +21,7 @@ export const createMongoCollection = (collection: Collection) => {
             const mongoQuery = dbUtil.convertIdToString(query);
             const result = await collection.findOne(mongoQuery)
             if( !result ){
-                throw new Error("findOne result query: " + query + " found no results");
+                return null;
                 
             }
             return dbUtil.convertIdToString(result)
@@ -37,7 +37,7 @@ export const createMongoCollection = (collection: Collection) => {
               }
         },
 
-        async updateOne( query = {}, update: any | { $set: any } ) {
+        async updateOne( query = {}, update: any | { $set: any } ) { //may change to findOneAndUpdate to reflect true function.
             try {
             const mongoQuery = dbUtil.convertStringToId( query );
             const updateDoc = update.$set ? update : { $set: update };
