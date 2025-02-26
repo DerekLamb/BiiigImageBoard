@@ -1,5 +1,5 @@
 import { Collection, type Document, type Sort } from "mongodb";
-import { databaseDocUtil as dbUtil } from "./utility/dbUtil";
+import { databaseDocUtil as dbUtil } from "$lib/server/utility/dbUtil";
 
 
 export const createMongoCollection = (collection: Collection) => {
