@@ -24,12 +24,12 @@ export const ImageModel = {
     },
 
     async getImageById( id: string ) {
-        const document = await imageColl.findOne({_id: id}) as ImageDoc;
+        const document = await imageColl.findOne({_id: id}) as AppImageData;
         return document ;
     },
 
     async getImageByTimestamp( timestamp: string ) {
-        const document = await imageColl.findOne({ uploadDate: timestamp }) as ImageDoc;
+        const document = await imageColl.findOne({ uploadDate: timestamp }) as AppImageData;
         return document;
     },
 
