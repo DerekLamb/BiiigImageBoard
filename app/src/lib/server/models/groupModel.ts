@@ -13,7 +13,7 @@ export const GroupModel = {
     },
 
     async getGroupById(id: string) {
-        const document = await groupColl.findOne({ _id:id }) as GroupDoc;
+        const document = await groupColl.findOne({ _id:id }) as AppGroup;
         return document;
     },
 

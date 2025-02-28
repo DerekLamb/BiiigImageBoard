@@ -5,7 +5,7 @@ import { databaseDocUtil  as dbUtil } from "$lib/server/utility/dbUtil";
 import { GroupModel } from "$lib/server/models/groupModel";
 
 export const imageCollection = db.collection(collections.images);
-export const groupCollection : Collection<GroupDoc> = db.collection(collections.groups);
+export const groupCollection = db.collection(collections.groups);
 
 export interface BaseImage { // This is the interface for the image/group data that is stored in the database
     originalName: string;
