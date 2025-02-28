@@ -1,6 +1,5 @@
 import { ObjectId, type Sort, } from "mongodb";
 import { type BaseImage, imageCollection } from "./unifiedModel";
-import { databaseDocUtil as dbUtil} from "$lib/server/utility/dbUtil";
 import { createMongoCollection } from "../collectionLayer";
 
 const imageColl = createMongoCollection(imageCollection)
@@ -11,10 +10,6 @@ interface ImageDoc extends BaseImage { //
 
 export interface AppImageData extends BaseImage {
     _id: string,
-}
- 
-function toClient(document: ImageDoc) {
-    return dbUtil.convertIdToString(document); // Convert ObjectId to string
 }
 
 export const ImageModel = {
@@ -34,21 +29,45 @@ export const ImageModel = {
     },
 
     async addImage( imageData: AppImageData ) {
-        return await imageColl.insertOne( imageData ); 
+        const results = await imageColl.insertOne( imageData ); 
+
+        return { 
+            success: results.acknowledged === true,
+            id: results.insertedId?.toString(),
+            
+        }
     },
 
     async updateImage <ImageProp extends keyof AppImageData> ( id: string, prop: ImageProp, value: AppImageData[ImageProp] ) {
         let updates = { $set: { [prop]: value }} 
-        return await imageColl.updateOne({ _id: id }, updates );
+        const results = await imageColl.updateOne({ _id: id }, updates ); 
+
+        return {
+            success: results !== null,
+            document: results,
+            modified: results !== null && results[prop] === value
+        }
     },
 
     async replaceImage(imageData: AppImageData) {
         const document = imageData;
-        return await imageColl.replaceOne({_id: document._id}, document );
+        const results =  await imageColl.replaceOne({_id: document._id}, document );
+
+        return {
+            success: results.acknowledged === true,
+            id: results.upsertedId?.toString(),
+            count: results.upsertedCount,
+        }
     },
 
     async deleteImage(id: string) {
-        return await imageColl.deleteOne({ _id: id });
+        const results = await imageColl.deleteOne({ _id: id });
+
+        return {
+            success: results.acknowledged === true,
+            id: id,
+            count: results.deletedCount
+        }
     },
 
     async countImages() {
@@ -59,17 +78,17 @@ export const ImageModel = {
         const prevFilter = { [key]: { $lt: value } };
         const nextFilter = { [key]: { $gt: value } };
         
-        const prev = await imageCollection.findOne(
+        const prev = await imageColl.findOne(
             prevFilter, 
-            { sort: { [key]: -1 } }) as ImageDoc;
+            { sort: { [key]: -1 } }) as AppImageData;
 
-        const prevImage = prev ? toClient(prev) : null;
+        const prevImage = prev ?? null;
 
-        const next = await imageCollection.findOne(
+        const next = await imageColl.findOne(
             nextFilter, 
-            { sort: { [key]: 1 } }) as ImageDoc;
+            { sort: { [key]: 1 } }) as AppImageData;
 
-        const nextImage = next ? toClient(next) : null;
+        const nextImage = next ?? null;
         return { prev: prevImage, next: nextImage};
         },
 

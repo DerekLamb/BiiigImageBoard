@@ -47,17 +47,23 @@ class ImageController{
 
     async deleteImage(imageData: AppImageData){
         const image = await ImageModel.getImageById(imageData._id);
+        if (!image) return { success: false, error: "Image not found" };
+
         try{
             await ImageModel.deleteImage(imageData._id);
             await FileModel.delete(image.imagePath);
             await FileModel.delete(image.thumbnailPath);
+            return {
+                succes: true,
+            };
         }
-        catch(error)
+        catch(error: any)
         {
-            console.log(`Error deleting image: ${image._id}`);
-            return false;
+            return{
+                success: false,
+                error: error.message,
+            }
         }
-        return true;
     }
 
     async addImage(imageData: AppImageData, buffer: Buffer){
