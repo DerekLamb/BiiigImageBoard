@@ -1,4 +1,4 @@
-import { Collection, type Document, type Sort } from "mongodb";
+import { Collection, type Document, type FindOptions, type Sort } from "mongodb";
 import { databaseDocUtil as dbUtil } from "$lib/server/utility/dbUtil";
 
 
@@ -28,11 +28,12 @@ export const createMongoCollection = (collection: Collection) => {
             }
         },
 
-        async findOne(query = {}) {
+        async findOne(query = {}, options: FindOptions = {}) {
             try {
+                
                 // Fix: This should be convertStringToId not convertIdToString
                 const mongoQuery = dbUtil.convertStringToId(query);
-                const result = await collection.findOne(mongoQuery);
+                const result = await collection.findOne(mongoQuery, options);
                 
                 if (!result) {
                     return null;
@@ -52,7 +53,7 @@ export const createMongoCollection = (collection: Collection) => {
             try {
                 const mongoDoc = dbUtil.convertStringToId(document);
                 const result = await collection.insertOne(mongoDoc);
-                return dbUtil.convertIdToString(result);
+                return result
             } catch (error: any) {
                 throw new Error(`InsertOne operation failed: ${error.message}`);
             }
@@ -97,7 +98,7 @@ export const createMongoCollection = (collection: Collection) => {
                 const mongoDoc = dbUtil.convertStringToId(newDocument);
                 
                 const result = await collection.replaceOne(mongoQuery, mongoDoc);
-                return dbUtil.convertIdToString(result);
+                return result;
             } catch (error: any) {
                 throw new Error(`ReplaceOne operation failed: ${error.message}`);
             }
