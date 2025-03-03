@@ -11,9 +11,9 @@ interface BaseDoc {
 export interface BaseGroup extends BaseDoc {
     name: string, // name of group
     uploadDate: string, // date group was created
-    thumbnailPath: string;
-    children: ObjectId[], // contains the ids of imageDoc or other GroupDoc(s), will need to handle making sure only goes three levels deep for groups
-    groups: ObjectId[], // needs considerations 
+    children: string[], // contains the ids of imageDoc or other GroupDoc(s), will need to handle making sure only goes three levels deep for groups
+    thumbnailPaths: string[], //thumbnail of children 
+    group: string[], // needs considerations 
     groupType: string, // possible extension, unsure what to use for now
     groupTags: string[], // tags for the group 
 }
@@ -24,8 +24,8 @@ export interface BaseImage { // should extend BaseDoc
     sanitizedFilename: string;
     imagePath: string;
     uploadDate: string;
-    thumbnailPath: string; 
-    groups: string[];
+    thumbnailPath?: string; 
+    group: string[];
     tags: string[];
     embPrompt?: string[][]; //needs 2b fleshed out
     related?: string[]; 

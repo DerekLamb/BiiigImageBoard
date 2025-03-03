@@ -1,4 +1,4 @@
-import { GroupModel } from "../models/groupModel";
+import { GroupModel } from "$lib/server/models/groupModel";
 import type { AppGroup } from "$lib/customTypes/DocTypes"
 
 class GroupController {
@@ -31,11 +31,17 @@ class GroupController {
         return GroupModel.getGroupCount();
     }
 
-    async ensureGroup(groupData: AppGroup) {
+    async ensureGroup(groupData: Partial<AppGroup>) {
+        if(!groupData.name) {
+            throw Error("Group name not provided for creation")
+        }
+
         const existingGroup = await GroupModel.getGroupByName(groupData.name);
 
         if(!existingGroup){
-            return await GroupModel.createGroup(groupData);
+            const results = await GroupModel.createGroup(groupData);
+            GroupModel.updateGroupThumbnail(results.id);
+            return results;
         }
         else {
             console.log(groupData._id ,", ", groupData.name, "already exists"); 
@@ -49,7 +55,13 @@ class GroupController {
     }
 
     async addImageToGroup(groupId: string, imageId: string){
-        return GroupModel.addImageToGroup(groupId, imageId);
+        const results = await GroupModel.addImageToGroup(groupId, imageId);
+        if( results.success === true ){
+            const thmbResults = await GroupModel.updateGroupThumbnail(groupId);
+            if(thmbResults.success === false){
+                console.log("thumbnail update " + thmbResults.success + " message: " + thmbResults.message)
+            }
+        }
     }
 }
 
