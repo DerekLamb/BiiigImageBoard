@@ -38,7 +38,7 @@ export const GroupModel = {
 
     async addImageToGroup(groupId: string, imageId: string) {
         const parentGroup = await GroupModel.getGroupById(groupId);
-        const childImages = await imageColl.find( { _id: { $in: parentGroup.children }} );
+        const childImages = await imageCollection.find({ _id: { $in: parentGroup.children.map( e => new ObjectId(e)) }}).toArray(); // TODO clean this up
 
         const latestDate = childImages.reduce((latest, image) => image.uploadDate > latest ? image.uploadDate : latest, "0");
 

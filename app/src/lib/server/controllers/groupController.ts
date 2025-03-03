@@ -1,5 +1,6 @@
 import { GroupModel } from "$lib/server/models/groupModel";
 import type { AppGroup } from "$lib/customTypes/DocTypes"
+import { ImageModel } from "../models/imageModel";
 
 class GroupController {
     constructor() {
@@ -40,6 +41,9 @@ class GroupController {
 
         if(!existingGroup){
             const results = await GroupModel.createGroup(groupData);
+            if(groupData.children){
+                groupData.children.forEach( e => {ImageModel.updateImage(e, "group", [results.id])})
+            }
             GroupModel.updateGroupThumbnail(results.id);
             return results;
         }
@@ -58,8 +62,12 @@ class GroupController {
         const results = await GroupModel.addImageToGroup(groupId, imageId);
         if( results.success === true ){
             const thmbResults = await GroupModel.updateGroupThumbnail(groupId);
+            ImageModel.updateImage(imageId, "group", [groupId]);
             if(thmbResults.success === false){
-                console.log("thumbnail update " + thmbResults.success + " message: " + thmbResults.message)
+                return {
+                    success: thmbResults.success,
+                    message: thmbResults.message
+                }
             }
         }
     }
