@@ -1,11 +1,9 @@
 import { ObjectId, type Collection, type Sort } from "mongodb";
-import { collections, db } from "$lib/db.server";
+import { collections, imageCollection } from "$lib/db.server";
 
 import { databaseDocUtil  as dbUtil } from "$lib/server/utility/dbUtil";
 import { GroupModel } from "$lib/server/models/groupModel";
 
-export const imageCollection = db.collection(collections.images);
-export const groupCollection = db.collection(collections.groups);
 
 export interface BaseImage { // This is the interface for the image/group data that is stored in the database
     originalName: string;
@@ -59,7 +57,7 @@ export const UnifiedModel = {
         let processedDocuments
 
         if(groupName == "" || groupName == null) {
-            processedDocuments = await this.getBaseNodeChildren( limit, skip, sort)
+            processedDocuments = await this.getBaseNodeChildren(limit, skip, sort)
         }
         else {
             processedDocuments = await GroupModel.getGroupByName(groupName)

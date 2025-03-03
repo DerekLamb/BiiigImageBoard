@@ -6,6 +6,7 @@ import SearchBar from "$lib/searchBar.svelte";
 import Image from "$lib/image.svelte";
 import { groupSize, groupCount } from "$lib/stores/searchStore";
 import { onMount, beforeUpdate } from "svelte";
+	import GroupThmb from "$lib/svelteComponents/groupThmb.svelte";
 /** @type {import('./$types').PageData} */ 
 
 interface ServerData {
@@ -91,9 +92,9 @@ beforeUpdate(() => {
         {#each data.groups as group}
             <p>{group.name}</p>
             {#each group.children as image}
-                {#await }
+                {#await true}
                     <p>Loading...</p>
-                {:then } 
+                {:then image} 
                     <Image src = "/{image.thumbnailPath}" 
                     mainLink = "/posts/{image.uploadDate}" 
                     imageName = {image.originalName} 
