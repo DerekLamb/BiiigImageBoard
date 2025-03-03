@@ -1,12 +1,15 @@
-import { Collection, type Document, type FindOptions, type Sort } from "mongodb";
+import { Collection, type Document, type Filter, type FindOptions, type Sort } from "mongodb";
 import { databaseDocUtil as dbUtil } from "$lib/server/utility/dbUtil";
+
 
 
 export const createMongoCollection = (collection: Collection) => {
     return {
-        async find(query = {}) {
+        async find(query:Filter<any> = {}) {
             try {
+                console.log(query);
                 const mongoQuery = dbUtil.convertStringToId(query);
+                console.log(mongoQuery);
                 const docs = await collection.find(mongoQuery).toArray();
                 return docs.map(dbUtil.convertIdToString);
             } catch (error: any) {
@@ -31,10 +34,9 @@ export const createMongoCollection = (collection: Collection) => {
         async findOne(query = {}, options: FindOptions = {}) {
             try {
                 
-                // Fix: This should be convertStringToId not convertIdToString
                 const mongoQuery = dbUtil.convertStringToId(query);
                 const result = await collection.findOne(mongoQuery, options);
-                
+
                 if (!result) {
                     return null;
                 }

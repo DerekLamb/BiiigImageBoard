@@ -1,5 +1,6 @@
 import { ObjectId, type Sort, } from "mongodb";
-import { type BaseImage, imageCollection } from "./unifiedModel";
+import { type BaseImage } from "./unifiedModel";
+import { imageCollection } from "$lib/db.server"
 import { createMongoCollection } from "../collectionLayer";
 
 const imageColl = createMongoCollection(imageCollection)
@@ -30,7 +31,6 @@ export const ImageModel = {
 
     async addImage( imageData: AppImageData ) {
         const results = await imageColl.insertOne( imageData ); 
-
         return { 
             success: results.acknowledged === true,
             id: results.insertedId?.toString(),

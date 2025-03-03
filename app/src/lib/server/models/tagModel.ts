@@ -1,4 +1,4 @@
-import { imageCollection } from "./unifiedModel";
+import { imageCollection } from "$lib/db.server";
 
 
 export const TagModel = {

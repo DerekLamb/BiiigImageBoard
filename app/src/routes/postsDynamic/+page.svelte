@@ -85,20 +85,22 @@
         <ImageBrowser minSize = { $improvImageSize }>
             {#each data.documents as element}
                 {#if element.groupType}
+                    <!-- svelte-ignore a11y-no-static-element-interactions -->
                     <div class = "imageBox" id = { element._id } on:dragstart = { handleDragStart } on:dragover = { handleDragOver } on:drop = { handleDrop }>
-                        {#if element.thumbnailPath}
+                        {#if element.thumbnailPaths}
                             <GroupThmb
-                            anchorLink = { element._id} 
-                            thmbSrc = { element.thumbnailPath } 
+                            anchorLink = "/groups/{ element._id }"
+                            thmbSrc = { element.thumbnailPaths[1] } 
                             name = { element.name } />
                         {:else}
                             <GroupThmb 
                             thmbSrc = "https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg" 
-                            anchorLink = { element._id}
+                            anchorLink = "/groups/{ element._id }"
                             name = { element.name } />
                         {/if}      
                     </div>                
                 {:else}
+                    <!-- svelte-ignore a11y-no-static-element-interactions -->
                     <div class = "imageBox" id = { element._id } on:dragstart = { handleDragStart } on:dragover = { handleDragOver } on:drop = {handleDrop}>
                         {#if element.thumbnailPath}
                             <Image src = "/{element.thumbnailPath}" 
