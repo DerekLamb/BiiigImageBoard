@@ -1,5 +1,5 @@
 import { ObjectId, type Sort, } from "mongodb";
-import { type BaseImage } from "./unifiedModel";
+import { type BaseImage } from "$lib/customTypes/DocTypes";
 import { imageCollection } from "$lib/db.server"
 import { createMongoCollection } from "../collectionLayer";
 

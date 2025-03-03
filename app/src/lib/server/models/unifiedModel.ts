@@ -5,28 +5,28 @@ import { databaseDocUtil  as dbUtil } from "$lib/server/utility/dbUtil";
 import { GroupModel } from "$lib/server/models/groupModel";
 
 
-export interface BaseImage { // This is the interface for the image/group data that is stored in the database
-    originalName: string;
-    sanitizedFilename: string;
-    imagePath: string;
-    uploadDate: string;
-    thumbnailPath: string; //thumbnail exists as path to file
-    groups: string[];
-    tags: string[];
-    embPrompt?: string[][]; //needs 2b fleshed out
-    related?: string[]; 
-    favorite?: string[];
-    hidden?: string[];
-}
+// export interface BaseImage { // This is the interface for the image/group data that is stored in the database
+//     originalName: string;
+//     sanitizedFilename: string;
+//     imagePath: string;
+//     uploadDate: string;
+//     thumbnailPath: string; //thumbnail exists as path to file
+//     groups: string[];
+//     tags: string[];
+//     embPrompt?: string[][]; //needs 2b fleshed out
+//     related?: string[]; 
+//     favorite?: string[];
+//     hidden?: string[];
+// }
 
-export interface BasicGroup {
-    name: string, // name of group
-    uploadDate: string, // date group was created
-    children: string[], // contains the ids of imageDoc or other GroupDoc(s), will need to handle making sure only goes three levels deep for groups
-    groups: string[], // needs considerations 
-    groupType: string, // possible extension, unsure what to use for now
-    groupTags: string[], // tags for the group 
-}
+// export interface BasicGroup {
+//     name: string, // name of group
+//     uploadDate: string, // date group was created
+//     children: string[], // contains the ids of imageDoc or other GroupDoc(s), will need to handle making sure only goes three levels deep for groups
+//     groups: string[], // needs considerations 
+//     groupType: string, // possible extension, unsure what to use for now
+//     groupTags: string[], // tags for the group 
+// }
 
 export interface BaseDoc {
     name: string;
