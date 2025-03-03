@@ -12,20 +12,42 @@ export async function POST({ request, locals }){
             throw { code: 'INVALID JSON', message: 'Invalid JSON Message'}
         });
 
-        groupController.ensureGroup({name: Date.now().toString(), 
-            uploadDate: Date.now().toString(), 
-            children: [body.draggedImage, body.draggedOverImage], 
-            group: [], 
-            groupType: 'default', 
-            groupTags: []})  
-        
-        // GroupModel.getGroupChildren(body.id, body.page, body.limit);
-        // Insert image into group collection if first element is image 
-
-        return json({ success: true });
+        // Check what type of operation we're performing
+        if (body.groupId && body.imageId) {
+            // Add single image to existing group
+            await groupController.addImageToGroup(body.groupId, body.imageId);
+            return json({ success: true, message: "Image added to existing group" });
+        } else if (body.draggedImage && body.draggedOverImage) {
+            // Create new group from two images (original drag and drop)
+            const newGroup = await groupController.ensureGroup({
+                name: Date.now().toString(), 
+                uploadDate: Date.now().toString(), 
+                children: [body.draggedImage, body.draggedOverImage], 
+                group: [], 
+                groupType: 'default', 
+                groupTags: []
+            });
+            
+            return json({ success: true, groupId: newGroup._id });
+        } else if (body.imageIds && Array.isArray(body.imageIds) && body.imageIds.length > 0) {
+            // Create new group with multiple images
+            const name = body.name || Date.now().toString();
+            const newGroup = await groupController.ensureGroup({
+                name: name,
+                uploadDate: Date.now().toString(),
+                children: body.imageIds,
+                group: [],
+                groupType: 'default',
+                groupTags: []
+            });
+            
+            return json({ success: true, groupId: newGroup._id });
+        } else {
+            throw { code: 'INVALID_REQUEST', message: 'Missing required parameters' };
+        }
     } catch (e) {
         console.error(e);
-        return json({ success: false });
+        return json({ success: false, error: e });
     }
 }
 
@@ -36,7 +58,7 @@ export async function GET({ locals }) { // returns all groups
     }
 
     try {
-        const groups = groupController.getAllGroups(); 
+        const groups = await groupController.getAllGroups(); 
         return json({ success: true, groups: groups });
     } catch (err) {
         console.log(`Error fetching groups:`, err);

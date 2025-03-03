@@ -9,7 +9,6 @@ export const createMongoCollection = (collection: Collection) => {
             try {
                 console.log(query);
                 const mongoQuery = dbUtil.convertStringToId(query);
-                console.log(mongoQuery);
                 const docs = await collection.find(mongoQuery).toArray();
                 return docs.map(dbUtil.convertIdToString);
             } catch (error: any) {
