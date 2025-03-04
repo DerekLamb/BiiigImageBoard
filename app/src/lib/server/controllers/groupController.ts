@@ -3,8 +3,17 @@ import type { AppGroup } from "$lib/customTypes/DocTypes"
 import { ImageModel } from "../models/imageModel";
 
 class GroupController {
-    constructor() {
+    // Default values for group creation
+    private defaultGroupData: Partial<AppGroup> = {
+        type: 'group',
+        uploadDate: Date.now().toString(),
+        children: [],
+        group: [],
+        groupType: 'default',
+        groupTags: []
+    };
 
+    constructor() {
     }
 
     async getGroup(groupId: string){
@@ -32,7 +41,10 @@ class GroupController {
         return GroupModel.getGroupCount();
     }
 
-    async ensureGroup(groupData: Partial<AppGroup>) {
+    async ensureGroup(partialGroupData: Partial<AppGroup>) {
+        // Merge partial data with defaults
+        const groupData = { ...this.defaultGroupData, ...partialGroupData };
+        
         if(!groupData.name) {
             throw Error("Group name not provided for creation")
         }
@@ -41,7 +53,7 @@ class GroupController {
 
         if(!existingGroup){
             const results = await GroupModel.createGroup(groupData);
-            if(groupData.children){
+            if(groupData.children && groupData.children.length > 0){
                 groupData.children.forEach( e => {ImageModel.updateImage(e, "group", [results.id])})
             }
             GroupModel.updateGroupThumbnail(results.id);
@@ -53,9 +65,26 @@ class GroupController {
         }
     }
 
-    async updateGroup(groupData: AppGroup) {
-        return GroupModel.updateGroup(groupData._id, groupData);
+    async createGroup(partialGroupData: Partial<AppGroup>) {
+        // Merge partial data with defaults
+        const groupData = { ...this.defaultGroupData, ...partialGroupData };
+        
+        if(!groupData.name) {
+            groupData.name = Date.now().toString();
+        }
 
+        const results = await GroupModel.createGroup(groupData);
+        
+        if(groupData.children && groupData.children.length > 0){
+            groupData.children.forEach( e => {ImageModel.updateImage(e, "group", [results.id])})
+        }
+        
+        GroupModel.updateGroupThumbnail(results.id);
+        return results;
+    }
+
+    async updateGroup(groupId: string, partialGroupData: Partial<AppGroup>) {
+        return GroupModel.updateGroup(groupId, partialGroupData);
     }
 
     async addImageToGroup(groupId: string, imageId: string){
