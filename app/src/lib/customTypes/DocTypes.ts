@@ -10,16 +10,19 @@ interface BaseDoc {
 
 export interface BaseGroup extends BaseDoc {
     name: string, // name of group
+    type: 'group',
     uploadDate: string, // date group was created
     children: string[], // contains the ids of imageDoc or other GroupDoc(s), will need to handle making sure only goes three levels deep for groups
-    thumbnailPaths: string[], //thumbnail of children 
+    thumbnailPaths?: string[], //thumbnail of children 
     group: string[], // needs considerations 
     groupType: string, // possible extension, unsure what to use for now
     groupTags: string[], // tags for the group 
+    depth?: number,
 }
 
 
 export interface BaseImage { // should extend BaseDoc
+    type: 'image',
     originalName: string;
     sanitizedFilename: string;
     imagePath: string;

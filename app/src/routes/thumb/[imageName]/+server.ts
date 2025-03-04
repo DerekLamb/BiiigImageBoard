@@ -1,4 +1,5 @@
-import { thumbFileRepo } from "$lib/fileService";
+
+import { fileController } from "$lib/server/controllers/fileController.js"
 import { error } from  "@sveltejs/kit"
 import path from "path";
 
@@ -16,7 +17,7 @@ export async function GET ({ params, locals}){
     try{
         const imageName = params.imageName;
         console.time(imageName);
-        const imageBuffer = await thumbFileRepo.readFile(params.imageName);
+        const imageBuffer = await fileController.getFile(params.imageName);
         console.timeEnd(imageName);
         const imageType = path.extname(params.imageName).substring(1); // need to build a better file type system
         return new Response(imageBuffer, {

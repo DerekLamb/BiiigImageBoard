@@ -16,7 +16,8 @@ const config = {
 		host: true,
 		fs: {
 			allow: [
-				'thumb/'
+				'thumb/',
+				
 			],
 		},
 		proxy:{}, //unsure why but needed for dev https

@@ -20,12 +20,8 @@ export async function POST({ request, locals }){
         } else if (body.draggedImage && body.draggedOverImage) {
             // Create new group from two images (original drag and drop)
             const newGroup = await groupController.ensureGroup({
-                name: Date.now().toString(), 
-                uploadDate: Date.now().toString(), 
+                name: Date.now().toString(),          
                 children: [body.draggedImage, body.draggedOverImage], 
-                group: [], 
-                groupType: 'default', 
-                groupTags: []
             });
             
             return json({ success: true, groupId: newGroup._id });
@@ -34,11 +30,7 @@ export async function POST({ request, locals }){
             const name = body.name || Date.now().toString();
             const newGroup = await groupController.ensureGroup({
                 name: name,
-                uploadDate: Date.now().toString(),
                 children: body.imageIds,
-                group: [],
-                groupType: 'default',
-                groupTags: []
             });
             
             return json({ success: true, groupId: newGroup._id });
