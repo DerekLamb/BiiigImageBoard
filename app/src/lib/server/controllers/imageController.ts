@@ -52,7 +52,7 @@ class ImageController{
         try{
             await ImageModel.deleteImage(imageData._id);
             await FileModel.delete(image.imagePath);
-            await FileModel.delete(image.thumbnailPath);
+            if(image.thumbnailPath) { await FileModel.delete(image.thumbnailPath)};
             return {
                 succes: true,
             };
@@ -92,8 +92,9 @@ class ImageController{
             imagePath: `${this.defaultPath}${newFileName}`, 
             uploadDate: uniqueID,
             thumbnailPath: "",
-            groups: [],
-            tags: []
+            group: [],
+            tags: [],
+            type: "image"
         }
 
         try{

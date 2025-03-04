@@ -51,9 +51,6 @@
     // Call fetchGroups on component mount
     fetchGroups();
 
-    const toggleModal = () => {
-        modalShow = !modalShow;
-    }
 
     const toggleGroupAddMode = () => {
         groupAddMode = !groupAddMode;
@@ -63,7 +60,8 @@
         }
     }
 
-    const toggleImageSelection = (imageId) => {
+    const toggleImageSelection = (imageId: string) => {
+        
         if (selectedImages.has(imageId)) {
             selectedImages.delete(imageId);
         } else {
@@ -245,9 +243,6 @@
     </SideBar>
     <div class="imageContainer">
         <div class="controlBar">
-            <div class="slideToggle">
-                <button on:click={toggleModal}>Toggle View</button>
-            </div>
             <button class="groupButton" class:active={groupAddMode} on:click={toggleGroupAddMode}>
                 {groupAddMode ? 'Exit Group Mode' : 'Enter Group Mode'}
             </button>
@@ -292,19 +287,23 @@
                 {:else}
                     <!-- Image element -->
                     <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div class="imageBox" 
                          class:selected={selectedImages.has(element._id)}
                          id={element._id} 
                          on:dragstart={handleDragStart} 
                          on:dragover={handleDragOver} 
-                         on:drop={handleDrop}
-                         on:click={groupAddMode ? () => toggleImageSelection(element._id) : null}>
+                         on:drop={handleDrop}>
                         {#if element.thumbnailPath}
                             <div class="imageWrapper">
-                                <Image src="/{element.thumbnailPath}" 
-                                    mainLink="/posts/{element.uploadDate}" 
+                                <Image 
+                                    src="/{element.thumbnailPath}" 
+                                    mainLink={groupAddMode ? "" : "/posts/{element.uploadDate}"}
                                     imageName={element.originalName} 
-                                    thumbnail={true}></Image>
+                                    thumbnail={true}
+                                    selectable={groupAddMode}
+                                    on:select={() => toggleImageSelection(element._id)}
+                                />
                                 {#if groupAddMode}
                                     <div class="checkboxOverlay">
                                         <input 
@@ -317,9 +316,13 @@
                             </div>
                         {:else}
                             <div class="imageWrapper">
-                                <Image src="https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg" 
-                                    mainLink="/posts/{element.uploadDate}" 
-                                    imageName={element.originalName}></Image>
+                                <Image 
+                                    src="https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg" 
+                                    mainLink={groupAddMode ? "" : "/posts/{element.uploadDate}"}
+                                    imageName={element.originalName}
+                                    selectable={groupAddMode}
+                                    on:select={() => toggleImageSelection(element._id)}
+                                />
                                 {#if groupAddMode}
                                     <div class="checkboxOverlay">
                                         <input 
@@ -411,16 +414,6 @@
         border-radius: 8px;
         margin-bottom: 10px;
         flex-wrap: wrap;
-    }
-
-    .slideToggle {
-        display: flex;
-        margin: 0;
-    }
-
-    .slideToggle button {
-        padding: 8px 16px;
-        font-size: 1rem;
     }
 
     .groupButton {
