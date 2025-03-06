@@ -51,13 +51,15 @@ export const actions = {
             throw new Error("Group ID not provided");
         }
         
-        // Delete logic would go here
-        // ...
+        let results = await groupController.deleteGroup(groupId); //TODO add some user access and safety sprinkles 
+
+        console.log(results);
 
         redirect(303, '/postGroups');
     },
 
     removeImage: async ({ request, locals }) => {
+        console.log("got here");
         if (!locals.user) {
             redirect(307, '/login');
         }
@@ -70,7 +72,21 @@ export const actions = {
             throw new Error("Group ID or Image ID not provided");
         }
         
-        // Remove image from group logic would go here
+        try{
+            let preEditGroup = await groupController.getGroup(groupId);
+            let editedChildren  = preEditGroup.children.filter( e => e != imageId);
+
+            let preEditImage = await imageController.getImage(imageId);
+            let editedGroups = preEditImage.group.filter(e => e != groupId);
+
+            console.log(editedChildren);
+            console.log(editedGroups);
+
+            await groupController.updateGroup(groupId, {children:editedChildren})
+            await imageController.updateImageProperty(imageId, "group", editedGroups )
+        } catch(error) {
+            throw new Error("Error updating group/image document:", error)
+        }
 
         redirect(303, `/postGroups/${groupId}`);
     }
