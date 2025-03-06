@@ -2,7 +2,6 @@
 import SearchBar from "$lib/searchBar.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
-import ImageBrowser from "$lib/imageBrowser.svelte";
 
 /** @type {import('./$types').PageData} */ 
 export let data;

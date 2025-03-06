@@ -100,6 +100,16 @@ class GroupController {
             }
         }
     }
+
+    async deleteGroup(groupId: string) {
+        const results = await GroupModel.deleteGroup(groupId)
+
+        return {
+            success: results.success,
+            id: results.id,
+            count: results.count,
+        }
+    }
 }
 
 export const groupController = new GroupController()
