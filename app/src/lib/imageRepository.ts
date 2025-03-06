@@ -1,5 +1,5 @@
 import { ObjectId, Collection } from "mongodb"
-import { db } from '$lib/db'
+import { db } from '$lib/db.server'
 import txtToSearchParam from "./SearchTxtToFilter";
 
 

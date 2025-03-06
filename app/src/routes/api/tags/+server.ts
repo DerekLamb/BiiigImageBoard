@@ -11,7 +11,6 @@ export async function GET(event: any) {
     try {
         tags = await TagModel.getAll();
         tags.filter((tag) => tag);
-        console.log(tags);
         return json(tags);
         
     } catch (e) {

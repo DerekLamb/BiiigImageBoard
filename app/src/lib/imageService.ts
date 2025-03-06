@@ -1,7 +1,7 @@
 import { ObjectId, type Collection } from 'mongodb';
-import { collections } from '$lib/db';
+import { collections } from '$lib/db.server';
 import fs from 'fs/promises';
-import { db } from '$lib/db';
+import { db } from '$lib/db.server';
 import txtToSearchParam from './SearchTxtToFilter';
 import sharp from 'sharp';
 import crypto from 'crypto';
