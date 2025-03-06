@@ -1,6 +1,6 @@
 import { lucia, initialize } from "$lib/auth";
 import type { Handle } from "@sveltejs/kit";
-import { start_mongo } from "$lib/db";
+import { start_mongo } from "$lib/db.server";
 
 start_mongo().then(() => {
     console.log("Connected to MongoDB")

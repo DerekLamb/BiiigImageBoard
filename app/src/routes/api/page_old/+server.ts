@@ -1,11 +1,10 @@
 import { json } from '@sveltejs/kit'
-import { db } from '$lib/db'
+import { db } from '$lib/db.server'
 
 
 
 export async function GET({ request } : Request){
     try{
-
         interface Filter {
             tags?: { $all: string[]} | { $not: {$in: string[] } };
           }

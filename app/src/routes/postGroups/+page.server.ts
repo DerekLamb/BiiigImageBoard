@@ -1,11 +1,14 @@
-import { redirect } from '@sveltejs/kit';
-import imageController from '$lib/server/controllers/imageController';
-import { aggController } from '$lib/server/controllers/aggController';
+import { redirect } from '@sveltejs/kit'
+/** @type {import('./$types').PageServerLoad} */
+
+
+import { groupController } from '$lib/server/controllers/groupController';
+import { GroupModel } from '$lib/server/models/groupModel'
 
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url, locals}) => {
-    if (!locals.user) { // auth check
+    if (!locals.user) {
         console.log("no user");
         redirect(307, '/login');
     }
@@ -20,16 +23,15 @@ export const load = (async ({ url, locals}) => {
         lengthNum = 24; 
     }
     
-    //const images = await imageController.getImagePage({page: currPage, length: lengthNum, search: searchTerm})
-    const documents = await aggController.getAggregateData({page: currPage, length: lengthNum})
-    console.log(currPage, lengthNum, documents);
+    const groups = await groupController.getGroupPage({page: currPage, length: lengthNum, search: searchTerm})
+    
     const pageLength = lengthNum || 24;
 
-    const numPages = Math.ceil(await imageController.getImageCount() / pageLength);
+    const numPages = Math.ceil(await groupController.getGroupCount() / pageLength);
 
     return{
         status: 200,
-        documents: documents,
+        groups: groups,
         pageNum: numPages,
         currPage: currPage,
         len: lengthNum,

@@ -1,4 +1,3 @@
-import { page } from '$app/stores';
 import { redirect } from '@sveltejs/kit';
 import imageController from '$lib/server/controllers/imageController';
 

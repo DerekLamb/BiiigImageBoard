@@ -1,46 +1,98 @@
-import { json } from '@sveltejs/kit'
-import { GroupModel } from '$lib/server/models/groupModel';
-import { TagModel } from '$lib/server/models/tagModel';
-import { UnifiedModel } from '$lib/server/models/unifiedModel.js';
+import { json, redirect, error } from '@sveltejs/kit';
+import { groupController } from '$lib/server/controllers/groupController.js';
 
-export async function POST({ request } : Request){
-    // user access check here TODO
+/**
+ * GET /api/groups - Retrieve all groups
+ */
+export async function GET({ url, locals }) {
+    if (!locals.user) {
+        throw redirect(307, '/login');
+    }
+
     try {
-        const body = await request.json();
-        console.log(body);
+        // Support pagination and filtering
+        const page = Number(url.searchParams.get('page')) || 1;
+        const limit = Number(url.searchParams.get('limit')) || 50;
+        const search = url.searchParams.get('search') || '';
+        const sort = url.searchParams.get('sort') || '';
 
-        GroupModel.createGroup({name: new Date().toISOString(), 
-            uploadDate: new Date().toISOString(), 
-            children: [body.draggedImage, body.draggedOverImage], 
-            groups: [], 
-            groupType: 'default', 
-            groupTags: []});
+        if (page < 1 || limit < 1 || limit > 100) {
+            throw error(400, {
+                message: 'Invalid pagination parameters'
+            });
+        }
 
-        GroupModel.getGroupChildren(body.id, body.page, body.limit);
-        // Insert image into group collection if first element is image 
+        const groups = await groupController.getGroupPage({
+            page,
+            length: limit,
+            search,
+            sort
+        });
 
-        return json({ success: true });
-    } catch (e) {
+        const count = await groupController.getGroupCount();
 
-        console.error(e);
-        return json({ success: false });
-        
+        return json({
+            data: groups,
+            meta: {
+                total: count,
+                page,
+                limit,
+                pages: Math.ceil(count / limit)
+            }
+        });
+    } catch (err) {
+        console.error('Error fetching groups:', err);
+        throw error(500, {
+            message: 'An unexpected error occurred while fetching groups'
+        });
     }
 }
 
-export async function GET({ params }) {
-    // user access check TODO
-    // returns children of group specified or top level groups if no group specified
-    try {
-        const groupId = params;
-        const page = 0;
-        const limit = 10;
+/**
+ * POST /api/groups - Create a new group
+ */
+export async function POST({ request, locals }) {
+    if (!locals.user) {
+        throw redirect(307, '/login');
+    }
 
-        const children = await UnifiedModel.getGroupChildren(groupId, page, limit);
-        console.log(children);
-        return json({ success: true, children });
-    } catch (e) {
-        console.error(e);
-        return json({ success: false });
+    try {
+        const body = await request.json().catch(() => {
+            throw error(400, { message: 'Invalid JSON payload' });
+        });
+
+        // Required field validation
+        if (!body.name) {
+            body.name = Date.now().toString(); // Default name if not provided
+        }
+
+        // Validate imageIds if provided
+        if (body.imageIds && (!Array.isArray(body.imageIds) || body.imageIds.length === 0)) {
+            throw error(400, { message: 'imageIds must be a non-empty array' });
+        }
+
+        const groupData = {
+            name: body.name,
+            children: body.imageIds || [],
+            groupType: body.groupType || 'default',
+            groupTags: body.groupTags || []
+        };
+
+        const newGroup = await groupController.createGroup(groupData);
+
+        return json({
+            data: newGroup,
+            message: 'Group created successfully'
+        }, { status: 201 });
+    } catch (err) {
+        console.error('Error creating group:', err);
+        
+        if (err.status) {
+            throw err; // Rethrow if it's already a proper error response
+        }
+        
+        throw error(500, {
+            message: 'An unexpected error occurred while creating the group'
+        });
     }
 }

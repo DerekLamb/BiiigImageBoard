@@ -1,6 +1,9 @@
-import { ObjectId, type Sort, type Collection } from "mongodb";
-import { collections, db } from "$lib/db";
-import { type BaseImage, imageCollection } from "./unifiedModel";
+import { ObjectId, type Sort, } from "mongodb";
+import { type BaseImage } from "$lib/customTypes/DocTypes";
+import { imageCollection } from "$lib/db.server"
+import { createMongoCollection } from "../collectionLayer";
+
+const imageColl = createMongoCollection(imageCollection)
 
 interface ImageDoc extends BaseImage { // 
     _id: ObjectId;
@@ -9,70 +12,84 @@ interface ImageDoc extends BaseImage { //
 export interface AppImageData extends BaseImage {
     _id: string,
 }
- 
-
-function toClient(document: ImageDoc): AppImageData {
-    const id = document._id.toString();
-    return { ...document, _id: id } as AppImageData; // Convert ObjectId to string
-}
-
-function toDatabase(document: Partial<AppImageData>): ImageDoc {
-    const id = new ObjectId(document._id);
-    return { ...document, _id: id } as ImageDoc; // Convert string to ObjectId
-}
-
 
 export const ImageModel = {
-    async findImages(filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 }) {
-        const documents = await imageCollection.find(filter).sort(sort).skip(skip).limit(limit).toArray() as ImageDoc[];  
-        return documents.map(toClient);
+    async findImages( filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 } ) {
+        const documents = await imageColl.findPage(filter, limit, skip, sort);
+        return documents as AppImageData[];
     },
 
-    async getImageById(id: string) {
-        const document = await imageCollection.findOne({ _id: new ObjectId(id) }) as ImageDoc;
-        return toClient(document);
+    async getImageById( id: string ) {
+        const document = await imageColl.findOne({_id: id}) as AppImageData;
+        return document ;
     },
 
-    async getImageByTimestamp(timestamp: string) {
-        const document = await imageCollection.findOne({ uploadDate: timestamp }) as ImageDoc;
-        return toClient(document);
+    async getImageByTimestamp( timestamp: string ) {
+        const document = await imageColl.findOne({ uploadDate: timestamp }) as AppImageData;
+        return document;
     },
 
-    async addImage(imageData: AppImageData) {
-        return await imageCollection.insertOne(toDatabase(imageData)); 
+    async addImage( imageData: AppImageData ) {
+        const results = await imageColl.insertOne( imageData ); 
+        return { 
+            success: results.acknowledged === true,
+            id: results.insertedId?.toString(),
+            
+        }
     },
 
-    async updateImage <ImageProp extends keyof AppImageData> (id: string, prop: ImageProp, value: AppImageData[ImageProp]) {
+    async updateImage <ImageProp extends keyof AppImageData> ( id: string, prop: ImageProp, value: AppImageData[ImageProp] ) {
         let updates = { $set: { [prop]: value }} 
-        return await imageCollection.updateOne({ _id: new ObjectId(id) }, updates);
+        const results = await imageColl.updateOne({ _id: id }, updates ); 
+
+        return {
+            success: results !== null,
+            document: results,
+            modified: results !== null && results[prop] === value
+        }
     },
 
     async replaceImage(imageData: AppImageData) {
-        const document = toDatabase(imageData);
-        return await imageCollection.replaceOne({_id: document._id}, document);
+        const document = imageData;
+        const results =  await imageColl.replaceOne({_id: document._id}, document );
+
+        return {
+            success: results.acknowledged === true,
+            id: results.upsertedId?.toString(),
+            count: results.upsertedCount,
+        }
     },
 
     async deleteImage(id: string) {
-        return await imageCollection.deleteOne({ _id: new ObjectId(id) });
+        const results = await imageColl.deleteOne({ _id: id });
+
+        return {
+            success: results.acknowledged === true,
+            id: id,
+            count: results.deletedCount
+        }
     },
 
-    async countImages(filter = {}) {
-        return await imageCollection.estimatedDocumentCount(filter);
+    async countImages() {
+        return await imageColl.estimateDocumentCount();
     },
 
     async getAdjacents(key: keyof AppImageData, value: string | string[] | string [][],) { // CAUTION, this requires an index on the used key field for results to be consistent and performant
         const prevFilter = { [key]: { $lt: value } };
         const nextFilter = { [key]: { $gt: value } };
-        const prev = await imageCollection.findOne(
+        
+        const prev = await imageColl.findOne(
             prevFilter, 
-            { sort: { [key]: -1 } }) as ImageDoc;
-        const prevImage = prev ? toClient(prev) : null;
+            { sort: { [key]: -1 } }) as AppImageData;
 
-        const next = await imageCollection.findOne(
+        const prevImage = prev ?? null;
+
+        const next = await imageColl.findOne(
             nextFilter, 
-            { sort: { [key]: 1 } }) as ImageDoc;
-        const nextImage = next ? toClient(next) : null;
-        return { prev: prevImage || null, next: nextImage};
+            { sort: { [key]: 1 } }) as AppImageData;
+
+        const nextImage = next ?? null;
+        return { prev: prevImage, next: nextImage};
         },
 
     async repairImageDoc(id: string) {

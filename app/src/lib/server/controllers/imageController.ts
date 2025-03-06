@@ -1,6 +1,5 @@
 import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
 import { FileModel } from '$lib/server/models/fileModel';
-import { UnifiedModel } from '$lib/server/models/unifiedModel';
 import { imageService } from '$lib/server/services/imageService';
 
 const constDefaultPath = 'images/'; // default path if none specified
@@ -30,13 +29,14 @@ class ImageController{
     }
 
     async getImagePage(params: {page: number, length: number, search?: string, sort?: string}){
+        const search = params.search || '';
+        const filter =  search ? { tags: { $regex: search, $options: 'i' }} : {};
         const length = params.length;
         const skip = (params.page - 1) * length;
         const sort = params.sort;
-        const search = params.search || '';
-        const filter =  search ? { tags: { $regex: search, $options: 'i' }} : {};
-
+        
         const images = await ImageModel.findImages(filter, length, skip, sort);
+        //Should break model up into classes for repository, imageDocuments, FileSystem
 
         return images
     }
@@ -47,17 +47,23 @@ class ImageController{
 
     async deleteImage(imageData: AppImageData){
         const image = await ImageModel.getImageById(imageData._id);
+        if (!image) return { success: false, error: "Image not found" };
+
         try{
             await ImageModel.deleteImage(imageData._id);
             await FileModel.delete(image.imagePath);
-            await FileModel.delete(image.thumbnailPath);
+            if(image.thumbnailPath) { await FileModel.delete(image.thumbnailPath)};
+            return {
+                succes: true,
+            };
         }
-        catch(error)
+        catch(error: any)
         {
-            console.log(`Error deleting image: ${image._id}`);
-            return false;
+            return{
+                success: false,
+                error: error.message,
+            }
         }
-        return true;
     }
 
     async addImage(imageData: AppImageData, buffer: Buffer){
@@ -86,8 +92,9 @@ class ImageController{
             imagePath: `${this.defaultPath}${newFileName}`, 
             uploadDate: uniqueID,
             thumbnailPath: "",
-            groups: [],
-            tags: []
+            group: [],
+            tags: [],
+            type: "image"
         }
 
         try{
@@ -123,6 +130,5 @@ class ImageController{
         }
     }
 }
-
 
 export default new ImageController(constDefaultPath);
