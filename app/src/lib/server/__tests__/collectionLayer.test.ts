@@ -84,8 +84,8 @@ vi.mock('../collectionLayer', () => {
 });
 
 // Import the mocked module
-import { createMongoCollection } from '../collectionLayer';
-import { databaseDocUtil } from '../utility/dbUtil';
+import { createMongoCollection } from '$lib/server/collectionLayer';
+import { databaseDocUtil } from '$lib/server/utility/dbUtil';
 
 describe('collectionLayer', () => {
   beforeEach(() => {
