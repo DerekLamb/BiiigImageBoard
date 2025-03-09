@@ -9,18 +9,23 @@ import { goto } from "$app/navigation";
 
 /** @type {import('./$types').PageData} */ 
 
-interface Images {
-    images: {
-        originalName: string;
-        thumbnailPath: string;
-        imagePath: string;
-        uploadDate: string;
-    }[];
-    currPage: number;
-    pageNum: number;
-}
 
-export let data : Images;
+/* 
+    return {
+        status: 200,
+        images: images,
+        pagination: {
+            total: totalCount,
+            pageCount: numPages,
+            currentPage: pageNum,
+            itemsPerPage: lengthNum
+        },
+        searchTerm: searchTerm,
+        notag: notag
+    }
+        */
+
+export let data;
 
 let nextPage: string | null = null;
 let prevPage: string | null = null;
@@ -32,7 +37,7 @@ const numImages = [24, 32, 48, 60, 72, 84, 96];
 function reloadCurrPage() {
     const numImageParam = $imageCount === 24 ? "" : `&len=${$imageCount}`;
     const url = new URL(window.location.href);
-    url.searchParams.set("page", data.currPage.toString());
+    url.searchParams.set("page", data.pagination.currentPage.toString());
     url.searchParams.set("len", $imageCount.toString());
     goto(url.toString());
 }
@@ -46,10 +51,10 @@ const calculatePages = () => {
     const url = new URL(window.location.href);
     url.searchParams.set("numImages", $imageCount.toString());
 
-    nextPage = data.currPage > 1 ? `${url.pathname}?page=${data.currPage - 1}${numImageParam}` : null;
-    prevPage = data.currPage < data.pageNum ? `${url.pathname}?page=${data.currPage + 1}${numImageParam}` : null;
+    nextPage = data.pagination.currentPage > 1 ? `${url.pathname}?page=${data.pagination.currentPage - 1}${numImageParam}` : null;
+    prevPage = data.pagination.currentPage < data.pagination.pageCount ? `${url.pathname}?page=${data.pagination.currentPage + 1}${numImageParam}` : null;
     firstPage = `${url.pathname}?page=1${numImageParam}`;
-    lastPage = `${url.pathname}?page=${data.pageNum}${numImageParam}`;
+    lastPage = `${url.pathname}?page=${data.pagination.pageCount}${numImageParam}`;
 };
 
 onMount(() => {
