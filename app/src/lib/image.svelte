@@ -3,7 +3,6 @@
 
     export let src = '';
     export let alt = "TestAlt";
-    export let imageName = "";
     export let thumbnail = false;
     export let upScore = -1;
     export let downScore = -1;
@@ -47,9 +46,7 @@
     
     <img class="{imgClass}" src={src} alt={alt} on:click={handleClick}/>
     {#if upScore == -1 && downScore == -1}
-            <span class = "imgName ">{imageName}</span>
     {:else}
-            <span class = "imgName">{imageName}</span>
             <span class = "score">{upScore} &#x1F446 {downScore} &#x1F447 </span>
     {/if}
     
