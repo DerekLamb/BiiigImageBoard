@@ -1,4 +1,5 @@
 import { groupController } from '$lib/server/controllers/groupController.js';
+import  imageController  from '$lib/server/controllers/imageController.js'
 import { json, redirect, error } from '@sveltejs/kit';
 
 /**
@@ -128,9 +129,13 @@ export async function PATCH({ params, request, locals }) {
                 throw error(400, { message: 'imageIds must be a non-empty array' });
             }
             
-            // Add each image to the group sequentially
             for (const imageId of body.imageIds) {
-                await groupController.addImageToGroup(params.slug, imageId);
+                if(await imageController.addImageToGroup(imageId, params.slug)){
+                    await groupController.addImageToGroup(params.slug, imageId);
+                }
+                else{
+                    throw error(400, { message: "imageId does not exist"})
+                }
             }
             
             result = await groupController.getGroup(params.slug);

@@ -1,8 +1,9 @@
-<script>
+<script lang=ts>
 import SearchBar from "$lib/searchBar.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import Image from "$lib/image.svelte";
+
 
 
 /** @type {import('./$types').PageData} */ 
@@ -19,23 +20,36 @@ function copyItems() {
 
 <div class = midContainer>
 
-    <SideBar>
+    <SideBar itemCount = {3}>
         <SearchBar></SearchBar>
+        <form method="get" action="/posts">
+            <button type="submit" class="returnBtn">return to browse</button>
+            <input type="hidden" name="imageId" value="{data.image._id}">
+        </form>
         <TagSection editable = {true} imageID = {data.image?._id} imageTags = {tags}></TagSection>
     </SideBar>
 
     <div class="imageWindow">
-        <Image src = "../../{data.image?.imagePath}" 
-            imageName={data.image?.originalName} 
+        <Image src = "../../{data.image?.imagePath}"  
             leftLink = {data.adjacents?.next?.uploadDate}
             rightLink = {data.adjacents?.prev?.uploadDate}>
         </Image>
         <div class="pageNumContainer">
             {#if data.adjacents?.next != null}
-            <a href="/posts/{data.adjacents.next.uploadDate}" class="pageNum">&lt&lt&lt</a>
+            <a href="/posts/{data.adjacents.next.uploadDate}" class="pageNum" id="prev">&lt&lt&lt</a>
             {/if}
+            <span id="imageName">{data.image?.originalName}</span>
             {#if data.adjacents?.prev != null}
-            <a href="/posts/{data.adjacents.prev.uploadDate}" class="pageNum">&gt&gt&gt</a>
+            <a href="/posts/{data.adjacents.prev.uploadDate}" class="pageNum" id ="next">&gt&gt&gt</a>
+            {/if}
+        </div>
+        <div class="groupNumContainer">
+            {#if data.adjacents?.next != null}
+            <a href="/posts/{data.adjacents.next.uploadDate}" class="pageNum" id="prev">&lt&lt&lt</a>
+            {/if}
+            <span id="imageName">{data.image?.originalName}</span>
+            {#if data.adjacents?.prev != null}
+            <a href="/posts/{data.adjacents.prev.uploadDate}" class="pageNum" id ="next">&gt&gt&gt</a>
             {/if}
         </div>
         <div class="imageInfo">
@@ -72,7 +86,7 @@ function copyItems() {
         <div>
             
             <p>Comments</p>
-            <div class = "imageWindow">{data.image?.groups}</div>
+            <div class = "imageWindow">{data.image?.group}</div>
             <div class = "imageWindow"> Here be comments</div>
             <div class = "imageWindow"> Here be comments</div>
             <div class = "imageWindow"> Here be comments</div>
@@ -95,6 +109,12 @@ function copyItems() {
             grid-template-columns: 200px 1fr;
         }
     }
+
+    .returnBtn{
+        width: 100%;
+        height: 100%;
+    }
+
     .imageWindow{
         background-color: #9ac7d6;
 
@@ -115,8 +135,22 @@ function copyItems() {
     .pageNumContainer{
         margin: 2 12px;
         width: 100%;
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 1fr, 1fr, 1fr;
+        grid-template-rows: auto;
+        grid-template-areas:
+            "prev title next"
+    }
+
+    #prev {
+        justify-self: start;
+    }
+    #next {
+        justify-self: end;
+    }
+
+    #imageName {
+        justify-self:center
     }
 
     @media (max-width: 768px){
@@ -131,6 +165,6 @@ function copyItems() {
 
     span {
         padding: 8px;
-        border: 1px solid #ddd;
+        border: 2px solid #ddd;
     }
 </style>

@@ -1,9 +1,9 @@
-<script>
+<script lang=ts>
     import AutoTagInput from "./autoTagInput.svelte";
     import Tag from "./tag.svelte";
     import { onMount } from 'svelte';
 
-    export let imageTags = '';
+    export let imageTags: string[];
     export let imageID = '';
     export let editable = true;
 
@@ -72,7 +72,7 @@
                             <Tag tag = {tag} edit = {editing} on:message = {handleDeleteTag} ></Tag>
                         {/each}
                     {:else}
-                        <p>Page left blank on purpose</p>
+                        <p>Blank</p>
                     {/if}        
                 </ul>
                 {#if editing}

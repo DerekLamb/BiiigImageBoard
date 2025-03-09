@@ -36,7 +36,6 @@ class ImageController{
         const sort = params.sort;
         
         const images = await ImageModel.findImages(filter, length, skip, sort);
-        //Should break model up into classes for repository, imageDocuments, FileSystem
 
         return images
     }
@@ -70,14 +69,38 @@ class ImageController{
         await FileModel.write(imageData.imagePath, buffer);
         return await ImageModel.addImage(imageData);
     }
-
+    
     async updateImageProperty<ImageProp extends keyof AppImageData>(id: string, propToUpdate: ImageProp, value: AppImageData[ImageProp]) {
-        const results = ImageModel.updateImage(id, propToUpdate, value);
-        if(!results){
-            console.log("No Updates made to ", id)
-        }
+        const results = await ImageModel.updateImage(id, propToUpdate, value);
+            return {
+                success : results.success,
+                updatedImage: results.document,
+            }
     }
 
+    async addImageToGroup(imageId: string, groupId: string) {
+        try {
+            let imageGroups  = (await ImageModel.getImageById(imageId)).group;
+            if(imageGroups.indexOf(groupId) === -1){
+                throw Error("group already exists on image");
+            }
+
+            imageGroups.push(groupId);
+            const results = await ImageModel.updateImage(imageId, "group", imageGroups)
+
+            return{
+                success: results.success,
+                message: "group added to " + results.document?._id 
+            }
+        } catch (error) 
+        {
+            return{
+                success: false,
+                error: error.message,
+            }    
+        }
+    }
+    
     async newImage(file: imgFile, uniqueID: string){
         let buffer = Buffer.from(await file.arrayBuffer());
         let hash = await FileModel.hashFile(buffer);
@@ -129,6 +152,7 @@ class ImageController{
             await imageService.updateThumbnail(imageData);
         }
     }
+
 }
 
 export default new ImageController(constDefaultPath);
