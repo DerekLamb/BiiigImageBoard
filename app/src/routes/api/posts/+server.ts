@@ -1,7 +1,8 @@
 import { json } from '@sveltejs/kit'
 import { GroupModel } from "$lib/server/models/groupModel"
 
-export async function POST({ request } : Request){
+
+export async function POST ({ request } : Request){
     // user access check here TODO
     try {
         const body = await request.json();
