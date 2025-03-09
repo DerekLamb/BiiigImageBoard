@@ -31,3 +31,4 @@ images/
 thumb/
 /app/.svelte-kit
 nginx/
+docker-compose.yml
