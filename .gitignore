@@ -30,3 +30,4 @@ nginx/certs/privkey.pem
 images/
 thumb/
 /app/.svelte-kit
+nginx/
