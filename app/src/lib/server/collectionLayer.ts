@@ -125,6 +125,14 @@ export const createMongoCollection = (collection: Collection) => {
             } catch (error: any) {
                 throw new Error(`EstimateDocumentCount operation failed: ${error.message}`);
             }
+        }, 
+
+        async countDocuments(filter = {}) {
+            try{
+                return await collection.countDocuments(filter);
+            } catch (error: any) {
+                throw new Error(`Document Count operation failed: ${error.message}`)
+            }
         }
     };
 }

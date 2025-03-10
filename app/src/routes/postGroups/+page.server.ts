@@ -38,3 +38,4 @@ export const load = (async ({ url, locals}) => {
         searchTerm: searchTerm
     }
 }) satisfies PageServerLoad;
+
