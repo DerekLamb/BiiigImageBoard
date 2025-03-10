@@ -22,7 +22,7 @@ function copyItems() {
 
     <SideBar itemCount = {3}>
         <SearchBar></SearchBar>
-        <form method="get" action="/posts">
+        <form id="desktopButton" method="get" action="/posts">
             <button type="submit" class="returnBtn">return to browse</button>
             <input type="hidden" name="imageId" value="{data.image._id}">
         </form>
@@ -43,14 +43,22 @@ function copyItems() {
             <a href="/posts/{data.adjacents.prev.uploadDate}" class="pageNum" id ="next">&gt&gt&gt</a>
             {/if}
         </div>
+        {#if data.image?.group[0]}        
         <div class="groupNumContainer">
             {#if data.adjacents?.next != null}
             <a href="/posts/{data.adjacents.next.uploadDate}" class="pageNum" id="prev">&lt&lt&lt</a>
             {/if}
-            <span id="imageName">{data.image?.originalName}</span>
+            <span id="imageName">{data.image?.group}</span>
             {#if data.adjacents?.prev != null}
             <a href="/posts/{data.adjacents.prev.uploadDate}" class="pageNum" id ="next">&gt&gt&gt</a>
             {/if}
+        </div>
+        {/if}
+        <div class="pageNumContainer" id="mobileButton">
+            <form class="mobileButton" method="get" action="/posts">
+                <button type="submit" class="returnBtn">return to browse</button>
+                <input type="hidden" name="imageId" value="{data.image._id}">
+            </form>
         </div>
         <div class="imageInfo">
             <p><span>Image Name: </span>{data.image?.originalName}</p>
@@ -104,11 +112,29 @@ function copyItems() {
         height:100%;
         align-self: stretch;
     }
+
+    #mobileButton{
+            display:block;
+            height: 50px;
+        }
+
+    #mobileButton>form{
+        height:100%;
+    }
+
     @media (min-width:960px) {
         .midContainer{
             grid-template-columns: 200px 1fr;
         }
+
+        #mobileButton{ 
+        display:none;
+        }
+
+
     }
+
+
 
     .returnBtn{
         width: 100%;
@@ -151,6 +177,16 @@ function copyItems() {
 
     #imageName {
         justify-self:center
+    }
+
+    .groupNumContainer{
+        margin: 2 12px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr, 1fr, 1fr;
+        grid-template-rows: auto;
+        grid-template-areas:
+            "prev title next"
     }
 
     @media (max-width: 768px){
