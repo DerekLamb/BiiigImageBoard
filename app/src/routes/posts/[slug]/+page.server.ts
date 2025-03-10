@@ -43,7 +43,6 @@ export const actions = {
  
         if(!image){
             throw new Error(`Image not found: ${strId}`);
-            redirect(303, redirectSlug);
         }
 
         const deleted = await imageController.deleteImage(image); //needs tweaking

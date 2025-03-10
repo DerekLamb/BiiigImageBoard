@@ -64,7 +64,6 @@ export const load = (async ({ url, locals }) => {
     
     const totalCount = await imageController.getImageCount();
     const numPages = Math.ceil(totalCount / lengthNum);
-    console.log(pageNum);
 
     return {
         status: 200,
@@ -85,7 +84,6 @@ export const load = (async ({ url, locals }) => {
 async function countDocumentsBeforeDate(filter: any, uploadDate: string): Promise<number> {
     const countFilter = { ...filter, uploadDate: { $gt: uploadDate } };
     
-    //rewrite for better performance at some point
     const count = await ImageModel.countFilteredImages(countFilter);
     return count;
 }
