@@ -118,8 +118,18 @@ class FileController {
         }
     }
 
-    async getFile(fileName: string, userId?: string): Promise<Buffer | null> {
+    async getFile(fileName: string, userId?: string, directory?: string): Promise<Buffer | null> {
         const filePath = path.join(this.config.uploadDir, fileName )
+        try {
+            return await FileModel.read(filePath);
+        } catch (error) {
+            console.error(`Error reading file ${filePath}:`, error);
+            return null;
+        }
+    }
+
+    async getThumbnailFile(fileName: string, ){
+        const filePath = path.join("thumb/", fileName);
         try {
             return await FileModel.read(filePath);
         } catch (error) {
