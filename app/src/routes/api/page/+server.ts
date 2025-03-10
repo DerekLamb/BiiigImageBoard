@@ -53,7 +53,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         const images = await ImageModel.findImages(filter, limit, skip);
         
         // Get total count for pagination
-        const totalImages = await ImageModel.countImages();
+        const totalImages = await ImageModel.countAllImages();
         const totalPages = Math.ceil(totalImages / limit);
 
         return json({

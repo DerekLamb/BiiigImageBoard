@@ -41,7 +41,7 @@ class ImageController{
     }
 
     async getImageCount(){
-        return await ImageModel.countImages();
+        return await ImageModel.countAllImages();
     }
 
     async deleteImage(imageData: AppImageData){
@@ -134,7 +134,7 @@ class ImageController{
     }
 
     async updateAllThumbnails(){
-        const total = await ImageModel.countImages();
+        const total = await ImageModel.countAllImages();
         const page = total / 500;
         for (let i = 0; i < page; i++){
             const images = await ImageModel.findImages({}, 500, i * 500);

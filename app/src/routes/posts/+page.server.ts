@@ -86,6 +86,6 @@ async function countDocumentsBeforeDate(filter: any, uploadDate: string): Promis
     const countFilter = { ...filter, uploadDate: { $gt: uploadDate } };
     
     //rewrite for better performance at some point
-    const docs = await ImageModel.findImages(countFilter, 1000000, 0);
-    return docs.length;
+    const count = await ImageModel.countFilteredImages(countFilter);
+    return count;
 }
