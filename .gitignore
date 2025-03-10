@@ -1,34 +1,29 @@
 
+# Media files
 *.png
 *.jpg
 *.gif
 *.mp4
 *.webm
-/app/images
-/app/images/*
+
+# App directories
+/app/images/
 /app/thumb/
-/app/upload
-/app/upload/*
-/app/node_modules
-/app/node_modules/*
-/app/.svelte-kit/generated/*
-/app/.svelte-kit/types/*
-/mongodb/*
-app/.svelte-kit/ambient.d.ts
+/app/upload/
+/app/node_modules/
+/app/.svelte-kit/
+/app/build/
+
+# Config and environment files
 app/.env
+*.pem
 package-lock.json
-vite.config.js
 app/package-lock.json
-app/.svelte-kit/ambient.d.ts
-app/testCert/_cert.pem
-/app/.svelte-kit/output
-/app/build
-/app/.svelte-kit
-nginx/certs/fullchain.pem
-nginx/certs/privkey.pem
-/nginx/certbot/conf/accounts
-images/
-thumb/
-/app/.svelte-kit
-nginx/
+vite.config.js
+
+# Other directories
+/mongodb/
+/nginx/
+
+# Docker
 docker-compose.yml
