@@ -42,7 +42,7 @@ function reloadCurrPage() {
     goto(url.toString());
 }
 
-const calculatePages = () => {
+function calculatePages() {
     if ($imageCount !== 24) {
         reloadCurrPage();
     }
@@ -51,8 +51,8 @@ const calculatePages = () => {
     const url = new URL(window.location.href);
     url.searchParams.set("numImages", $imageCount.toString());
 
-    nextPage = data.pagination.currentPage > 1 ? `${url.pathname}?page=${data.pagination.currentPage - 1}${numImageParam}` : null;
-    prevPage = data.pagination.currentPage < data.pagination.pageCount ? `${url.pathname}?page=${data.pagination.currentPage + 1}${numImageParam}` : null;
+    prevPage = data.pagination.currentPage > 1 ? `${url.pathname}?page=${data.pagination.currentPage - 1}${numImageParam}` : null;
+    nextPage = data.pagination.currentPage < data.pagination.pageCount ? `${url.pathname}?page=${data.pagination.currentPage + 1}${numImageParam}` : null;
     firstPage = `${url.pathname}?page=1${numImageParam}`;
     lastPage = `${url.pathname}?page=${data.pagination.pageCount}${numImageParam}`;
 };
@@ -76,10 +76,10 @@ beforeUpdate(() => {
         <div class = "pgnumCont">
             <div class="prevPageCont">
                 <a href={firstPage} class="pageNum">&lt&lt/</a>
-                <a href={nextPage} class="pageNum">&lt&lt&lt</a>
+                <a href={prevPage} class="pageNum">&lt&lt&lt</a>
             </div>
             <div class="nextPageCont">
-                <a href={prevPage} class="pageNum">&gt&gt&gt</a>
+                <a href={nextPage} class="pageNum">&gt&gt&gt</a>
                 <a href={lastPage} class="pageNum">\&gt&gt</a>
             </div>
         </div>
@@ -95,6 +95,7 @@ beforeUpdate(() => {
                 {#each numImages as num}
                     <option value={num}>{num}</option>
                 {/each}
+            </select>
         </span>
         <div class = "imageGrid" style="grid-template-columns: repeat(auto-fit, minmax({$improvImageSize}px, 1fr)">
         {#if data.images}
@@ -103,14 +104,14 @@ beforeUpdate(() => {
                     <div class = "imageBox">
                         <Image src = "/{image.thumbnailPath}" 
                         mainLink = "/posts/{image.uploadDate}" 
-                        imageName = {image.originalName} 
+                         
                         thumbnail={true}></Image>
                     </div>
                 {:else}
                     <div class = "imageBox">
                         <Image src = "/{image.imagePath}" 
                         mainLink = "/posts/{image.uploadDate}" 
-                        imageName = {image.originalName} ></Image>
+                         ></Image>
                     </div>
                 {/if}
             {/each}

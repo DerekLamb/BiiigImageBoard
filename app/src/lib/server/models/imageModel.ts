@@ -70,8 +70,12 @@ export const ImageModel = {
         }
     },
 
-    async countImages() {
+    async countAllImages() {
         return await imageColl.estimateDocumentCount();
+    },
+
+    async countFilteredImages(countFilter = {}){
+        return await imageColl.countDocuments(countFilter);
     },
 
     async getAdjacents(key: keyof AppImageData, value: string | string[] | string [][],) { // CAUTION, this requires an index on the used key field for results to be consistent and performant
