@@ -1,51 +1,68 @@
 <script lang="ts">
-    import { onMount, beforeUpdate } from "svelte";
+    import { browser } from "$app/environment"
 
-    export let currPage : number;
-    export let numPages :number;
+    export let currentPage = 1;
+    export let totalPages = 1;
+    export let baseUrl  = '';
+    export let queryParams = {};
+    export let size = "unused?"
+
 
     let nextPage: string | null = null;
     let prevPage: string | null = null;
     let firstPage: string | null = null;
     let lastPage: string | null = null;
 
-    const calculatePages = () => {
-        const url = new URL(window.location.href);;
 
-        const createPageUrl = (url :URL , pageNumber : number) => {
-            url.searchParams.set("page", pageNumber.toString());
-            return url.toString();
-        };
 
-        nextPage = currPage < numPages ? createPageUrl(url, currPage + 1) : null;
-        console.log(currPage);
-        prevPage = currPage > 1 ? createPageUrl(url, currPage - 1) : null;
-        lastPage = createPageUrl(url, numPages);
-        url.searchParams.delete("page")
-        firstPage = url.toString();
 
+    function buildUrl(page: number) {
+
+        if(!browser){
+            console.log("no browser available");
+            return "";
+        }
+
+        const url = new URL(baseUrl, window.location.origin);
+        
+
+        for (const [key, value] of Object.entries(queryParams)){ //curious how to set type here... TODO 
+            url.searchParams.set(key, value);
+        }
+        url.searchParams.set('page', page.toString())
+        return url.toString();
     };
 
-    onMount(() => {
-        calculatePages();
-    });
 
-    beforeUpdate(() => {
-        calculatePages();
-    });
+    function updateUrls() {
+        if (browser) {
+            firstPage = buildUrl(1);
+            lastPage = buildUrl(totalPages);
+            prevPage = currentPage > 1 ? buildUrl(currentPage - 1) : '';
+            nextPage = currentPage < totalPages ? buildUrl(currentPage + 1) : '';
+        }
+    }
+
 
 </script>
 
-<div class = "pgnumCont">
-    <div class="prevPageCont">
-        <a href={firstPage} class="pageNum">&lt&lt/</a>
-        <a href={prevPage} class="pageNum">&lt&lt&lt</a>
-    </div>
-    <div class="nextPageCont">
-        <a href={nextPage} class="pageNum">&gt&gt&gt</a>
-        <a href={lastPage} class="pageNum">\&gt&gt</a>
-    </div>
-</div>
+
+<nav class="pagination {size}" aria-label="Pagination">
+    <a href={firstPage} class="pagination-item" aria-label="First page">
+        $laquo;
+    </a>
+    <a href={currentPage > 1 ? prevPage : null} class="pagination-item" aria-label="Previous page" aria-disabled={ currentPage <= 1} >
+        $lsaquo;
+    </a> 
+    <span class="page-nav-info">Page {currentPage} / {totalPages}</span>
+
+    <a href={currentPage < totalPages ? nextPage : null} class="pagination-item" aria-label="Next page" aria-disabled = { currentPage >= totalPages} >
+        $rsaquo;
+    </a>
+    <a href={lastPage} class="pagination-item" aria-label="Last page">
+        $raquo;
+    </a>
+</nav>
 
 <style>
     .pgnumCont{
