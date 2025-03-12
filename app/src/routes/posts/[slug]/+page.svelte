@@ -23,7 +23,9 @@ function copyItems() {
     <SideBar itemCount = {3}>
         <SearchBar></SearchBar>
         <form id="desktopButton" method="get" action="/posts">
-            <button type="submit" class="returnBtn">return to browse</button>
+            <button type="submit" class="returnBtn">
+                <svg style="width:24px;height:24px" viewBox="0 0 24 24"><path fill="#666666" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" /></svg>
+            </button>
             <input type="hidden" name="imageId" value="{data.image._id}">
         </form>
         <TagSection editable = {true} imageID = {data.image?._id} imageTags = {tags}></TagSection>
@@ -56,7 +58,9 @@ function copyItems() {
         {/if}
         <div class="pageNumContainer" id="mobileButton">
             <form class="mobileButton" method="get" action="/posts">
-                <button type="submit" class="returnBtn">return to browse</button>
+                <button type="submit" class="returnBtn">
+                    <svg style="width:24px;height:24px" viewBox="0 0 24 24"><path style="fill:#030303;" d="M102.496,45.204h-2.499v-0.012l-77.613-0.368l32.958-32.959l-8.277-8.28L0,50.65l47.882,47.889 l8.28-8.28l-33.719-33.73l71.642,0.346v0.04h8.417c23.151,0,41.993,18.838,41.993,41.997c0,23.151-18.842,41.992-41.993,41.992H0 v11.711h102.496c29.613,0,53.703-24.09,53.703-53.703C156.199,69.293,132.109,45.204,102.496,45.204z"/></svg>
+                </button>
                 <input type="hidden" name="imageId" value="{data.image._id}">
             </form>
         </div>
@@ -116,10 +120,21 @@ function copyItems() {
     #mobileButton{
             display:block;
             height: 50px;
+            padding: 10px;
         }
 
     #mobileButton>form{
         height:100%;
+    }
+
+    .returnBtn {
+        background: none;
+        border: none;
+        outline: none;
+        width: 100%;
+        height: 100%;
+        background: #f7d1d7;
+        border-radius:25px;
     }
 
     @media (min-width:960px) {
@@ -132,13 +147,6 @@ function copyItems() {
         }
 
 
-    }
-
-
-
-    .returnBtn{
-        width: 100%;
-        height: 100%;
     }
 
     .imageWindow{
