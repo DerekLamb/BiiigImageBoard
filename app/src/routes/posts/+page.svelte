@@ -1,11 +1,11 @@
 <script lang="ts">
 import { improvImageSize, imageCount } from "$lib/stores/searchStore";
+import PageNav from "$lib/pageNav.svelte";
 import Image from "$lib/image.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import SearchBar from "$lib/searchBar.svelte";
-import { onMount, beforeUpdate } from "svelte";
-import { goto } from "$app/navigation";
+
 
 /** @type {import('./$types').PageData} */ 
 
@@ -27,43 +27,9 @@ import { goto } from "$app/navigation";
 
 export let data;
 
-let nextPage: string | null = null;
-let prevPage: string | null = null;
-let firstPage: string | null = null;
-let lastPage: string | null = null;
+let baseUrl: string = "/";
 const sizes = [100, 110, 150, 200, 300];
 const numImages = [24, 32, 48, 60, 72, 84, 96];
-
-function reloadCurrPage() {
-    const numImageParam = $imageCount === 24 ? "" : `&len=${$imageCount}`;
-    const url = new URL(window.location.href);
-    url.searchParams.set("page", data.pagination.currentPage.toString());
-    url.searchParams.set("len", $imageCount.toString());
-    goto(url.toString());
-}
-
-function calculatePages() {
-    if ($imageCount !== 24) {
-        reloadCurrPage();
-    }
-    const numImageParam = $imageCount === 24 ? "" : `&len=${$imageCount}`;
-
-    const url = new URL(window.location.href);
-    url.searchParams.set("numImages", $imageCount.toString());
-
-    prevPage = data.pagination.currentPage > 1 ? `${url.pathname}?page=${data.pagination.currentPage - 1}${numImageParam}` : null;
-    nextPage = data.pagination.currentPage < data.pagination.pageCount ? `${url.pathname}?page=${data.pagination.currentPage + 1}${numImageParam}` : null;
-    firstPage = `${url.pathname}?page=1${numImageParam}`;
-    lastPage = `${url.pathname}?page=${data.pagination.pageCount}${numImageParam}`;
-};
-
-onMount(() => {
-    calculatePages();
-});
-
-beforeUpdate(() => {
-    calculatePages();
-});
 
 </script>
 
@@ -73,16 +39,7 @@ beforeUpdate(() => {
         <TagSection editable={false}/>
     </SideBar>
     <div class = "imageBrowser">
-        <div class = "pgnumCont">
-            <div class="prevPageCont">
-                <a href={firstPage} class="pageNum">&lt&lt/</a>
-                <a href={prevPage} class="pageNum">&lt&lt&lt</a>
-            </div>
-            <div class="nextPageCont">
-                <a href={nextPage} class="pageNum">&gt&gt&gt</a>
-                <a href={lastPage} class="pageNum">\&gt&gt</a>
-            </div>
-        </div>
+        <PageNav currentPage={data.pagination.currentPage} totalPages = {data.pagination.total} baseUrl = {baseUrl}/>
         <span> Size:
             <select bind:value={$improvImageSize} >
                 {#each sizes as size}
@@ -117,16 +74,7 @@ beforeUpdate(() => {
             {/each}
         {/if}
         </div>
-        <div class = "pgnumCont">
-            <div class="prevPageCont">
-                <a href={firstPage} class="pageNum">&lt&lt/</a>
-                <a href={nextPage} class="pageNum">&lt&lt&lt</a>
-            </div>
-            <div class="nextPageCont">
-                <a href={prevPage} class="pageNum">&gt&gt&gt</a>
-                <a href={lastPage} class="pageNum">\&gt&gt</a>
-            </div>
-        </div>
+        <PageNav currentPage={data.pagination.currentPage} totalPages = {data.pagination.total} baseUrl = {baseUrl}/>
     </div>
     <div class = "footerSpacer"></div>
 </div>
