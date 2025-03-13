@@ -46,6 +46,7 @@ export const load = (async ({ url, locals }) => {
 
     if (imageId) {
         const image = await ImageModel.getImageById(imageId);
+        console.log(image);
         if (image) {
             let docsBeforeImage = 0;
 
@@ -57,6 +58,8 @@ export const load = (async ({ url, locals }) => {
 
             pageNum = Math.floor(docsBeforeImage / lengthNum) + 1;
             skip = (pageNum - 1) * lengthNum;
+            console.log("hi");
+            redirect(307, '/login');
         }
     }
 
@@ -64,6 +67,8 @@ export const load = (async ({ url, locals }) => {
     
     const totalCount = await imageController.getImageCount();
     const numPages = Math.ceil(totalCount / lengthNum);
+
+    
 
     return {
         status: 200,
