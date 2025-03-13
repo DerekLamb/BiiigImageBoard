@@ -16,8 +16,6 @@
     let lastPage: string | null = null;
 
 
-
-
     function buildUrl(page: number) {
 
         if(!browser){
@@ -27,10 +25,10 @@
 
         const url = new URL(baseUrl, window.location.origin);
         
-
         for (const [key, value] of Object.entries(queryParams)){ //curious how to set type here... TODO 
             url.searchParams.set(key, value);
         }
+
         url.searchParams.set('page', page.toString())
         return url.toString();
     };
@@ -64,7 +62,7 @@
     <a href={currentPage > 1 ? prevPage : null} class="pagination-item" aria-label="Previous page" aria-disabled={ currentPage <= 1} >
         &lsaquo;
     </a> 
-    <div class="page-nav-info">
+    <div>
         <span class="page-nav-info">Page {currentPage} / {totalPages}</span>
     </div>
 
@@ -103,6 +101,13 @@
 
     .right {
         text-align: right;
+    }
+
+    span{
+        font-family: 'Montserrat', sans-serif;
+        font-size: 20px;
+        margin: 5px 10px;
+        color: #5b5b5b;
     }
 
 </style>
