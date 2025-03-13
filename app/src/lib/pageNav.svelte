@@ -1,13 +1,13 @@
 <script lang="ts">
     import { browser } from "$app/environment"
-    import { onMount, afterUpdate, beforeUpdate } from "svelte"
-	import Page from "../routes/+page.svelte";
+    import { onMount, beforeUpdate } from "svelte"
 
     export let currentPage = 1;
     export let totalPages = 1;
     export let baseUrl  = '';
     export let queryParams = {};
     export let size = "unused?"
+    export let pageText = "Page";
 
 
     let nextPage: string | null = null;
@@ -56,20 +56,17 @@
 
 
 <nav class="pagination {size}" aria-label="Pagination">
-    <a href={firstPage} class="pagination-item" aria-label="First page">
+    <a href={currentPage <= 1 ? null : firstPage} class="pagination-item" aria-label="First page" aria-disabled={ currentPage <= 1}>
         &laquo;
     </a>
     <a href={currentPage > 1 ? prevPage : null} class="pagination-item" aria-label="Previous page" aria-disabled={ currentPage <= 1} >
         &lsaquo;
     </a> 
-    <div>
-        <span class="page-nav-info">Page {currentPage} / {totalPages}</span>
-    </div>
-
+        <span class="page-nav-info">{pageText} {currentPage} / {totalPages}</span>
     <a href={currentPage < totalPages ? nextPage : null} class="pagination-item right" aria-label="Next page" aria-disabled = { currentPage >= totalPages} >
         &rsaquo;
     </a>
-    <a href={lastPage} class="pagination-item right" aria-label="Last page">
+    <a href={currentPage >= totalPages ? null : lastPage} class="pagination-item right" aria-label="Last page">
         &raquo;
     </a>
 </nav>
@@ -80,6 +77,7 @@
         width: 100%;
         display: flex;
         justify-content: space-around;
+        align-items: center;
     }
 
     .pagination-item{
@@ -108,6 +106,7 @@
         font-size: 20px;
         margin: 5px 10px;
         color: #5b5b5b;
+        width: 100%;
     }
 
 </style>
