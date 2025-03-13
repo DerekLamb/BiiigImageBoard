@@ -3,6 +3,7 @@ import SearchBar from "$lib/searchBar.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import Image from "$lib/image.svelte";
+import ContentNav from "$lib/contentNav.svelte";
 
 
 
@@ -36,25 +37,9 @@ function copyItems() {
             leftLink = {data.adjacents?.next?.uploadDate}
             rightLink = {data.adjacents?.prev?.uploadDate}>
         </Image>
-        <div class="pageNumContainer">
-            {#if data.adjacents?.next != null}
-            <a href="/posts/{data.adjacents.next.uploadDate}" class="pageNum" id="prev">&lt&lt&lt</a>
-            {/if}
-            <span id="imageName">{data.image?.originalName}</span>
-            {#if data.adjacents?.prev != null}
-            <a href="/posts/{data.adjacents.prev.uploadDate}" class="pageNum" id ="next">&gt&gt&gt</a>
-            {/if}
-        </div>
-        {#if data.image?.group[0]}        
-        <div class="groupNumContainer">
-            {#if data.adjacents?.next != null}
-            <a href="/posts/{data.adjacents.next.uploadDate}" class="pageNum" id="prev">&lt&lt&lt</a>
-            {/if}
-            <span id="imageName">{data.image?.group}</span>
-            {#if data.adjacents?.prev != null}
-            <a href="/posts/{data.adjacents.prev.uploadDate}" class="pageNum" id ="next">&gt&gt&gt</a>
-            {/if}
-        </div>
+        <ContentNav baseUrl={"/posts/"} contentName={data.image?.originalName} prevId={data.adjacents?.prev?.uploadDate} nextId={data.adjacents?.next?.uploadDate} />
+        {#if false}
+        <ContentNav baseUrl={"/posts"} contentName={data.image.group} prevId={data.adjacents.next.uploadDate} nextId={data.adjacents?.next?.uploadDate}/>    
         {/if}
         <div class="pageNumContainer" id="mobileButton">
             <form class="mobileButton" method="get" action="/posts">
@@ -148,6 +133,12 @@ function copyItems() {
 
 
     }
+    
+    @media (max-width: 768px){
+        .pageNumContainer{
+            margin: 2px 12px;
+        }
+    }
 
     .imageWindow{
         background-color: #9ac7d6;
@@ -158,14 +149,6 @@ function copyItems() {
         flex-wrap:wrap;
         flex-grow: 1;
     }
-
-    .pageNum{
-        font-size: 2rem;
-        text-decoration: none;
-        margin: .2em;
-        color: #5b5b5b;
-    }
-
     .pageNumContainer{
         margin: 2 12px;
         width: 100%;
@@ -176,36 +159,7 @@ function copyItems() {
             "prev title next"
     }
 
-    #prev {
-        justify-self: start;
-    }
-    #next {
-        justify-self: end;
-    }
 
-    #imageName {
-        justify-self:center
-    }
-
-    .groupNumContainer{
-        margin: 2 12px;
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1fr, 1fr, 1fr;
-        grid-template-rows: auto;
-        grid-template-areas:
-            "prev title next"
-    }
-
-    @media (max-width: 768px){
-        .pageNum{
-            font-size: 1.5rem;
-            margin: 0;
-        }
-        .pageNumContainer{
-            margin: 2px 12px;
-        }
-    }
 
     span {
         padding: 8px;

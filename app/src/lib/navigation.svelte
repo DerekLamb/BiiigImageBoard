@@ -1,6 +1,5 @@
 <script>
     import { menuOpen } from "$lib/stores/searchStore";
-    import { onMount } from "svelte";
     import SlideMenu from "$lib/svelteComponents/slideMenu.svelte";
 
     function toggleMenu() {
@@ -19,6 +18,7 @@
         <a href="/login">Login</a>
     </div>
 </div>
+
 <!-- Menu Button for Mobile -->
 <button class="menu-button" class:open={$menuOpen} on:click={toggleMenu}>
     <i></i>
@@ -41,6 +41,10 @@
         .navbar {
             display: flex;
         }
+
+        .navContainer {
+            display: flex;
+        }
     
         .menu-button {
             display: none;
@@ -51,19 +55,21 @@
         .menu-button {
             display: block;
         }
-        .navContainer {
+        .navbar {
             display: none;
+        }
+
+        .navContainer {
+            display:none;
         }
 
     }
     .navContainer {
-        display: flex;
         justify-content: space-between;
         padding: 1rem;
     }
 
     .navbar {
-        display:flex;
         align-self: stretch;
     }
 
