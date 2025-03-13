@@ -27,7 +27,7 @@ import SearchBar from "$lib/searchBar.svelte";
 
 export let data;
 
-let baseUrl: string = "/";
+let baseUrl: string = "/posts";
 const sizes = [100, 110, 150, 200, 300];
 const numImages = [24, 32, 48, 60, 72, 84, 96];
 
@@ -36,7 +36,7 @@ const numImages = [24, 32, 48, 60, 72, 84, 96];
 <div class = midContainer>
     <SideBar>
         <SearchBar />
-        <TagSection editable={false}/>
+        <TagSection imageTags={[]} editable={false}/>
     </SideBar>
     <div class = "imageBrowser">
         <PageNav currentPage={data.pagination.currentPage} totalPages = {data.pagination.total} baseUrl = {baseUrl}/>
@@ -116,30 +116,6 @@ const numImages = [24, 32, 48, 60, 72, 84, 96];
         position: relative;
         width: 100%;
         overflow:hidden;
-    }
-
-    .pgnumCont{
-        margin: 12px;
-        width: 100%;
-        display: flex;
-        justify-content: space-around;
-    }
-
-    .pageNum{
-        width: 100%;
-        font-size: 2rem;
-        text-decoration: none;
-        margin: .2em;
-        color: #808080;
-    }
-
-    .pageNum:link, .pageNum:visited{
-        color: #345D7E;
-    }
-
-    .pageNum:hover{
-        color: #7bb7a2;
-        transition:.2s;
     }
 
     span{

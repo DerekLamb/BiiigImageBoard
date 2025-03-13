@@ -1,5 +1,7 @@
 <script lang="ts">
     import { browser } from "$app/environment"
+    import { onMount, afterUpdate, beforeUpdate } from "svelte"
+	import Page from "../routes/+page.svelte";
 
     export let currentPage = 1;
     export let totalPages = 1;
@@ -44,35 +46,45 @@
     }
 
 
+    onMount(() => {
+        updateUrls();
+    });
+
+    beforeUpdate(() => {
+        updateUrls();
+    });
+
 </script>
 
 
 <nav class="pagination {size}" aria-label="Pagination">
     <a href={firstPage} class="pagination-item" aria-label="First page">
-        $laquo;
+        &laquo;
     </a>
     <a href={currentPage > 1 ? prevPage : null} class="pagination-item" aria-label="Previous page" aria-disabled={ currentPage <= 1} >
-        $lsaquo;
+        &lsaquo;
     </a> 
-    <span class="page-nav-info">Page {currentPage} / {totalPages}</span>
+    <div class="page-nav-info">
+        <span class="page-nav-info">Page {currentPage} / {totalPages}</span>
+    </div>
 
-    <a href={currentPage < totalPages ? nextPage : null} class="pagination-item" aria-label="Next page" aria-disabled = { currentPage >= totalPages} >
-        $rsaquo;
+    <a href={currentPage < totalPages ? nextPage : null} class="pagination-item right" aria-label="Next page" aria-disabled = { currentPage >= totalPages} >
+        &rsaquo;
     </a>
-    <a href={lastPage} class="pagination-item" aria-label="Last page">
-        $raquo;
+    <a href={lastPage} class="pagination-item right" aria-label="Last page">
+        &raquo;
     </a>
 </nav>
 
 <style>
-    .pgnumCont{
+    .pagination{
         margin: 12px;
         width: 100%;
         display: flex;
         justify-content: space-around;
     }
 
-    .pageNum{
+    .pagination-item{
         width: 100%;
         font-size: 2rem;
         text-decoration: none;
@@ -88,4 +100,9 @@
         color: #7bb7a2;
         transition:.2s;
     }
+
+    .right {
+        text-align: right;
+    }
+
 </style>
