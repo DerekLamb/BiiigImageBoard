@@ -17,12 +17,10 @@ export const load = (async ({ url, locals }) => {
     const notag: string = searchParams.get('notag') as string || '';
     const currPage = Math.max(pageNum, 1);
 
-
     let lengthNum = parseInt(searchParams.get('len') as string);
     if (isNaN(lengthNum) || lengthNum < 1 || lengthNum > 100) {
         lengthNum = 24; 
     }
-    
 
     let filter: any = {};
     if (searchTerm.length > 0) {
@@ -46,6 +44,7 @@ export const load = (async ({ url, locals }) => {
 
     if (imageId) {
         const image = await ImageModel.getImageById(imageId);
+        console.log(image);
         if (image) {
             let docsBeforeImage = 0;
 
@@ -64,6 +63,8 @@ export const load = (async ({ url, locals }) => {
     
     const totalCount = await imageController.getImageCount();
     const numPages = Math.ceil(totalCount / lengthNum);
+
+    
 
     return {
         status: 200,
