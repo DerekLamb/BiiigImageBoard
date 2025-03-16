@@ -88,5 +88,9 @@
         .flexContainer{
             margin: 0 0;
         }
+
+        .logo {
+            display:none;
+        }
     }
 </style>
