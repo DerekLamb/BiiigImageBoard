@@ -99,20 +99,6 @@ function copyItems() {
             padding: 10px;
         }
 
-    #mobileButton>form{
-        height:100%;
-    }
-
-    .returnBtn {
-        background: none;
-        border: none;
-        outline: none;
-        width: 100%;
-        height: 100%;
-        background: #f7d1d7;
-        border-radius:25px;
-    }
-
     @media (min-width:960px) {
         .midContainer{
             grid-template-columns: 200px 1fr;
