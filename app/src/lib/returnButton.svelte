@@ -1,25 +1,33 @@
 <script lang="ts">
-export let contentId = "";
-</script>
+	import { goto } from "$app/navigation";
 
-<form method="get" action="/posts">
-    <button type="submit" class="returnBtn">
+export let contentId = "";
+
+function returnToPosts(){
+    goto(`/posts?imageId=${contentId}`)
+}
+
+</script>
+    <button type="submit" class="returnBtn" on:click={returnToPosts}>
         <span>Return to posts</span>
     </button>
-    <input type="hidden" name="imageId" value="{contentId}">
-</form>
+    <input type="hidden" name="contentId" value="{contentId}">
 
 <style>
 
     .returnBtn {
-        background: none;
         border: none;
         outline: none;
         width: 100%;
         height: 100%;
         background: #f7d1d7;
         border-radius:25px;
+        transition: background-color 0.2s;
     }
+
+    .returnBtn:hover {
+    background-color: #9adfa0;
+  }
 
     span{
         font-family: 'Montserrat', sans-serif;

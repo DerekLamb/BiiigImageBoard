@@ -17,12 +17,10 @@ export const load = (async ({ url, locals }) => {
     const notag: string = searchParams.get('notag') as string || '';
     const currPage = Math.max(pageNum, 1);
 
-
     let lengthNum = parseInt(searchParams.get('len') as string);
     if (isNaN(lengthNum) || lengthNum < 1 || lengthNum > 100) {
         lengthNum = 24; 
     }
-    
 
     let filter: any = {};
     if (searchTerm.length > 0) {
@@ -58,8 +56,6 @@ export const load = (async ({ url, locals }) => {
 
             pageNum = Math.floor(docsBeforeImage / lengthNum) + 1;
             skip = (pageNum - 1) * lengthNum;
-            console.log("hi");
-            redirect(307, '/login');
         }
     }
 
