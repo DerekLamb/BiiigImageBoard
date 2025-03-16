@@ -14,7 +14,7 @@ interface dbDocument extends Document {
 export const databaseDocUtil = {
 
     convertIdToString<T>( doc: dbDocument ): appDocument {
-        const { _id, ...rest } = doc;
+        const { _id,  ...rest } = doc;
 
         if( !_id ) {
             return { 
