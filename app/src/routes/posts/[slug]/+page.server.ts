@@ -11,6 +11,12 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     console.log( typeof params.slug )
     const image = await imageController.getImageByTimestamp(params.slug);
     
+    const safeImage = {
+        group: [],
+        tags: [],
+        ...image
+    }
+    
     if(!image){
         return{
             status: 404,
@@ -21,7 +27,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
     return{
         status: 200,
-        image: image,
+        image: safeImage,
         adjacents: adjacents
     }
 }

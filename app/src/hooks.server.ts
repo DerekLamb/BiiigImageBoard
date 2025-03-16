@@ -26,7 +26,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         const sessionCookie = lucia.createSessionCookie(session.id);
         
         event.cookies.set(sessionCookie.name, sessionCookie.value, {
-            path: ".",
+            path: ".", //TODO add way to have specific path based on environment variables 
             ...sessionCookie.attributes
         })
     }	
