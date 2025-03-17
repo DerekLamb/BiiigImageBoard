@@ -79,8 +79,8 @@ export const ImageModel = {
     },
 
     async getAdjacents(key: keyof AppImageData, value: string | string[] | string [][],) { // CAUTION, this requires an index on the used key field for results to be consistent and performant
-        const prevFilter = { [key]: { $lt: value } };
-        const nextFilter = { [key]: { $gt: value } };
+        const nextFilter = { [key]: { $lt: value } };
+        const prevFilter = { [key]: { $gt: value } };
         
         const prev = await imageColl.findOne(
             prevFilter, 

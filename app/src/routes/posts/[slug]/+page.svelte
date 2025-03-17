@@ -30,8 +30,8 @@ function copyItems() {
 
     <div class="imageWindow">
         <Image src = "../../{data.image?.imagePath}"  
-            leftLink = {data.adjacents?.next?.uploadDate}
-            rightLink = {data.adjacents?.prev?.uploadDate}>
+            leftLink = {data.adjacents?.prev?.uploadDate}
+            rightLink = {data.adjacents?.next?.uploadDate}>
         </Image>
         <ContentNav baseUrl={"/posts/"} contentName={data.image?.originalName} prevId={data.adjacents?.prev?.uploadDate} nextId={data.adjacents?.next?.uploadDate} />
         {#if false}
