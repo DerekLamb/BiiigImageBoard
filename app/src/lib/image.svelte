@@ -1,44 +1,44 @@
 <script>
-    import { createEventDispatcher } from 'svelte';
+import { createEventDispatcher } from 'svelte';
 
-    export let src = '';
-    export let alt = "TestAlt";
-    export let thumbnail = false;
-    export let upScore = -1;
-    export let downScore = -1;
-    export let leftLink = "";
-    export let rightLink = "";
-    export let mainLink = "";
-    export let selectable = false; // Add selectable mode
+export let src = '';
+export let alt = "TestAlt";
+export let thumbnail = false;
+export let upScore = -1;
+export let downScore = -1;
+export let leftLink = "";
+export let rightLink = "";
+export let mainLink = "";
+export let selectable = false; // Add selectable mode
 
-    const dispatch = createEventDispatcher();
+const dispatch = createEventDispatcher();
+
+let imgClass = "full-img"
+if(thumbnail){
+    imgClass="thumbnail";
+}
+
+function handleClick(event) {
+    // If in selectable mode, prevent navigation and dispatch select event
+    if(selectable) {
+        event.preventDefault();
+        dispatch('select', { imageName, src });
+        return;
+    }
     
-    let imgClass = "full-img"
-    if(thumbnail){
-        imgClass="thumbnail";
+    // Normal navigation behavior
+    if(mainLink != "") {
+        window.location.href = mainLink;
+        return;
     }
-
-    function handleClick(event) {
-        // If in selectable mode, prevent navigation and dispatch select event
-        if(selectable) {
-            event.preventDefault();
-            dispatch('select', { imageName, src });
-            return;
-        }
-        
-        // Normal navigation behavior
-        if(mainLink != "") {
-            window.location.href = mainLink;
-            return;
-        }
-        const bounds = event.target.getBoundingClientRect();
-        const x = event.clientX - bounds.left;
-        if (x < bounds.width / 2) {
-            window.location.href = leftLink; // Navigate to left link
-        } else {
-            window.location.href = rightLink; // Navigate to right link
-        }
+    const bounds = event.target.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    if (x < bounds.width / 2) {
+        window.location.href = leftLink; // Navigate to left link
+    } else {
+        window.location.href = rightLink; // Navigate to right link
     }
+}
 
 </script>
 
