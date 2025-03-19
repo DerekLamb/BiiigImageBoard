@@ -10,7 +10,7 @@ export let downScore = -1;
 export let leftLink = "";
 export let rightLink = "";
 export let mainLink = "";
-export let selectable = false; // Add selectable mode
+//export let selectable = false; // Add selectable mode
 
 const dispatch = createEventDispatcher();
 
