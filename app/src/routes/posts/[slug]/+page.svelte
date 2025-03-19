@@ -34,8 +34,6 @@ function copyItems() {
         <TagSection editable = {true} imageID = {data.image?._id} imageTags = {tags}></TagSection>
     </SideBar>
     <div class="imageWindow">
-        <ContentNav baseUrl={"/posts/"} contentName={data.image?.originalName} prevId={data.adjacents?.prev?.uploadDate} nextId={data.adjacents?.next?.uploadDate} />
-
         <Image src = "../../{data.image?.imagePath}"  
             leftLink = {data.adjacents?.prev?.uploadDate}
             rightLink = {data.adjacents?.next?.uploadDate}>
