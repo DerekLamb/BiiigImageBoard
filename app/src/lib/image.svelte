@@ -1,4 +1,5 @@
 <script>
+	import { goto } from '$app/navigation';
 import { createEventDispatcher } from 'svelte';
 
 export let src = '';
@@ -20,33 +21,38 @@ if(thumbnail){
 
 function handleClick(event) {
     // If in selectable mode, prevent navigation and dispatch select event
-    if(selectable) {
-        event.preventDefault();
-        dispatch('select', { imageName, src });
-        return;
-    }
+    // if(selectable) {
+    //     event.preventDefault();
+    //     dispatch('select', { imageName, src });
+    //     return;
+    // }
     
     // Normal navigation behavior
     if(mainLink != "") {
-        window.location.href = mainLink;
+        goto(mainLink);
         return;
     }
+
     const bounds = event.target.getBoundingClientRect();
     const x = event.clientX - bounds.left;
-    if (x < bounds.width / 2) {
-        window.location.href = leftLink; // Navigate to left link
-    } else {
-        window.location.href = rightLink; // Navigate to right link
-    }
+    const targetLink = x < bounds.width/2 ? leftLink : rightLink
+    if(targetLink) goto(targetLink, {noScroll: true})
+    return
+}
+
+function handleKey(event) {
+    //eventually bubble up for keyboard nav
+    console.log(event.key);
+    return
 }
 
 </script>
 
 <div class="container">
-    
-    <img class="{imgClass}" src={src} alt={alt} on:click={handleClick}/>
-    {#if upScore == -1 && downScore == -1}
-    {:else}
+    <a href={mainLink || "#"}>
+        <img class="{imgClass}" src={src} alt={alt} on:click|preventDefault={handleClick} on:keydown={handleKey}/>
+    </a>
+    {#if upScore != -1 && downScore != -1}
             <span class = "score">{upScore} &#x1F446 {downScore} &#x1F447 </span>
     {/if}
     
