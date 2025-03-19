@@ -5,20 +5,26 @@ import SideBar from "$lib/sideBar.svelte";
 import Image from "$lib/image.svelte";
 import ContentNav from "$lib/contentNav.svelte";
 import ReturnButton from '$lib/returnButton.svelte';
-
+import { onDestroy, onMount, tick } from "svelte";
+import { writable } from "svelte/store";
 
 
 /** @type {import('./$types').PageData} */ 
 export let data;
 let tags = data.image?.tags ?? [];
 let embPrompt = data.image?.embPrompt ?? [];
+let imageYScroll = 0;
 
 function copyItems() {
       const copyText = embPrompt.join(",");
       navigator.clipboard.writeText(copyText);
     }
 
+
+
 </script>
+
+<svelte:window bind:scrollY={imageYScroll} />
 
 <div class = midContainer>
 
@@ -27,11 +33,12 @@ function copyItems() {
         <ReturnButton contentId = {data.image?._id}/>
         <TagSection editable = {true} imageID = {data.image?._id} imageTags = {tags}></TagSection>
     </SideBar>
-
     <div class="imageWindow">
+        <ContentNav baseUrl={"/posts/"} contentName={data.image?.originalName} prevId={data.adjacents?.prev?.uploadDate} nextId={data.adjacents?.next?.uploadDate} />
+
         <Image src = "../../{data.image?.imagePath}"  
-            leftLink = {data.adjacents?.next?.uploadDate}
-            rightLink = {data.adjacents?.prev?.uploadDate}>
+            leftLink = {data.adjacents?.prev?.uploadDate}
+            rightLink = {data.adjacents?.next?.uploadDate}>
         </Image>
         <ContentNav baseUrl={"/posts/"} contentName={data.image?.originalName} prevId={data.adjacents?.prev?.uploadDate} nextId={data.adjacents?.next?.uploadDate} />
         {#if false}

@@ -13,6 +13,8 @@
 /app/node_modules/
 /app/.svelte-kit/
 /app/build/
+/images
+/thumb
 
 # Config and environment files
 app/.env

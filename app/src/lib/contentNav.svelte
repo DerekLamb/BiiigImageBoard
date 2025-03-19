@@ -46,9 +46,9 @@ onMount(() => {
 
 
 <div class="pagination">
-    <a href="{prevId ? prevUrl : null}" class="pagination-item" id="prev">&lt&lt&lt</a>
+    <a href="{prevId ? prevUrl : null}" class="pagination-item" id="prev" data-sveltekit-noscroll>&lt&lt&lt</a>
     <span id="contentName">{contentName}</span>
-    <a href="{nextId ? nextUrl : null}" class="pagination-item right" id ="next">&gt&gt&gt</a>
+    <a href="{nextId ? nextUrl : null}" class="pagination-item right" id ="next" data-sveltekit-noscroll>&gt&gt&gt</a>
 </div>
 
 <style>
