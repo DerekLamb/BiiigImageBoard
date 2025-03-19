@@ -84,13 +84,13 @@ export const ImageModel = {
         
         const prev = await imageColl.findOne(
             prevFilter, 
-            { sort: { [key]: -1 } }) as AppImageData;
+            { sort: { [key]: 1 } }) as AppImageData;
 
         const prevImage = prev ?? null;
 
         const next = await imageColl.findOne(
             nextFilter, 
-            { sort: { [key]: 1 } }) as AppImageData;
+            { sort: { [key]: -1 } }) as AppImageData;
 
         const nextImage = next ?? null;
         return { prev: prevImage, next: nextImage};
