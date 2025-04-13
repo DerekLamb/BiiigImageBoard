@@ -5,9 +5,6 @@ import SideBar from "$lib/sideBar.svelte";
 import Image from "$lib/image.svelte";
 import ContentNav from "$lib/contentNav.svelte";
 import ReturnButton from '$lib/returnButton.svelte';
-import { onDestroy, onMount, tick } from "svelte";
-import { writable } from "svelte/store";
-
 
 /** @type {import('./$types').PageData} */ 
 export let data;
@@ -133,6 +130,7 @@ function copyItems() {
         flex-wrap:wrap;
         flex-grow: 1;
     }
+
     .pageNumContainer{
         margin: 2 12px;
         width: 100%;
@@ -142,8 +140,6 @@ function copyItems() {
         grid-template-areas:
             "prev title next"
     }
-
-
 
     span {
         padding: 8px;

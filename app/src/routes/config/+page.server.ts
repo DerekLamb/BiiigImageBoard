@@ -1,28 +1,25 @@
-import fs from "fs/promises";
 import { redirect } from "@sveltejs/kit";
-import { fileUtilService, imageRepo, type ImageData } from "$lib/imageService"
 import ImageController from "$lib/server/controllers/imageController.js";
-import { ObjectId } from "mongodb";
 
 /** @type {import('./$types').Actions} */
 
 
-export const load = async (event) => {
-    if(!event.locals.user){
+export const load = async ({ locals }) => {
+    if(!locals.user){
         redirect(307, '/login');
     }
-    if(event.locals.user.username !== "admin"){
+    
+    if(locals.user.username !== "admin"){
         // handle here if no admin TODO
         redirect(307, '/login');
     }
     return{
-        username: event.locals.user.username
+        username: locals.user.username
     }
 }
 
 export const actions = {
-
-  default: async ({ locals , request }) => {
+  default: async ({ locals }) => {
 
     if ( !locals.user ){
         redirect(307, '/login');
@@ -69,7 +66,7 @@ export const actions = {
         // }
         
     } 
-    catch (error) {
+    catch ( error ) {
         console.error(error);
         return {
             status: 500,

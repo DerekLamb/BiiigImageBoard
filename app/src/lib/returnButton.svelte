@@ -19,14 +19,14 @@ function returnToPosts(){
         border: none;
         outline: none;
         width: 100%;
-        height: 100%;
+        height: 50px;
         background: #f7d1d7;
         border-radius:25px;
         transition: background-color 0.2s;
     }
 
     .returnBtn:hover {
-    background-color: #9adfa0;
+    background-color: #ffffff;
   }
 
     span{

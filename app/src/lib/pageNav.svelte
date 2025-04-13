@@ -6,6 +6,7 @@
     export let totalPages = 1;
     export let baseUrl  = '';
     export let queryParams = {};
+    export let length = 24;
     export let size = "unused?"
     export let pageText = "Page";
 
@@ -30,6 +31,7 @@
         }
 
         url.searchParams.set('page', page.toString())
+        url.searchParams.set('len', length.toString());
         return url.toString();
     };
 
