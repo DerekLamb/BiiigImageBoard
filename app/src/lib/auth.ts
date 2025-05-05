@@ -3,7 +3,7 @@ import { MongodbAdapter } from '@lucia-auth/adapter-mongodb';
 import { db } from '$lib/db.server';
 import type { Collection } from 'mongodb';
 import { Argon2id } from 'oslo/password';
-
+import { env } from '$env/dynamic/private';
 
 export const User = db.collection('users') as Collection<UserDoc>;
 export const Session = db.collection('sessions') as Collection<Session>;
@@ -33,6 +33,7 @@ interface Session {
 
 export const lucia = new Lucia( adapter, {
     sessionCookie: {
+        name:  env.sessionCookieName || "auth_sesison" , //add ENV change 
         attributes: {
             secure: true // need to add dev env check TODO
         }

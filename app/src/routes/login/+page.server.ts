@@ -37,7 +37,6 @@ export const actions = {
             // add timeout in future for bruteforce failout
             new Argon2id().hash(password); //Trash hash to prevent timing attacks
             return fail(400, { error: "Incorrect username or password" });
-            console.log("ghere");
         }
 
         const userDoc: UserDoc = {
