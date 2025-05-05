@@ -108,7 +108,7 @@
             color: #ffffff;
         }
         100% {
-            color: #8dd4b8
+            color: #8dd4b8;
         }
     }
 
