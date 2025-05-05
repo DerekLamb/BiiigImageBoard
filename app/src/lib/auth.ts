@@ -33,6 +33,10 @@ interface Session {
 
 export const lucia = new Lucia( adapter, {
     sessionCookie: {
+<<<<<<< Updated upstream
+=======
+        name:  env.SESS_COOKIE_NAME || "auth_sesison" , //add ENV change 
+>>>>>>> Stashed changes
         attributes: {
             secure: true // need to add dev env check TODO
         }
