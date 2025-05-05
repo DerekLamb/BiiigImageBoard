@@ -39,7 +39,7 @@ const numImages = [24, 32, 48, 60, 72, 84, 96];
         <TagSection imageTags={[]} editable={false}/>
     </SideBar>
     <div class = "imageBrowser">
-        <PageNav currentPage={data.pagination.currentPage} totalPages = {data.pagination.pageCount} baseUrl = {baseUrl}/>
+        <PageNav currentPage={data.pagination.currentPage} totalPages = {data.pagination.pageCount} baseUrl = {baseUrl} length = {$imageCount}/>
         <span> Size:
             <select bind:value={$improvImageSize} >
                 {#each sizes as size}
