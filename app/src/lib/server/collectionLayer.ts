@@ -51,13 +51,9 @@ export const createMongoCollection = (collection: Collection) => {
                 throw new Error("InsertOne operation failed: Document is required");
             }
             
-            try {
                 const mongoDoc = dbUtil.convertStringToId(document);
                 const result = await collection.insertOne(mongoDoc);
                 return result
-            } catch (error: any) {
-                throw new Error(`InsertOne operation failed: ${error.message}`);
-            }
         },
 
         async updateOne(query = {}, update: any | { $set: any }) {

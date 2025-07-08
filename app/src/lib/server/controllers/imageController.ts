@@ -102,10 +102,11 @@ class ImageController{
     }
     
     async newImage(file: imgFile, uniqueID: string){
+        //organize file data 
         let buffer = Buffer.from(await file.arrayBuffer());
         let hash = await FileModel.hashFile(buffer);
         let ext = file.name.split('.').pop();
-        // let uID = uniqueID; 
+        // let uID = uniqueID; not used currently, I like hashing more for some reason
         let newFileName = `${uniqueID}.${ext}`;
 
         const imageDataObj : AppImageData = {
@@ -126,7 +127,8 @@ class ImageController{
             return dbResults;
         } catch (error: any) {
             if (error.code === 11000) {
-              console.error(`Error processing file ${file.name}: MongoServerError: E11000 duplicate key error`);
+              console.warn(`Warning, processing file ${file.name}: MongoServerError: E11000 duplicate key error`);
+              return null;
             } else {
               throw new Error(`Error processing file ${file.name}: ${error}`);
             }
