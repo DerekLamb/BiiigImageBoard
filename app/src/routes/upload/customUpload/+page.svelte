@@ -1,28 +1,29 @@
 <script>
-	import Image from "$lib/image.svelte";
     import AutoTagInput from "$lib/autoTagInput.svelte";
     import Tag from "$lib/tag.svelte";
 
     let files = [];
     let uploadQueue = [];
+    let makeRequests
 
-    function handleFilesChange() {
+
+    function handleFilesChange(event) {
         const newFiles = Array.from(files);
+        console.log(event)
         newFiles.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                uploadQueue.push({
-                    file: file,
-                    name: file.name,
-                    tags: [],
-                    size: file.size,
-                    previewImage: e.target.result,
-                    metadata: { title: '', description: '' }
-                });
-                uploadQueue = uploadQueue.slice();
-            };
-            reader.readAsDataURL(file);
+            console.log(file);
+            uploadQueue.push({
+                file: file,
+                name: file.name,
+                tags: [],
+                size: file.size,
+                previewImage: "umm fix?",
+                metadata: { title: '', description: '' }
+            });
         });
+        uploadQueue = uploadQueue.slice();
+        makeRequests = uploadQueue.map(file => () => fileRequest(file))
+        
     }
 
     function updateMetadata(index, key, value) {
@@ -30,38 +31,48 @@
         uploadQueue = uploadQueue.slice();
     }
 
-    async function submitBatch() {
-        while (uploadQueue.length > 0) {
-            let batch = uploadQueue.splice(0, 20);
-            // Convert batch data to form or JSON as required by your backend
-            // Use fetch or Axios to POST data
-            console.log('Submitting:', batch);  // Placeholder for actual submission TODO!!
-        }
+    const fileRequest = (file) => {
+        let formData = new FormData();
+        formData.append('image', file.file)
+        return fetch('/upload', {
+            method: 'POST',
+            body: formData,
+        })
     }
 
-    function handleKeyDown(event, index) {
-        if (event.key === "Enter") {
-            const newTag = event.target.value.trim().replaceAll(" ", "_");
-            if (newTag !== "") {
-                uploadQueue[index].tags.push(newTag);
-                uploadQueue = uploadQueue.slice();
-                event.target.value = "";  // Clear the input after adding the tag
-            }
-        }
+    let started = 0
+    const results = []
+
+    const recurse = () => {
+        const i = started ++;
+        const makeRequest = makeRequests.shift();
+        return !makeRequest ? null : Promise.allSettled([makeRequest()])
+            .then(result => {
+                console.log(result)
+                results[i] = result[0]
+                return recurse();
+            })
+    };
+
+    const limit = 8
+     
+    const batchFileUpload = () => {
+        Promise.all(Array.from({ length: limit}, recurse))        
     }
+
 </script>
 
 <div>
     <input type="file" multiple bind:files on:change="{handleFilesChange}">
-    <button on:click="{submitBatch}">Upload All</button>
+    <button on:click="{batchFileUpload}">Upload All</button>
     
     {#each uploadQueue as item, index}
         <div class = "uploadContainer">
-            <img src="{item.previewImage}" alt="preview" style="width: 400px; height: auto;">
+            <img src="" alt="preview" style="width: 400px; height: auto;">
             <label for="title">Title:</label>
             <input type="text" id="title" value="{item.name}" on:input="{e => updateMetadata(index, 'title', e.target.value)}">
             <label for="tagBox">Tags:</label>
-            <div id = "tagBox" class="whiteBox">
+            <div id = "tagBox" class="textBox">
                     {#each item.tags as tag, tagIndex}
                         <Tag tag={tag} edit={true} />
                     {/each}
@@ -75,19 +86,21 @@
 
 <style>
     .uploadContainer {
+        background-color: #f8d8dd;
         display: flex;
         align-items:flex-end;
         margin: 10px;
+        border-radius: 10px;
     }
 
-    .whiteBox {
+    .textBox {
         max-width: 700px;
         display:flex;
         flex-wrap:wrap;
         align-items: flex-start;
         background-color: white;
-        border-radius: 5px;
-        padding: 5px;
+        border-radius: 10px;
+        padding: 20px;
         margin: 5px;
     }
 
