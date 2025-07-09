@@ -5,6 +5,7 @@ import SideBar from "$lib/sideBar.svelte";
 import Image from "$lib/image.svelte";
 import ContentNav from "$lib/contentNav.svelte";
 import ReturnButton from '$lib/returnButton.svelte';
+import promptDecode  from '$lib/ExtractPrompt';
 
 /** @type {import('./$types').PageData} */ 
 export let data;
@@ -17,6 +18,11 @@ function copyItems() {
       navigator.clipboard.writeText(copyText);
     }
 
+async function decodePrompt() {
+    let imgBuffer = await fetch(`/${data.image?.imagePath}`);
+
+    console.log(promptDecode(await imgBuffer.arrayBuffer()))
+}
 
 
 </script>
@@ -42,6 +48,7 @@ function copyItems() {
         <div class="pageNumContainer" id="mobileButton">
             <ReturnButton contentId = {data.image?._id}/>
         </div>
+        <button on:click={decodePrompt}>Decode Prompt</button>
         <div class="imageInfo">
             <p><span>Image Name: </span>{data.image?.originalName}</p>
             <p><span>Filename: </span>{data.image?.sanitizedFilename}</p>
@@ -58,6 +65,7 @@ function copyItems() {
                     </p>
                 </div>
                 <button on:click={copyItems}>Copy Prompt</button>
+                <button on:click={decodePrompt}>Decode Prompt</button>
             {/if}
 
             <form method="post" action="?/delete">
