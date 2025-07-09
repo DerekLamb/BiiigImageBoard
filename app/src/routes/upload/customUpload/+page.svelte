@@ -46,6 +46,7 @@
     const recurse = () => {
         const i = started ++;
         const makeRequest = makeRequests.shift();
+        files.shift();
         return !makeRequest ? null : Promise.allSettled([makeRequest()])
             .then(result => {
                 console.log(result)
