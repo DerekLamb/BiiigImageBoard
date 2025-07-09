@@ -68,47 +68,89 @@
     <a href={currentPage < totalPages ? nextPage : null} class="pagination-item right" aria-label="Next page" aria-disabled = { currentPage >= totalPages} >
         &rsaquo;
     </a>
-    <a href={currentPage >= totalPages ? null : lastPage} class="pagination-item right" aria-label="Last page">
+    <a href={currentPage >= totalPages ? null : lastPage} class="pagination-item right" aria-label="Last page" aria-disabled = { currentPage >= totalPages}>
         &raquo;
     </a>
 </nav>
 
 <style>
     .pagination{
-        margin: 12px;
+        margin: 1rem auto;
         width: 100%;
         display: flex;
-        justify-content: space-around;
+        justify-content: space-evenly;
         align-items: center;
     }
 
     .pagination-item{
-        width: 100%;
-        font-size: 2rem;
+        display:inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+        height: 40px;
+        font-size: 1.8rem;
         text-decoration: none;
-        margin: .2em;
+        position: relative;
+        margin: 0 5px;
+        border-radius: 20%;
+        background: white;
         color: #808080;
     }
 
-    .pageNum:link, .pageNum:visited{
-        color: #345D7E;
+    .pagination-item::after {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border: 2px solid transparent;
+        border-radius: 20%;
+        opacity: 0;
+        transition: 
+            opacity 0.3s,
+            border-color 0.3s;
     }
 
-    .pageNum:hover{
-        color: #7bb7a2;
-        transition:.2s;
+    .pagination-item:hover::after,
+    .pagination-item:focus::after {
+        border-color: #7bb7a2;
+        opacity: 1;
+        animation: pulse 1s infinite;
     }
 
-    .right {
-        text-align: right;
+    .pagination-item:active::after {
+        border-color: #4a8c77;
+        animation: none;
     }
 
-    span{
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(123, 183, 162, 0.5); }
+        70% { box-shadow: 0 0 0 7px rgba(123, 183, 162, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(123, 183, 162, 0); }
+    }
+    /* Disabled state */
+        .pagination-item[aria-disabled='true'] {
+        opacity: 0.25;
+        pointer-events: none;
+    }
+
+    .page-nav-info {
         font-family: 'Montserrat', sans-serif;
-        font-size: 20px;
-        margin: 5px 10px;
+        font-size: clamp(16px, 3vw, 20px);
         color: #5b5b5b;
-        width: 100%;
+        padding: 0 10px;
+        text-align: center;
     }
+
+    /* Touch target enhancement */
+    @media (pointer: coarse) {
+        .pagination-item {
+            width: 44px;
+            height: 44px;
+    }
+    }
+
+    .pagination-item:focus:not(:focus-visible) {
+        outline: none;
+    }
+
 
 </style>

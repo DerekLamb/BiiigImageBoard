@@ -1,9 +1,10 @@
 <script>
-    import { menuOpen } from "$lib/stores/searchStore";
     import SlideMenu from "$lib/svelteComponents/slideMenu.svelte";
 
+    let menuOpen = false;
+
     function toggleMenu() {
-        menuOpen.update((state) => !state);
+        menuOpen = !menuOpen;
     }
 
 </script>
@@ -11,16 +12,16 @@
 <!-- Regular Navbar -->
 <div class="navContainer">
     <div class="navbar">
-        <a href="/posts">Posts</a>
-        <a href="/tags">Tags</a>
-        <a href="/upload">Upload</a>
-        <a href="/">Home</a>
-        <a href="/login">Login</a>
+        <a href="/posts" >Posts</a>
+        <a href="/tags" >Tags</a>
+        <a href="/upload" >Upload</a>
+        <a href="/" >Home</a>
+        <a href="/login" >Login</a>
     </div>
 </div>
 
 <!-- Menu Button for Mobile -->
-<button class="menu-button" class:open={$menuOpen} on:click={toggleMenu}>
+<button class="menu-button" class:open={menuOpen} on:click={toggleMenu}>
     <i></i>
     <i></i>
     <i></i>
@@ -28,13 +29,15 @@
 
 <!-- Off-Canvas Menu for Mobile -->
 
-<SlideMenu menuOpen = {$menuOpen}>
-    <li><a href="/posts">Posts</a></li>
-    <li><a href="/tags">Tags</a></li>
-    <li><a href="/upload">Upload</a></li>
-    <li><a href="/">Home</a></li>
-    <li><a href="/login">Login</a></li>
+{#key menuOpen}
+<SlideMenu menuOpen = {menuOpen}>
+    <li><a href="/posts" on:click={toggleMenu}>Posts</a></li>
+    <li><a href="/tags" on:click={toggleMenu}>Tags</a></li>
+    <li><a href="/upload" on:click={toggleMenu}>Upload</a></li>
+    <li><a href="/" on:click={toggleMenu}>Home</a></li>
+    <li><a href="/login" on:click={toggleMenu}>Login</a></li>
 </SlideMenu>
+{/key}
   
 <style>
     @media (min-width: 600px) {
