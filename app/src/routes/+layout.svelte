@@ -42,7 +42,7 @@
         align-items: flex-start;
         margin: 0px 50px;
         width:100%;
-        max-width:1600px;
+        max-width:85%;
     }
 
     .logo{
@@ -67,9 +67,10 @@
         color:#345D7E;
     }
 
-    @media (max-width:1200px) {
+    @media (max-width:1450px) {
         .boxContainer {
             margin: 0;
+            max-width: 100%;
         }
         
         .logo h3 {

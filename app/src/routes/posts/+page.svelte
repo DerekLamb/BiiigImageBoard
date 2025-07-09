@@ -5,6 +5,8 @@ import Image from "$lib/image.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import SearchBar from "$lib/searchBar.svelte";
+import { page } from "$app/stores";
+import { goto } from "$app/navigation";
 
 
 /** @type {import('./$types').PageData} */ 
@@ -28,8 +30,24 @@ import SearchBar from "$lib/searchBar.svelte";
 export let data;
 
 let baseUrl: string = "/posts";
-const sizes = [100, 110, 150, 200, 300];
+const sizes = [ 110, 150, 200, 300, 350];
 const numImages = [24, 32, 48, 60, 72, 84, 96];
+
+const imageCountChange = () => {
+    const numOfImages = (data.pagination.currentPage - 1) * data.pagination.itemsPerPage;
+    const newPage = Math.floor(numOfImages / $imageCount) + 1
+
+    console.log(numOfImages);
+    console.log(newPage);
+
+    const url = new URL($page.url)
+    url.searchParams.set("page", newPage.toString())
+    url.searchParams.set("len", $imageCount.toString())
+    console.log(url);
+    goto(url)
+
+}
+
 
 </script>
 
@@ -48,7 +66,7 @@ const numImages = [24, 32, 48, 60, 72, 84, 96];
             </select>
         </span>
         <span> Length:
-            <select bind:value={$imageCount} >
+            <select bind:value={$imageCount} on:change={imageCountChange} >
                 {#each numImages as num}
                     <option value={num}>{num}</option>
                 {/each}
@@ -81,7 +99,8 @@ const numImages = [24, 32, 48, 60, 72, 84, 96];
 
 <style>
     .midContainer{
-        display:grid;
+        display:flex;
+        flex-wrap: nowrap;
         height:100%;
         align-self: stretch;
     }
@@ -91,10 +110,6 @@ const numImages = [24, 32, 48, 60, 72, 84, 96];
     }
     
     @media (min-width:960px) {
-        .midContainer{
-            grid-template-columns: 1fr 4fr;
-        }
-
         .imageGrid{
             gap:5px;
         }
@@ -108,7 +123,7 @@ const numImages = [24, 32, 48, 60, 72, 84, 96];
     }
     .imageGrid{
         display: grid;
-        gap:10px;
+        gap:5px;
         width: 100%;
     }
 
