@@ -2,7 +2,7 @@
 
 // use this for better implementation https://www.nayuki.io/page/png-file-chunk-inspector TODO
 
-export default function promptDecode(data:Buffer) {
+export default function promptDecode(data: ArrayBuffer) {
     let prompt = '';
     let promptParts = [];
     let posPrompt:string[] = [];
@@ -38,7 +38,7 @@ export default function promptDecode(data:Buffer) {
                     negPrompt = promptParts[1] ? promptParts[1].split(","): []; //checks if there is a negative prompt delimits if so
                     metaPrompt = promptParts[2] ? promptParts[2].split(","): []; //checks if there is a meta prompt delimits if so
                     parsedPrompt = [posPrompt, negPrompt, metaPrompt]
-                    return { prop: name, prompt: parsedPrompt};
+                    return { prop: name, parsedPrompt: parsedPrompt, rawPrompt: prompt };
                 }
             }
         }

@@ -1,7 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import imageController from '$lib/server/controllers/imageController';
 import { ImageModel } from '$lib/server/models/imageModel';
-
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url, locals }) => {
@@ -44,7 +43,6 @@ export const load = (async ({ url, locals }) => {
 
     if (imageId) {
         const image = await ImageModel.getImageById(imageId);
-        console.log(image);
         if (image) {
             let docsBeforeImage = 0;
 
