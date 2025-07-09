@@ -102,11 +102,17 @@ class ImageController{
     }
     
     async newImage(file: imgFile, uniqueID: string){
-        //organize file data 
+        //process image data 
         let buffer = Buffer.from(await file.arrayBuffer());
         let hash = await FileModel.hashFile(buffer);
+
+        if (await ImageModel.uniqueHash(hash) > 0) { // check if duplicate _id: hash; prevents duplicate images from being inserted
+            console.log(`Image already exists. _id:${hash} file.name:${file.name}`)
+            console.log(await ImageModel.uniqueHash(hash)); 
+            return null;
+        }
+
         let ext = file.name.split('.').pop();
-        // let uID = uniqueID; not used currently, I like hashing more for some reason
         let newFileName = `${uniqueID}.${ext}`;
 
         const imageDataObj : AppImageData = {
@@ -125,14 +131,8 @@ class ImageController{
             const dbResults = await this.addImage(imageDataObj, buffer)
             imageService.updateThumbnail(imageDataObj, buffer);
             return dbResults;
-        } catch (error: any) {
-            if (error.code === 11000) {
-              console.warn(`Warning, processing file ${file.name}: MongoServerError: E11000 duplicate key error`);
-              return null;
-            } else {
-              throw new Error(`Error processing file ${file.name}: ${error}`);
-            }
-        }
+        } catch (error: any) {}
+        
     }
 
     async updateAllThumbnails(){

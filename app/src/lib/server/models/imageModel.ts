@@ -78,6 +78,10 @@ export const ImageModel = {
         return await imageColl.countDocuments(countFilter);
     },
 
+    async uniqueHash(id: string){
+        return await imageColl.idExists(id)
+    },
+
     async getAdjacents(key: keyof AppImageData, value: string | string[] | string [][],) { // CAUTION, this requires an index on the used key field for results to be consistent and performant
         const nextFilter = { [key]: { $lt: value } };
         const prevFilter = { [key]: { $gt: value } };
