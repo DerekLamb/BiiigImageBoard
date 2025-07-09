@@ -50,7 +50,6 @@ export const createMongoCollection = (collection: Collection) => {
             if (!document) {
                 throw new Error("InsertOne operation failed: Document is required");
             }
-            
                 const mongoDoc = dbUtil.convertStringToId(document);
                 const result = await collection.insertOne(mongoDoc);
                 return result
@@ -129,6 +128,11 @@ export const createMongoCollection = (collection: Collection) => {
             } catch (error: any) {
                 throw new Error(`Document Count operation failed: ${error.message}`)
             }
-        }
+        },
+
+        async idExists(id:string) {
+            let bsonId = dbUtil.convertStringToId({_id:id});
+            return collection.countDocuments(bsonId, {limit:1})
+        },
     };
 }

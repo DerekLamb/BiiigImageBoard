@@ -1,8 +1,5 @@
 import type { ObjectId } from "mongodb";
 
-
-
-
 interface BaseDoc {
     name: string;
     uploadDate: string,
