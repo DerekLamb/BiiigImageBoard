@@ -41,6 +41,5 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     event.locals.user = user;
     event.locals.session = session;
-    console.log("Session validated");
     return resolve(event);
 }
