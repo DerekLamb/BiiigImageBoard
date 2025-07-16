@@ -3,6 +3,9 @@ import { type AppImageData } from "../models/imageModel"
 import { FileModel } from "../models/fileModel"
 import { imageFileUtil } from "../utility/imageUtil"
 
+import 'fluent-ffmpeg';
+import Ffmpeg from "fluent-ffmpeg";
+
 
 export const imageService = {
     async updateThumbnail(image: AppImageData, buffer?: Buffer , overwrite = false){
@@ -16,12 +19,13 @@ export const imageService = {
                 return false;
             }
         }
+
+        const thumbnailname = `${image.uploadDate}_thmb.webp`;
+        const thumbnailPath = `thumb/${thumbnailname}`;
     
         try{
             buffer = buffer ? buffer : await FileModel.read(image.imagePath);
             const thumbnail = await imageFileUtil.createImageThumbnail(buffer);
-            const thumbnailname = `${image.sanitizedFilename}_thmb.webp`;
-            const thumbnailPath = `thumb/${thumbnailname}`;
             
             await ImageModel.updateImage(image._id, "thumbnailPath", thumbnailPath);
 
@@ -37,5 +41,39 @@ export const imageService = {
         }
 
         return true;
+    },
+
+    async updateVideoThumbnail(imageData: AppImageData, overwrite = false){
+
+        const thumbnailExists = await FileModel.checkExists(imageData.thumbnailPath);
+        const thumbnailname = `${imageData.uploadDate}_thmb.webp`;
+        const thumbnailPath = `thumb/${thumbnailname}`;
+
+        if (thumbnailExists) {
+            if (overwrite) {
+                await FileModel.delete(imageData.thumbnailPath);
+            } else {
+                return false;
+            }
+        }
+
+        try{
+            await new Promise((resolve, reject) => {
+                Ffmpeg(imageData.imagePath)
+                .screenshots({
+                    timestamps: ['10%'],  // Default to 10% timestamp
+                    filename: thumbnailname,
+                    folder: "thumb/",
+                    size: '320x?',      // Maintain aspect ratio
+                })
+                .on('end', resolve)
+                .on('error', reject);
+                ImageModel.updateImage(imageData._id, "thumbnailPath", thumbnailPath);
+            });
+            
+        } catch (error) {
+            await ImageModel.updateImage(imageData._id, "thumbnailPath", '');
+            return false;
+        }
     }
 }

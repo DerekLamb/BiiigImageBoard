@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
         redirect(307, '/login');
     }
     console.log( params.slug );
-    console.log( typeof params.slug )
+    console.log( typeof params.slug );
     const image = await imageController.getImageByTimestamp(params.slug);
     
     const safeImage = {

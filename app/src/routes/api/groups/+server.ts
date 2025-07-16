@@ -1,5 +1,6 @@
 import { json, redirect, error } from '@sveltejs/kit';
 import { groupController } from '$lib/server/controllers/groupController.js';
+import { GroupModel } from '$lib/server/models/groupModel.js';
 
 /**
  * GET /api/groups - Retrieve all groups
@@ -11,31 +12,23 @@ export async function GET({ url, locals }) {
 
     try {
         // Support pagination and filtering
-        const page = Number(url.searchParams.get('page')) || 1;
-        const limit = Number(url.searchParams.get('limit')) || 50;
-        const search = url.searchParams.get('search') || '';
-        const sort = url.searchParams.get('sort') || '';
+        const { searchParams } = url;
+        const pageNum = parseInt(searchParams.get('page') as string) || 1;
+        const limit = parseInt(searchParams.get('limit') as string) || 50;
+        const search = searchParams.get('search') || '';
+        const sort = searchParams.get('sort') || '';
+        const currPage = Math.max(pageNum, 1)
 
-        if (page < 1 || limit < 1 || limit > 100) {
-            throw error(400, {
-                message: 'Invalid pagination parameters'
-            });
-        }
-
-        const groups = await groupController.getGroupPage({
-            page,
-            length: limit,
-            search,
-            sort
-        });
+        const skip = (currPage -1) * limit;
+        const groups = await GroupModel.findGroups({})
 
         const count = await groupController.getGroupCount();
 
         return json({
-            data: groups,
+            groups: groups,
             meta: {
                 total: count,
-                page,
+                currPage,
                 limit,
                 pages: Math.ceil(count / limit)
             }

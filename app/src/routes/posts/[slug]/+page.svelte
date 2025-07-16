@@ -3,6 +3,7 @@ import SearchBar from "$lib/searchBar.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
 import Image from "$lib/image.svelte";
+import Video from "$lib/video.svelte"
 import ContentNav from "$lib/contentNav.svelte";
 import ReturnButton from '$lib/returnButton.svelte';
 import promptDecode  from '$lib/ExtractPrompt';
@@ -37,10 +38,15 @@ async function decodePrompt() {
         <TagSection editable = {true} imageID = {data.image?._id} imageTags = {tags}></TagSection>
     </SideBar>
     <div class="imageWindow">
-        <Image src = "../../{data.image?.imagePath}"  
+        {#if data.image?.type == "video"}
+            <Video src= "../../{data.image?.imagePath}"></Video>
+        {:else}
+            <Image src = "../../{data.image?.imagePath}"  
             leftLink = {data.adjacents?.prev?.uploadDate}
             rightLink = {data.adjacents?.next?.uploadDate}>
-        </Image>
+            </Image>
+        {/if}
+
         <ContentNav baseUrl={"/posts/"} contentName={data.image?.originalName} prevId={data.adjacents?.prev?.uploadDate} nextId={data.adjacents?.next?.uploadDate} />
         {#if false}
         <ContentNav baseUrl={"/posts"} contentName={data.image.group} prevId={data.adjacents.next.uploadDate} nextId={data.adjacents?.next?.uploadDate}/>    

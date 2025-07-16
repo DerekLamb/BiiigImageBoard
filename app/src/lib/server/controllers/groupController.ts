@@ -27,7 +27,7 @@ class GroupController {
         const skip = (params.page - 1) * length;
         const sort = params.sort;
         
-        const Groups = await GroupModel.findGroups(filter, length, skip, sort);
+        const Groups = await GroupModel.findGroups({}, length, skip, sort);
 
         return Groups
     }

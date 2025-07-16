@@ -19,7 +19,7 @@ export interface BaseGroup extends BaseDoc {
 
 
 export interface BaseImage { // should extend BaseDoc
-    type: 'image',
+    type: 'image' | 'video',
     originalName: string;
     sanitizedFilename: string;
     imagePath: string;

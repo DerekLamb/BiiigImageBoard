@@ -111,9 +111,11 @@ class ImageController{
             console.log(await ImageModel.uniqueHash(hash)); 
             return null;
         }
-
-        let ext = file.name.split('.').pop();
+        const supportedVideo = ["mp4", "webm", ]
+        let ext = file.name.split('.').pop() ?? "";
         let newFileName = `${uniqueID}.${ext}`;
+        
+        let type = supportedVideo.includes(ext) ? "video" : "image"
 
         const imageDataObj : AppImageData = {
             _id: hash,
@@ -124,12 +126,19 @@ class ImageController{
             thumbnailPath: "",
             group: [],
             tags: [],
-            type: "image"
+            type: type
         }
 
         try{
             const dbResults = await this.addImage(imageDataObj, buffer)
-            imageService.updateThumbnail(imageDataObj, buffer);
+            
+            if(type === "video"){
+                imageService.updateVideoThumbnail(imageDataObj, buffer);
+            }
+            else{
+                imageService.updateThumbnail(imageDataObj, buffer);
+            }
+
             return dbResults;
         } catch (error: any) {}
         
