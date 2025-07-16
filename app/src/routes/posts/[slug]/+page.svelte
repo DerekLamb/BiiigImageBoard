@@ -39,7 +39,9 @@ async function decodePrompt() {
     </SideBar>
     <div class="imageWindow">
         {#if data.image?.type == "video"}
+            {#key data.image?.imagePath}
             <Video src= "../../{data.image?.imagePath}"></Video>
+            {/key}
         {:else}
             <Image src = "../../{data.image?.imagePath}"  
             leftLink = {data.adjacents?.prev?.uploadDate}
