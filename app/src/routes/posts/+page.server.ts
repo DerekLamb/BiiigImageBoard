@@ -25,6 +25,7 @@ export const load = (async ({ url, locals }) => {
     if (searchTerm.length > 0) {
         filter.tags = { $all: [searchTerm] };
     }
+    
     if (notag.length > 0) {
         
         if (filter.tags) {
