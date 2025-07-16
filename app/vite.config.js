@@ -14,12 +14,6 @@ const config = {
 	],
 	server: {
 		host: true,
-		fs: {
-			allow: [
-				'thumb/',
-				
-			],
-		},
 		proxy:{}, //unsure why but needed for dev https
 	},
 	test: {

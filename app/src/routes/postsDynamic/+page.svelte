@@ -10,14 +10,16 @@
     import Modal from "$lib/svelteComponents/modal.svelte";
     import { improvImageSize, imageCount } from "$lib/stores/searchStore";
     import type { AppContent, AppGroup } from "$lib/customTypes/DocTypes";
+	import { onMount } from "svelte";
 
-    interface DataResponse {
-        documents: AppContent[];
-        currPage: number;
-        pageNum: number;
-    }
+    // interface DataResponse {
+    //     documents: AppContent[];
+    //     currPage: number;
+    //     pageNum: number;
+    // }
 
-    export let data : DataResponse;
+    export let data;
+    let groups = [];
 
     const sizes = [100, 110, 150, 200, 300];
     const numImages = [24, 32, 48, 60, 72, 84, 96];
@@ -28,28 +30,31 @@
     let modalShow = false;
     let draggable = false;
     let selectedGroupId = "";
-    let groups = [];
+    
     let showAddToGroupModal = false;
     let groupAddMode = false;
     let selectedImages = new Set();
     let newGroupName = "";
     let createNewGroup = false;
 
+        // Call fetchGroups on component mount
+    onMount(() => {fetchGroups()});
+
     // Fetch available groups for "Add to Group" functionality
     const fetchGroups = async () => {
         try {
-            const response = await fetch('api/groups');
-            const data = await response.json();
-            if (data.success && data.groups) {
-                groups = await data.groups;
+            const response = await fetch('/api/groups');
+            const json = await response.json();
+            if (json.groups) {
+                groups = await json.groups;
             }
         } catch (error) {
             console.error("Error fetching groups:", error);
         }
     };
 
-    // Call fetchGroups on component mount
-    fetchGroups();
+
+    
 
 
     const toggleGroupAddMode = () => {
@@ -128,6 +133,7 @@
     }
 
     const createGroup = async () => {
+
         if (selectedImages.size === 0) {
             alert("Please select at least one image");
             return;
@@ -254,6 +260,9 @@
                     <span class="selectedCount">{selectedImages.size} selected</span>
                     <button class="addToGroupBtn" on:click={toggleAddToGroupModal} disabled={selectedImages.size === 0}>
                         Add to Group
+                    </button>
+                    <button class="deleteBtn" on:click={handleBulkDelete} disabled={selectedImages.size === 0}>
+                        Delete Selected
                     </button>
                 </div>
             {/if}
