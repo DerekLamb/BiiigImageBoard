@@ -19,7 +19,7 @@ export async function GET ({ params, locals}){
         console.time(imageName);
         const imageBuffer = await fileController.getThumbnailFile(params.imageName);
         console.timeEnd(imageName);
-        const imageType = path.extname(params.imageName).substring(1); // need to build a better file type system
+        const imageType = path.extname(params.imageName).substring(1); // need to build a better file typing system
         return new Response(imageBuffer, {
             headers: {
                 'Content-Type': `image/${imageType}`,
