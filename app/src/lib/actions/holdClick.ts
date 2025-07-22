@@ -1,8 +1,15 @@
-export function holdClick(node: HTMLElement, { holdTime = 1000, onHold , onClick } = {}) {
+
+
+interface HoldClickOptions {
+    holdTime?: number,
+    onHold?: Function,
+    onClick?: Function
+}
+
+export function holdClick(node: HTMLElement, { holdTime = 1000, onHold , onClick }: HoldClickOptions = {}) {
     let pressTimer: ReturnType<typeof setTimeout> | null = null
     let isHoldTriggered = false;
 
-    console.log('holdClick action attached to:', node); // Debug line
 
     function handlePointerDown (event: PointerEvent) {
         isHoldTriggered = false;
