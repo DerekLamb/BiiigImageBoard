@@ -1,5 +1,5 @@
 <script>
-	import { goto } from '$app/navigation';
+import { goto } from '$app/navigation';
 import { createEventDispatcher } from 'svelte';
 
 export let src = '';
