@@ -3,7 +3,8 @@ import { derived, readable, writable } from "svelte/store";
 
 // export const search = writable("");
 // export const imageSize = writable(200)
-export const currPage = writable(1);
+
+
 
 export const createPersistentStore = (name: string, initialValue: any) => {
     let store = writable(initialValue);
@@ -29,4 +30,7 @@ export const improvImageSize = createPersistentStore("imageSize", 200);
 export const imageCount = createPersistentStore("imageCount", 24);
 export const groupSize = createPersistentStore("imageSize", 200);
 export const groupCount = createPersistentStore("imageCount", 24);
+
+export const currPage = writable(1);
+export const presentationMode = writable<"browse" | "select">("browse");
 //eventually add a store for history of searches per user
