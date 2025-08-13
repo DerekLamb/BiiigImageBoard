@@ -1,13 +1,23 @@
-<script>
+<script lang="ts">
     import AutoTagInput from "$lib/autoTagInput.svelte";
     import Tag from "$lib/tag.svelte";
 
-    let files = [];
+    let files:FileList = [];
     let uploadQueue = [];
-    let makeRequests
+    let uploadStatus = {
+        started:0,
+        results:[],
+        makeRequests:[]
+    }
 
 
     function handleFilesChange(event) {
+        uploadStatus = {
+            started: 0,
+            results: [],
+            makeRequests:[]
+        }
+
         const newFiles = Array.from(files);
         console.log(event)
         newFiles.forEach(file => {
@@ -17,18 +27,17 @@
                 name: file.name,
                 tags: [],
                 size: file.size,
-                previewImage: "umm fix?",
+                previewImage: URL.createObjectURL(file),
                 metadata: { title: '', description: '' }
             });
         });
-        uploadQueue = uploadQueue.slice();
-        makeRequests = uploadQueue.map(file => () => fileRequest(file))
-        
+        // uploadQueue = uploadQueue.slice();
+        // makeRequests = uploadQueue.map(file => () => fileRequest(file))     
     }
 
     function updateMetadata(index, key, value) {
         uploadQueue[index].metadata[key] = value;
-        uploadQueue = uploadQueue.slice();
+        // uploadQueue = uploadQueue.slice();
     }
 
     const fileRequest = (file) => {
@@ -40,24 +49,36 @@
         })
     }
 
-    let started = 0
-    const results = []
+    const processBatch = () => {
+    const i = uploadStatus.started++;
+    if (!uploadStatus.makeRequests[i]) return null;
 
-    const recurse = () => {
-        const i = started ++;
-        const makeRequest = makeRequests.shift();
-        return !makeRequest ? null : Promise.allSettled([makeRequest()])
-            .then(result => {
-                results[i] = result[0]
-                return recurse();
-            })
+    return Promise.allSettled([uploadStatus.makeRequests[i]()])
+        .then(result => {
+        uploadStatus.results[i] = result[0];
+        return processBatch();
+        });
     };
 
-    const limit = 16;
-     
     const batchFileUpload = () => {
-        Promise.all(Array.from({ length: limit}, recurse)).then(() => alert("Finished Uploading Media"))       
-    }
+        uploadStatus = {
+            started: 0,
+            results: [],
+            makeRequests: uploadQueue.map(item => () => fileRequest(item))
+        };
+
+        const limit = Math.min(16, uploadQueue.length);
+        Promise.all(Array(limit).fill().map(processBatch))
+            .then(() => {
+            const successes = uploadStatus.results.filter(r => 
+                r?.status === "fulfilled").length;
+            const failures = uploadStatus.results.filter(r => 
+                r?.status === "rejected").length;
+
+            alert(`Successfully uploaded: ${successes}\nFailed: ${failures}`);
+            uploadQueue = [];
+            });
+    };
 
 </script>
 

@@ -1,6 +1,6 @@
 import { ObjectId, type Sort } from 'mongodb';
 import { imageCollection, groupCollection, } from '$lib/db.server'
-import type { AppGroup, GroupDoc, ImageDoc } from '$lib/customTypes/DocTypes';
+import type { AppGroup, GroupDoc, ImageDoc } from '$lib/types/DocTypes';
 import { databaseDocUtil as dbUtil} from "$lib/server/utility/dbUtil";
 import { createMongoCollection  } from '$lib/server/collectionLayer';
 

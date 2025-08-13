@@ -1,5 +1,5 @@
 import { GroupModel } from "$lib/server/models/groupModel";
-import type { AppGroup } from "$lib/customTypes/DocTypes"
+import type { AppGroup } from "$lib/types/DocTypes"
 import { ImageModel } from "../models/imageModel";
 
 class GroupController {
