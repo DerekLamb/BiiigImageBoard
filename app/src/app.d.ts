@@ -4,6 +4,10 @@
 
 declare global {
 	declare namespace App {
+
+		interface fileMetadata {
+			
+		}
 		// interface Error {}
 		interface Locals {
 			user: import("lucia").User | null;

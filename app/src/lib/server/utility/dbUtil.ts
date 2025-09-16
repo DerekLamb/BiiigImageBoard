@@ -12,7 +12,6 @@ interface dbDocument extends Document {
 
 
 export const databaseDocUtil = {
-
     convertIdToString<T>( doc: dbDocument ): appDocument {
         const { _id,  ...rest } = doc;
 
@@ -39,7 +38,5 @@ export const databaseDocUtil = {
 
         const id = new ObjectId( doc._id ); // possibly add auto id generate
         return { ...rest, _id: id } as dbDocument; // Convert string to ObjectId
-    },
-
-    
+    }, 
 }
