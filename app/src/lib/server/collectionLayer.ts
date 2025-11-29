@@ -1,13 +1,10 @@
 import { Collection, type Document, type Filter, type FindOptions, type Sort } from "mongodb";
 import { databaseDocUtil as dbUtil } from "$lib/server/utility/dbUtil";
 
-
-
 export const createMongoCollection = (collection: Collection) => {
     return {
-        async find(query:Filter<any> = {}) {
+        async find(query: Filter<any> = {}) {
             try {
-                console.log(query);
                 const mongoQuery = dbUtil.convertStringToId(query);
                 const docs = await collection.find(mongoQuery).toArray();
                 return docs.map(dbUtil.convertIdToString);
@@ -16,7 +13,7 @@ export const createMongoCollection = (collection: Collection) => {
             }
         },
 
-        async findPage(query = {}, limit = 10, skip = 0, sort: Sort = {uploadDate: -1}) {
+        async findPage(query: Filter<any> = {}, limit = 10, skip = 0, sort: Sort = {uploadDate: -1}) {
             try {
                 const mongoQuery = dbUtil.convertStringToId(query);
                 const result = await collection.find(mongoQuery)
@@ -55,44 +52,44 @@ export const createMongoCollection = (collection: Collection) => {
                 return result
         },
 
-        async updateOne(query = {}, update: any | { $set: any }) {
+        async updateOne(query: Filter<any> = {}, update: any | { $set: any }) {
             if (Object.keys(query).length === 0) {
                 throw new Error("Unsafe updateOne operation: Empty query");
             }
-            
+
             try {
                 const mongoQuery = dbUtil.convertStringToId(query);
                 const updateDoc = update.$set ? update : { $set: update };
-                
+
                 const result = await collection.findOneAndUpdate(
                     mongoQuery,
                     updateDoc,
                     { returnDocument: 'after' }
                 );
-                
+
                 if (!result) {
                     return null;
                 }
-                
+
                 return dbUtil.convertIdToString(result);
             } catch (error: any) {
                 throw new Error(`UpdateOne operation failed: ${error.message}`);
             }
         },
 
-        async replaceOne(query = {}, newDocument: Document) {
+        async replaceOne(query: Filter<any> = {}, newDocument: Document) {
             if (Object.keys(query).length === 0) {
                 throw new Error("Unsafe replaceOne operation: Empty query");
             }
-            
+
             if (!newDocument) {
                 throw new Error("ReplaceOne operation failed: New document is required");
             }
-            
+
             try {
                 const mongoQuery = dbUtil.convertStringToId(query);
                 const mongoDoc = dbUtil.convertStringToId(newDocument);
-                
+
                 const result = await collection.replaceOne(mongoQuery, mongoDoc);
                 return result;
             } catch (error: any) {
@@ -100,11 +97,11 @@ export const createMongoCollection = (collection: Collection) => {
             }
         },
 
-        async deleteOne(query = {}) {
+        async deleteOne(query: Filter<any> = {}) {
             if (Object.keys(query).length === 0) {
                 throw new Error("Unsafe deleteOne operation: Empty query");
             }
-            
+
             try {
                 const mongoQuery = dbUtil.convertStringToId(query);
                 const result = await collection.deleteOne(mongoQuery);
@@ -120,19 +117,19 @@ export const createMongoCollection = (collection: Collection) => {
             } catch (error: any) {
                 throw new Error(`EstimateDocumentCount operation failed: ${error.message}`);
             }
-        }, 
+        },
 
-        async countDocuments(filter = {}) {
-            try{
+        async countDocuments(filter: Filter<any> = {}) {
+            try {
                 return await collection.countDocuments(filter);
             } catch (error: any) {
-                throw new Error(`Document Count operation failed: ${error.message}`)
+                throw new Error(`Document Count operation failed: ${error.message}`);
             }
         },
 
-        async idExists(id:string) {
-            let bsonId = dbUtil.convertStringToId({_id:id});
-            return collection.countDocuments(bsonId, {limit:1})
+        async idExists(id: string) {
+            const bsonId = dbUtil.convertStringToId({ _id: id });
+            return await collection.countDocuments(bsonId, { limit: 1 });
         },
     };
 }

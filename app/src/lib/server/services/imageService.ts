@@ -35,8 +35,8 @@ export const imageService = {
                 await ImageModel.updateImage(image._id, "thumbnailPath", '');
                 return false;
             }
-        } catch {
-            console.log(`Error updating thumbnail for ${image._id}`);
+        } catch (error) {
+            console.error(`Error updating thumbnail for ${image._id}: ${error}`);
             return false;
         }
 

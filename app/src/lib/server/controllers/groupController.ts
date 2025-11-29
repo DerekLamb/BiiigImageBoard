@@ -60,7 +60,7 @@ class GroupController {
             return results;
         }
         else {
-            console.log(groupData._id ,", ", groupData.name, "already exists"); 
+            console.warn(`${groupData.name} already exists`);
             return existingGroup;
         }
     }

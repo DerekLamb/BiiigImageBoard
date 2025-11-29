@@ -9,7 +9,7 @@
     import DropDown from "$lib/svelteComponents/dropDown.svelte";
     import Modal from "$lib/svelteComponents/modal.svelte";
     import { improvImageSize, imageCount } from "$lib/stores/searchStore";
-    import type { AppContent, AppGroup } from "$lib/customTypes/DocTypes";
+    import type { AppContent, AppGroup } from "$lib/types/DocTypes.js";
 	import { onMount } from "svelte";
 
     // interface DataResponse {
@@ -239,6 +239,54 @@
     const clearSelection = () => {
         selectedImages.clear();
         selectedImages = selectedImages; // Trigger reactivity
+    }
+
+    const handleBulkDelete = async () => {
+        if (selectedImages.size === 0) {
+            alert("Please select at least one image");
+            return;
+        }
+
+        showDeleteModal = true;
+    }
+
+    const confirmBulkDelete = async () => {
+        isDeleting = true;
+        const imageIds = Array.from(selectedImages);
+        const imagesToDelete = data.documents.filter(doc => imageIds.includes(doc._id) && !doc.groupType);
+
+        try {
+            const response = await fetch('/api/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'deleteImages',
+                    images: imagesToDelete
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                console.log("Bulk delete completed:", result.message);
+                showDeleteModal = false;
+                selectedImages.clear();
+                selectedImages = selectedImages;
+                groupAddMode = false;
+                // Refresh the page to show updated content
+                window.location.reload();
+            } else {
+                console.error("Bulk delete failed:", result.error);
+                alert("Failed to delete some images");
+            }
+        } catch (error) {
+            console.error("Error during bulk delete:", error);
+            alert("Error deleting images");
+        } finally {
+            isDeleting = false;
+        }
     }
 </script>
 
