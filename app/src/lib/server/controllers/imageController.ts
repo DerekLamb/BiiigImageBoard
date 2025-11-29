@@ -44,25 +44,48 @@ class ImageController{
         return await ImageModel.countAllImages();
     }
 
-    async deleteImage(imageData: AppImageData){
-        const image = await ImageModel.getImageById(imageData._id);
-        if (!image) return { success: false, error: "Image not found" };
+    async deleteImage(imageData: AppImageData | AppImageData[]){
+        const images = Array.isArray(imageData) ? imageData : [imageData];
+        const results = [];
 
-        try{
-            await ImageModel.deleteImage(imageData._id);
-            await FileModel.delete(image.imagePath);
-            if(image.thumbnailPath) { await FileModel.delete(image.thumbnailPath)};
-            return {
-                succes: true,
-            };
-        }
-        catch(error: any)
-        {
-            return{
-                success: false,
-                error: error.message,
+        for (const img of images) {
+            const image = await ImageModel.getImageById(img._id);
+            if (!image) {
+                results.push({
+                    success: false,
+                    message: `Image ${img._id} not found`,
+                    id: img._id
+                });
+                continue;
+            }
+
+            try{
+                await ImageModel.deleteImage(img._id);
+                await FileModel.delete(image.imagePath);
+                if(image.thumbnailPath) { await FileModel.delete(image.thumbnailPath)};
+                results.push({
+                    success: true,
+                    message: "Image deleted successfully",
+                    id: img._id
+                });
+            } catch (error: any) {
+                console.error("Error deleting image:", error);
+                results.push({
+                    success: false,
+                    message: "Failed to delete image",
+                    id: img._id
+                });
             }
         }
+
+        const successCount = results.filter(r => r.success).length;
+        const totalCount = results.length;
+
+        return {
+            success: successCount > 0,
+            message: `Deleted ${successCount} of ${totalCount} images`,
+            results: results
+        };
     }
 
     async addImage(imageData: AppImageData, buffer: Buffer){

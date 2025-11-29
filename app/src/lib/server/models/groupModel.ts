@@ -38,23 +38,22 @@ export const GroupModel = {
 
     async addImageToGroup(groupId: string, imageId: string) {
         const parentGroup = await GroupModel.getGroupById(groupId);
-        const childImages = await imageCollection.find({ _id: { $in: parentGroup.children.map( e => new ObjectId(e)) }}).toArray(); // TODO clean this up
+        const childImages = await imageColl.find({ _id: { $in: parentGroup.children.map(e => e) } });
 
         const latestDate = childImages.reduce((latest, image) => image.uploadDate > latest ? image.uploadDate : latest, "0");
 
         const results = await groupColl.updateOne(
-                { _id: new ObjectId(groupId) }, 
-                {   $set: { uploadDate: latestDate },
-                    $push: { children: new ObjectId(imageId) }
-                }
-            );
+            { _id: groupId },
+            {
+                $set: { uploadDate: latestDate },
+                $push: { children: imageId }
+            }
+        );
 
-        return { 
+        return {
             success: results !== null,
             document: results,
-            // I'm mainly just adding a image to a group, what would I want besides this?
-        }
-
+        };
     },
 
     async updateGroup(id: string, updates: Partial<AppGroup>) { // Needs more attention
@@ -115,7 +114,7 @@ export const GroupModel = {
         }
     },
 
-    async getGroupCount() { //TODO need to actually count documents at certain levels to have accurate pagination
-        return await groupColl.estimateDocumentCount();
+    async getGroupCount() {
+        return await groupColl.countDocuments({});
     },
 }
