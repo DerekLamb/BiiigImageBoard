@@ -14,10 +14,8 @@ export let mainLink = "";
 
 const dispatch = createEventDispatcher();
 
-let imgClass = "full-img"
-if(thumbnail){
-    imgClass="thumbnail";
-}
+let imgClass = thumbnail ? "thumbnail" : "full-img"
+
 
 function handleClick(event) {
     // If in selectable mode, prevent navigation and dispatch select event
