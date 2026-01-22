@@ -2,7 +2,7 @@ import fs from "fs/promises"
 import type { FileOperationResult } from "$lib/types/services";
 import type { storageAdapter } from "./types";
 
-class localStorage implements storageAdapter {
+class LocalStorage implements storageAdapter {
 
     readFile(filePath: string): Promise<Buffer> {
          const file= fs.readFile(filePath);
@@ -32,7 +32,7 @@ class localStorage implements storageAdapter {
         }
     }
 
-    deleteFile(fileName: string): Promise<FileOperationResult> {
+    async deleteFile(fileName: string): Promise<FileOperationResult> {
         try{
             const results = fs.unlink(fileName)
 
@@ -52,3 +52,5 @@ class localStorage implements storageAdapter {
         return results
     }
 }
+
+export const localStorage = new LocalStorage()

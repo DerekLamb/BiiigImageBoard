@@ -1,5 +1,6 @@
 import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
 import { FileModel } from '$lib/server/models/fileModel';
+import { localStorage } from '$lib/server/services/storageAdapter/localStorage';
 import { imageService } from '$lib/server/services/imageService';
 
 const constDefaultPath = 'images/'; // default path if none specified
@@ -61,8 +62,8 @@ class ImageController{
 
             try{
                 await ImageModel.deleteImage(img._id);
-                await FileModel.delete(image.imagePath);
-                if(image.thumbnailPath) { await FileModel.delete(image.thumbnailPath)};
+                await localStorage.deleteFile(image.imagePath);
+                if(image.thumbnailPath) { await localStorage.deleteFile(image.thumbnailPath) };
                 results.push({
                     success: true,
                     message: "Image deleted successfully",
@@ -89,7 +90,7 @@ class ImageController{
     }
 
     async addImage(imageData: AppImageData, buffer: Buffer){
-        await FileModel.write(imageData.imagePath, buffer);
+        await localStorage.writeFile(imageData.imagePath, buffer)
         return await ImageModel.addImage(imageData);
     }
     
@@ -104,7 +105,7 @@ class ImageController{
     async addImageToGroup(imageId: string, groupId: string) {
         try {
             let imageGroups  = (await ImageModel.getImageById(imageId)).group;
-            if(imageGroups.indexOf(groupId) === -1){
+            if(imageGroups.indexOf(groupId) !== -1){
                 throw Error("group already exists on image");
             }
 
@@ -113,14 +114,14 @@ class ImageController{
 
             return{
                 success: results.success,
-                message: "group added to " + results.document?._id 
+                message: "group added to " + results.document?._id
             }
-        } catch (error) 
+        } catch (error)
         {
             return{
                 success: false,
                 error: error.message,
-            }    
+            }
         }
     }
     
