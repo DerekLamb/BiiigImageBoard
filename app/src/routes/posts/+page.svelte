@@ -33,7 +33,7 @@ let baseUrl: string = "/posts";
 const sizes = [ 110, 150, 200, 300, 350];
 const numImages = [24, 32, 48, 60, 72, 84, 96];
 
-const imageCountChange = () => {
+const imageCountChange = () => { //TODO Bug here
     const numOfImages = (data.pagination.currentPage - 1) * data.pagination.itemsPerPage;
     const newPage = Math.floor(numOfImages / $imageCount) + 1
 

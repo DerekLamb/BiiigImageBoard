@@ -45,6 +45,7 @@
         try {
             const response = await fetch('/api/groups');
             const json = await response.json();
+            console.log(json.groups)
             if (json.groups) {
                 groups = await json.groups;
             }
@@ -107,14 +108,14 @@
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    draggedImage: draggedImage,
-                    draggedOverImage: draggedOverImage,
+                    name: Date.now().toString(),
+                    imageIds: [draggedImage, draggedOverImage],
                 }),
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log("Group created with ID:", data.groupId);
+                    console.log("Group created with ID:", data.data._id);
                     // Refresh the groups list
                     fetchGroups();
                 }
@@ -169,7 +170,7 @@
                 fetchGroups();
             } else {
                 console.error("Failed to create group:", result.error);
-                alert("Failed to create group");
+                alert("Failed to create group:" + result.error);
             }
         } catch (error) {
             console.error("Error creating group:", error);
@@ -189,37 +190,34 @@
         }
 
         const imageIds = Array.from(selectedImages);
-        
+
         try {
-            // Process each image one by one
-            const promises = imageIds.map(imageId => 
-                fetch('api/groups', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        groupId: selectedGroupId,
-                        imageId: imageId
-                    }),
-                }).then(response => response.json())
-            );
-            
-            const results = await Promise.all(promises);
-            
-            if (results.every(result => result.success)) {
+            const response = await fetch(`api/groups/${selectedGroupId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    operation: 'add-images',
+                    imageIds: imageIds
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.message && result.message.includes('Added')) {
                 console.log("All images added to group successfully");
                 showAddToGroupModal = false;
                 selectedImages.clear();
                 selectedImages = selectedImages;
                 groupAddMode = false;
                 selectedGroupId = "";
-                
+
                 // Refresh the page
                 window.location.reload();
             } else {
-                console.error("Some images failed to be added to the group");
-                alert("Some images failed to be added to the group");
+                console.error("Failed to add images to the group:", result.message);
+                alert("Failed to add images to the group: " + result.message);
             }
         } catch (error) {
             console.error("Error adding images to group:", error);
