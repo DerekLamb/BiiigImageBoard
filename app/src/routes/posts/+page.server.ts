@@ -5,13 +5,13 @@ import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url, locals }) => {
     if (!locals.user) {
-        console.log("no user");
+        console.log("no user"); //expand out to debug flag check + log user session or some id; works for now
         redirect(307, '/login');
     }
 
     const { searchParams } = url;
     const imageId: string = searchParams.get('imageId') as string;
-    let pageNum: number = parseInt(searchParams.get('page') as string) || 1;
+    let pageNum: number = parseInt(searchParams.get('page') as string) || 1; //we sure about this?
     const searchTerm: string = searchParams.get('search') as string || '';
     const notag: string = searchParams.get('notag') as string || '';
     const currPage = Math.max(pageNum, 1);

@@ -11,27 +11,10 @@ export async function GET({ url, locals }) {
     }
 
     try {
-        // Support pagination and filtering
-        const { searchParams } = url;
-        const pageNum = parseInt(searchParams.get('page') as string) || 1;
-        const limit = parseInt(searchParams.get('limit') as string) || 50;
-        const search = searchParams.get('search') || '';
-        const sort = searchParams.get('sort') || '';
-        const currPage = Math.max(pageNum, 1)
-
-        const skip = (currPage -1) * limit;
-        const groups = await GroupModel.findGroups({})
-
-        const count = await groupController.getGroupCount();
+        const groups = await groupController.getAllGroups();
 
         return json({
-            groups: groups,
-            meta: {
-                total: count,
-                currPage,
-                limit,
-                pages: Math.ceil(count / limit)
-            }
+            groups: groups
         });
     } catch (err) {
         console.error('Error fetching groups:', err);
@@ -72,10 +55,11 @@ export async function POST({ request, locals }) {
         };
 
         const newGroup = await groupController.createGroup(groupData);
-
+        console.log("getting here?")
         return json({
             data: newGroup,
-            message: 'Group created successfully'
+            message: 'Group created successfully',
+            success: true
         }, { status: 201 });
     } catch (err) {
         console.error('Error creating group:', err);
