@@ -20,7 +20,6 @@ export const imageCollection = db.collection(collections.images);
 export const userCollection = db.collection(collections.users);
 export const sessionCollection = db.collection(collections.sessions);
 
-
 export function start_mongo() {
     console.log("Connecting to MongoDB");
 

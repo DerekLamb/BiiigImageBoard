@@ -49,7 +49,7 @@ class LocalImageStorage implements imageStorageAdapter {
         return await this.deleteImage(filePath);
     }
 
-    async fileExists(filePath: string): Promise<boolean> {
+    async fileExists(filePath: string): Promise<boolean> { //TODO fix File Operation Result return 
         try {
             await fs.access(filePath);
             return true;

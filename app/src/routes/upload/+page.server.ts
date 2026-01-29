@@ -1,6 +1,5 @@
-import { fileUtilService } from "$lib/imageService"
 import imageController from "$lib/server/controllers/imageController.js";
-import { type AppImageData } from "$lib/server/models/imageModel.js";
+
 
 /** @type {import('./$types').Actions} */
 
