@@ -1,45 +1,25 @@
-import { lucia, initialize } from "$lib/auth";
-import type { Handle } from "@sveltejs/kit";
+import { auth } from "$lib/auth";
+import { svelteKitHandler } from "better-auth/svelte-kit";
+import { building } from "$app/environment";
 import { start_mongo } from "$lib/db.server";
 
 start_mongo().then(() => {
     console.log("Connected to MongoDB")
-    initialize(); //creates admin user if it doesn't exist
     }).catch((err) => {
         console.error(err);
     });
 
 
+export async function handle ({ event, resolve}) {
 
-export const handle: Handle = async ({ event, resolve }) => {
-    const sessionId = event.cookies.get(lucia.sessionCookieName);
-    if(!sessionId){
-        event.locals.user = null;
-        event.locals.session = null;
-        console.log("No session id");
-        return resolve(event);
+    const session = await auth.api.getSession({
+        headers: event.request.headers,
+    })
+
+    if (session) {
+        event.locals.session = session.session;
+        event.locals.user = session.user;
     }
 
-    const { session, user} = await lucia.validateSession(sessionId);
-
-    if( session && session.fresh){
-        const sessionCookie = lucia.createSessionCookie(session.id);
-        
-        event.cookies.set(sessionCookie.name, sessionCookie.value, {
-            path: ".", //TODO add way to have specific path based on environment variables 
-            ...sessionCookie.attributes
-        })
-    }	
-    
-    if (!session) {
-		const sessionCookie = lucia.createBlankSessionCookie();
-		event.cookies.set(sessionCookie.name, sessionCookie.value, {
-			path: ".",
-			...sessionCookie.attributes
-		});
-	}
-
-    event.locals.user = user;
-    event.locals.session = session;
-    return resolve(event);
+    return svelteKitHandler({ event, resolve, auth, building})
 }

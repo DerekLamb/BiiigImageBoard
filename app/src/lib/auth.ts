@@ -1,14 +1,13 @@
-import { Lucia, generateId } from 'lucia';
-import { MongodbAdapter } from '@lucia-auth/adapter-mongodb';
-import { db } from '$lib/db.server';
-import type { Collection } from 'mongodb';
-import { Argon2id } from 'oslo/password';
+import { betterAuth } from "better-auth"; 
+import { mongodbAdapter } from "better-auth/adapters/mongodb"
+import { username } from "better-auth/plugins";
+import { db } from "$lib/db.server";
 import { env } from '$env/dynamic/private';
+import type { AuthClient } from "better-auth/client";
 
-export const User = db.collection('users') as Collection<UserDoc>;
-export const Session = db.collection('sessions') as Collection<Session>;
+// export const User = db.collection('users') as Collection<UserDoc>;
+// export const Session = db.collection('sessions') as Collection<Session>;
 
-const adapter = new MongodbAdapter(db.collection('sessions'), User);
 
 interface DatabaseUserAttributes {
     username: string;
@@ -17,12 +16,7 @@ interface DatabaseUserAttributes {
     passwordChangeRequired: boolean;
 }
 
-interface UserDoc { //needs to mirror DatabaseUserAttributes (ignore _id)
-	_id: string;
-    username: string;
-    passwordHash: string;
-    role: string;
-    passwordChangeRequired: boolean;
+interface User { 
 }
 
 interface Session {
@@ -31,42 +25,26 @@ interface Session {
 	user_id: string;
 }
 
-export const lucia = new Lucia( adapter, {
-    sessionCookie: {
-        name:  env.SESS_COOKIE_NAME || "auth_sesison" , //add ENV change 
-        attributes: {
-            secure: true // need to add dev env check TODO
-        }
+export const auth = betterAuth ({
+    experimental: {joins: true},
+    database: mongodbAdapter(db, {
+
+    }),
+    emailAndPassword: {
+        enabled:true,
     },
-    getUserAttributes: (attributes) => {
-        return {
-            username: attributes.username
+    plugins: [
+        username() 
+    ]
 
-        }
+})
+
+export const injectAdmin = (betterAuthClient: AuthClient<any>) => {
+    if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD) {
+        return false;
     }
-});
+
+    const existingAdmin = await betterAuthClient.accountInfo()
 
 
-export const initialize = async () => {
-
-    if( await db.collection('users').countDocuments() === 0){
-
-        const userId = generateId(15);
-		const hashedPassword = await new Argon2id().hash('myOwnPersonalApp');
-
-        User.insertOne({
-            _id: userId,
-            username: 'admin',
-            passwordHash: hashedPassword,
-            role: 'admin',
-            passwordChangeRequired: true
-        });
-    }
-}
-
-declare module 'lucia' {
-    interface Register {
-        Lucia: typeof Lucia;
-        DatabaseUserAttributes: DatabaseUserAttributes;
-    }
 }
