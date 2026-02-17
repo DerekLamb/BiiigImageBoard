@@ -1,14 +1,17 @@
 import imageController from "$lib/server/controllers/imageController";
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { auth } from "$lib/auth"
 
-export const load: PageServerLoad = async ({ params, locals }) => {
-    if (!locals.user) {
-        console.log("no user");
+export const load: PageServerLoad = async ({ params, request }) => {
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
+
+    if (!session) {
         redirect(307, '/login');
     }
-    console.log( params.slug );
-    console.log( typeof params.slug );
+
     const image = await imageController.getImageByTimestamp(params.slug);
     
     const safeImage = {

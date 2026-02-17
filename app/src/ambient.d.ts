@@ -1,3 +1,3 @@
-// Project Wide Types :)
+// Project Wide Types
 
 // declare appImages and docImages here

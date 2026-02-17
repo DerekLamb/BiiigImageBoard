@@ -4,14 +4,13 @@
 
 declare global {
 	declare namespace App {
-
 		interface fileMetadata {
 			
 		}
 		// interface Error {}
 		interface Locals {
-			user: import("lucia").User | null;
-			session: import("lucia").Session | null;
+			user?: User;
+			session?: Session;
 		}
 
 		// interface PageData {}

@@ -1,12 +1,17 @@
+import { auth } from "$lib/auth"
 import { groupController } from "$lib/server/controllers/groupController";
 import imageController from "$lib/server/controllers/imageController";
 import { redirect } from '@sveltejs/kit';
 
-export const load= async ({ params, locals }) => {
-    if (!locals.user) {
-        console.log("no user");
+export const load= async ({ params, request }) => {
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
+
+    if (!session) {
         redirect(307, '/login');
     }
+
     
     console.log("Group ID:", params.slug);
     const group = await groupController.getGroup(params.slug);

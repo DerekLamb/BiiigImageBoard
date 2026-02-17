@@ -1,11 +1,15 @@
+import { auth } from '$lib/auth';
 import { redirect } from '@sveltejs/kit';
 import imageController from '$lib/server/controllers/imageController';
 import { ImageModel } from '$lib/server/models/imageModel';
 import type { PageServerLoad } from './$types';
 
-export const load = (async ({ url, locals }) => {
-    if (!locals.user) {
-        console.log("no user"); //expand out to debug flag check + log user session or some id; works for now
+export const load = (async ({ url, locals, request }) => {
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
+
+    if (!session) {
         redirect(307, '/login');
     }
 
