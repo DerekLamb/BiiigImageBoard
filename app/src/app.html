@@ -8,6 +8,17 @@
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Orbitron:wght@600&display=swap" rel="stylesheet">
 		<meta name="viewport" content="width=device-width" />
+		<script>
+			// Initialize theme before page renders to prevent flash
+			(function() {
+				const stored = localStorage.getItem('theme');
+				if (stored) {
+					document.documentElement.setAttribute('data-theme', stored);
+				} else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+					document.documentElement.setAttribute('data-theme', 'dark');
+				}
+			})();
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

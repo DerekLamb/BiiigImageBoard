@@ -5,6 +5,7 @@ import { db } from '$lib/db.server';
 import txtToSearchParam from './SearchTxtToFilter';
 import sharp from 'sharp';
 import crypto from 'crypto';
+import type { EmbeddedPrompt } from './types/DocTypes';
 
 interface ImageAddr {
     id: string;
@@ -21,7 +22,7 @@ export interface ImageData {
     uploadDate: string;
     thumbnailPath: string;
     tags: string[] | null;
-    embPrompt?: string[][] | null;
+    embPrompt?: EmbeddedPrompt | null;
     related?: string[] | null;
     favorite?: string[] | null;
     hidden?: string[] | null;

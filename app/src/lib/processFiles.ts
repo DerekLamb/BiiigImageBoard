@@ -64,7 +64,7 @@ export async function refreshFiles(dirPath: string){
 
 export async function embPromptGrab(dirPath: string, forceRecheck? : boolean){
 
-    const noPromptQuery = (!forceRecheck) ? { embPrompt:"" } : {};
+    const noPromptQuery = (!forceRecheck) ? { embPrompt: null } : {};
 
     const noPromptReturn = await imgCol.find(noPromptQuery).project(projection).toArray();
 
@@ -79,18 +79,19 @@ export async function embPromptGrab(dirPath: string, forceRecheck? : boolean){
                 //read file data
                 const file = await fs.promises.readFile(`${dirPath}/${filename}`);
                 
-                // file for expected prompt
-                const embPrompt  = promptDecode(file)?.prompt;
+                // Convert Buffer to ArrayBuffer for promptDecode
+                const arrayBuffer = new Uint8Array(file).buffer as ArrayBuffer;
+                const embPrompt = promptDecode(arrayBuffer);
 
                 // add found embedded prompt to imageDB if one exists
-                if(embPrompt){ 
-                    imgCol.updateOne({ fsName: filename }, { $set:{ embPrompt: embPrompt } }, { upsert: false}); 
+                if(embPrompt){
+                    imgCol.updateOne({ fsName: filename }, { $set:{ embPrompt: embPrompt } }, { upsert: false});
                     console.log("embPrompt found for image: " + filename)
                 }
 
             } catch (error) {
 
-                //Match error to missing file error. 
+                //Match error to missing file error.
                 if(error.code === 'ENOENT'){
 
                     //Catch error and continue with next file
@@ -174,17 +175,17 @@ export async function moveFile(dirPath: string, fileName: string, destPath: stri
         const dbResult = await imgCol.insertOne({ // Insert the file metadata into the database.
             _id: new ObjectId(fileHash),
             name: fileName,
-            fsName: imageName, 
-            genName: timestamp, 
-            imagePath: `${destPath}/${imageName}`, 
-            tags: tags, 
-            embPrompt: ""
+            fsName: imageName,
+            genName: timestamp,
+            imagePath: `${destPath}/${imageName}`,
+            tags: tags,
+            embPrompt: null
         });
 
         fs.renameSync(`${dirPath}/${fileName}`, `${destPath}/${imageName}`)
         console.log(`file ${fileName} moved to ${destPath}/${imageName}`);
     }
-    catch(error){
+    catch(error: any){
         if(error.code === 11000){
             console.error("Duplicate file error, file ignored");
         }else{
@@ -202,14 +203,14 @@ export async function addFile(fileStream: Buffer, fileName:string, imagePath:str
 
     try{
         const result = await imgCol.insertOne({
-            _id: new ObjectId(fsHash), 
-            name: fileName, 
-            fsName:fsName, 
-            genName:timestamp, 
-            imagePath: `${imagePath}/${fsName}`, 
-            tags: tags, embPrompt:""});
+            _id: new ObjectId(fsHash),
+            name: fileName,
+            fsName:fsName,
+            genName:timestamp,
+            imagePath: `${imagePath}/${fsName}`,
+            tags: tags, embPrompt: null});
         console.log(`File ${fileName} written to DB and filesystem`)
-    } catch(error) {
+    } catch(error: any) {
 
         if (error.code === 11000) {
             console.error("Duplicate file error, file ignored");
