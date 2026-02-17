@@ -1,17 +1,20 @@
-import { redirect } from '@sveltejs/kit'
-/** @type {import('./$types').PageServerLoad} */
-
-
+import { auth } from '$lib/auth';
+import { redirect } from '@sveltejs/kit';
 import { groupController } from '$lib/server/controllers/groupController';
-import { GroupModel } from '$lib/server/models/groupModel'
-
 import type { PageServerLoad } from './$types';
 
-export const load = (async ({ url, locals}) => {
-    if (!locals.user) {
-        console.log("no user");
+
+/** @type {import('./$types').PageServerLoad} */
+
+export const load = (async ({ url, request}) => {
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
+
+    if (!session) {
         redirect(307, '/login');
     }
+
 
     const { searchParams } = url;
     const pageNum : number = parseInt(searchParams.get('page') as string) || 1;
@@ -37,5 +40,6 @@ export const load = (async ({ url, locals}) => {
         len: lengthNum,
         searchTerm: searchTerm
     }
+    
 }) satisfies PageServerLoad;
 

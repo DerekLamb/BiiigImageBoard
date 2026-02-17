@@ -1,13 +1,18 @@
 import { groupController } from '$lib/server/controllers/groupController.js';
 import  imageController  from '$lib/server/controllers/imageController.js'
+import { auth } from '$lib/auth.js';
 import { json, redirect, error } from '@sveltejs/kit';
 
 /**
  * GET /api/groups/[slug] - Retrieve a specific group by ID
  */
-export async function GET({ params, locals }) {
-    if (!locals.user) {
-        throw redirect(307, '/login');
+export async function GET({ params, request }) {
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
+
+    if (!session) {
+        redirect(307, '/login');
     }
 
     if (!params.slug) {
@@ -44,9 +49,13 @@ export async function GET({ params, locals }) {
 /**
  * PUT /api/groups/[slug] - Update an existing group
  */
-export async function PUT({ params, request, locals }) {
-    if (!locals.user) {
-        throw redirect(307, '/login');
+export async function PUT({ params, request }) {
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
+
+    if (!session) {
+        redirect(307, '/login');
     }
 
     if (!params.slug) {
@@ -96,11 +105,14 @@ export async function PUT({ params, request, locals }) {
 /**
  * PATCH /api/groups/[slug] - Partially update a group or modify its members
  */
-export async function PATCH({ params, request, locals }) {
-    if (!locals.user) {
-        throw redirect(307, '/login');
-    }
+export async function PATCH({ params, request }) {
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
 
+    if (!session) {
+        redirect(307, '/login');
+    }
     if (!params.slug) {
         throw error(400, {
             message: 'Group ID is required'
@@ -179,8 +191,12 @@ export async function PATCH({ params, request, locals }) {
  * DELETE /api/groups/[slug] - Delete a group
  */
 export async function DELETE({ params, locals }) {
-    if (!locals.user) {
-        throw redirect(307, '/login');
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
+
+    if (!session) {
+        redirect(307, '/login');
     }
 
     if (!params.slug) {

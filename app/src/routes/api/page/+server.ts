@@ -1,4 +1,5 @@
 import { json, redirect } from '@sveltejs/kit';
+import { auth } from '$lib/auth';
 import { ImageModel } from '$lib/server/models/imageModel';
 import type { RequestHandler } from './$types';
 
@@ -6,9 +7,13 @@ import type { RequestHandler } from './$types';
 /**
  * GET /api/pages - Get page based on params such as limit, skip, searchable tags, and imageId
  */
-export const GET: RequestHandler = async ({ url, locals }) => {
-    if (!locals.user) {
-        throw redirect(307, '/login');
+export const GET: RequestHandler = async ({ url, request }) => {
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
+
+    if (!session) {
+        redirect(307, '/login');
     }
 
     try {

@@ -1,16 +1,20 @@
-
+import { auth } from "$lib/auth"
 import { fileController } from "$lib/server/controllers/fileController.js";
-import { error } from  "@sveltejs/kit"
+import { error, redirect } from  "@sveltejs/kit"
 import path from "path";
 
 /** @type {import('./$types').RequestHandler} */
 
-export async function GET ({ params, locals}){
-    if(!locals.user){
-        error(401, "Unauthorized");
+export async function GET ({ params, request}){
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
+
+    if (!session) {
+        redirect(307, '/login');
     }
 
-    if(!params.slug){ // need to build a better file type system TODO
+    if(!params.slug){
         error(400, "invalid image request");
     }
 

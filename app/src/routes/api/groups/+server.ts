@@ -1,13 +1,17 @@
 import { json, redirect, error } from '@sveltejs/kit';
 import { groupController } from '$lib/server/controllers/groupController.js';
 import { GroupModel } from '$lib/server/models/groupModel.js';
-
+import { auth } from '$lib/auth.js';
 /**
  * GET /api/groups - Retrieve all groups
  */
-export async function GET({ url, locals }) {
-    if (!locals.user) {
-        throw redirect(307, '/login');
+export async function GET({ url, request}) {
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
+
+    if (!session) {
+        redirect(307, '/login');
     }
 
     try {
@@ -27,11 +31,14 @@ export async function GET({ url, locals }) {
 /**
  * POST /api/groups - Create a new group
  */
-export async function POST({ request, locals }) {
-    if (!locals.user) {
-        throw redirect(307, '/login');
-    }
+export async function POST({ request }) {
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
 
+    if (!session) {
+        redirect(307, '/login');
+    }
     try {
         const body = await request.json().catch(() => {
             throw error(400, { message: 'Invalid JSON payload' });

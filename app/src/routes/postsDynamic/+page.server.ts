@@ -1,15 +1,18 @@
 import { redirect } from '@sveltejs/kit';
+import { auth } from '$lib/auth';
 import imageController from '$lib/server/controllers/imageController';
 import { aggController } from '$lib/server/controllers/aggController';
 
 import type { PageServerLoad } from './$types';
 
-export const load = (async ({ url, locals}) => {
-    if (!locals.user) { // auth check
-        console.log("no user");
+export const load = (async ({ url, request}) => {
+    const session = await auth.api.getSession(
+        { headers: request.headers } 
+    );
+
+    if (!session) {
         redirect(307, '/login');
     }
-
     const { searchParams } = url;
     const pageNum : number = parseInt(searchParams.get('page') as string) || 1;
     const searchTerm : string = searchParams.get('search') as string || '';

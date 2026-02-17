@@ -30,3 +30,4 @@ vite.config.js
 # Docker
 docker-compose.yml
 docker-compose.yml
+app/.env
