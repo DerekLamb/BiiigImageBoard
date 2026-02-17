@@ -1,6 +1,5 @@
-<script>
+<script lang="ts">
 import { goto } from '$app/navigation';
-import { createEventDispatcher } from 'svelte';
 
 export let src = '';
 export let alt = "TestAlt";
@@ -10,45 +9,38 @@ export let downScore = -1;
 export let leftLink = "";
 export let rightLink = "";
 export let mainLink = "";
-//export let selectable = false; // Add selectable mode
 
-const dispatch = createEventDispatcher();
+
 
 let imgClass = thumbnail ? "thumbnail" : "full-img"
 
+let imgElement:Element;
 
-function handleClick(event) {
-    // If in selectable mode, prevent navigation and dispatch select event
-    // if(selectable) {
-    //     event.preventDefault();
-    //     dispatch('select', { imageName, src });
-    //     return;
-    // }
-    
+function handleClick(event:MouseEvent) {
+
     // Normal navigation behavior
     if(mainLink != "") {
         goto(mainLink);
         return;
     }
 
-    const bounds = event.target.getBoundingClientRect();
-    const x = event.clientX - bounds.left;
-    const targetLink = x < bounds.width/2 ? leftLink : rightLink
-    if(targetLink) goto(targetLink, {noScroll: true})
-    return
-}
+    if(imgElement){
+        const bounds = imgElement.getBoundingClientRect();
+        const x = event.clientX - bounds.left;
+        const targetLink = x < bounds.width/2 ? leftLink : rightLink
 
-function handleKey(event) {
-    //eventually bubble up for keyboard nav
-    console.log(event.key);
-    return
-}
+        if(targetLink) goto(targetLink, { noScroll: true })
+    
+        return
+    }
 
+
+}
 </script>
 
 <div class="container">
     <a href={mainLink || "#"}>
-        <img class="{imgClass}" src={src} alt={alt} on:click|preventDefault={handleClick} on:keydown={handleKey}/>
+        <img class="{imgClass}" src={src} alt={alt} bind:this={imgElement} on:click|preventDefault={handleClick} />
     </a>
     {#if upScore != -1 && downScore != -1}
             <span class = "score">{upScore} &#x1F446 {downScore} &#x1F447 </span>
@@ -60,19 +52,18 @@ function handleKey(event) {
 
     .container {
         width: 100%; 
-        padding: 3px;
         box-sizing: border-box;
+        padding: 4px;
         display:flex;
         flex-direction: column;
         border-radius: 5px;
-        color: #345D7E;
     }
 
     .container img {
         width: 100%; /* Makes the image responsive, scales with the width of the parent */
         height: auto; /* Keeps the image aspect ratio */
         object-fit: cover;
-        border-radius: 4px;
+        border-radius: 5px;
     }
 
     .container span {

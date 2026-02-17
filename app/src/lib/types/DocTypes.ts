@@ -18,17 +18,35 @@ export interface BaseGroup extends BaseDoc {
 }
 
 
+/**
+ * Structured embedded prompt data extracted from image metadata.
+ * Supports A1111, CivitAI, and ComfyUI formats.
+ */
+export interface EmbeddedPrompt {
+    /** Source format: 'a1111' | 'civitai' | 'comfyui' | 'unknown' */
+    source: string;
+    /** Positive prompt terms/tags */
+    positive: string[];
+    /** Negative prompt terms/tags */
+    negative: string[];
+    /** Generation metadata (steps, sampler, CFG, etc.) */
+    metadata: string[];
+    /** Original raw prompt text for re-parsing or display */
+    raw?: string;
+}
+
 export interface BaseImage { // should extend BaseDoc
     type: 'image' | 'video',
     originalName: string;
     sanitizedFilename: string;
     imagePath: string;
     uploadDate: string;
-    thumbnailPath?: string; 
+    thumbnailPath?: string;
     group: string[];
     tags: string[];
-    embPrompt?: string[][]; //needs 2b fleshed out
-    related?: string[]; 
+    /** Structured embedded prompt data from image metadata */
+    embPrompt?: EmbeddedPrompt;
+    related?: string[];
     favorite?: string[];
     hidden?: string[];
 }

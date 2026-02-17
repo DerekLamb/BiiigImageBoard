@@ -1,6 +1,4 @@
 <script>
-    let tags = [];
-    let colorScheme = [];
     export let itemCount = 2;
 </script>
 

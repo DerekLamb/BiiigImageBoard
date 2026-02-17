@@ -1,140 +1,161 @@
 <script lang="ts">
+    import ContentGrid from '$lib/svelteComponents/contentGrid.svelte';
+    import ControlBar from '$lib/svelteComponents/ControlBar.svelte';
+    import { page } from '$app/state';
     import SearchBar from "$lib/searchBar.svelte";
     import SideBar from "$lib/sideBar.svelte";
     import TagSection from "$lib/tagSection.svelte";
-    import ImageBrowser from "$lib/imageBrowser.svelte";
-    import Image from "$lib/image.svelte";
-    import GroupThmb from "$lib/svelteComponents/groupThmb.svelte";
     import PageNav from "$lib/pageNav.svelte";
-    import DropDown from "$lib/svelteComponents/dropDown.svelte";
     import Modal from "$lib/svelteComponents/modal.svelte";
     import { improvImageSize, imageCount } from "$lib/stores/searchStore";
-    import type { AppContent, AppGroup } from "$lib/types/DocTypes.js";
-	import { onMount } from "svelte";
+    import type { AppContent } from "$lib/types/DocTypes.js";
+    import { onMount } from "svelte";
 
-    // interface DataResponse {
-    //     documents: AppContent[];
-    //     currPage: number;
-    //     pageNum: number;
-    // }
+    interface DataResponse {
+        documents: AppContent[];
+        currPage: number;
+        pageNum: number;
+    }
 
-    export let data;
-    let groups = [];
+    interface Group {
+        _id: string;
+        name: string;
+        imageCount?: number;
+    }
 
-    const sizes = [100, 110, 150, 200, 300];
-    const numImages = [24, 32, 48, 60, 72, 84, 96];
+    interface Props {
+        data: DataResponse;
+    }
 
-    let flatState : boolean = true; 
-    let draggedImage = null;
-    let draggedOverImage = null;
-    let modalShow = false;
-    let draggable = false;
-    let selectedGroupId = "";
-    
-    let showAddToGroupModal = false;
-    let groupAddMode = false;
-    let selectedImages = new Set();
-    let newGroupName = "";
-    let createNewGroup = false;
+    let { data }: Props = $props();
 
-        // Call fetchGroups on component mount
-    onMount(() => {fetchGroups()});
+    // URL state - using $derived for reactive values
+    let viewMode = $derived(page.url.searchParams.get('mode') || 'browse');
+    let selectGroup = $derived(page.url.searchParams.get('group'));
+    let positionImageId = $derived(page.url.searchParams.get('imageId'));
+
+    //Nav link location
+    let browseDir = "/postsDynamic"
+
+    // Group mode state
+    let groupMode = $state(false);
+    let selectedImages = $state<Set<string>>(new Set());
+    let groups = $state<Group[]>([]);
+    let showAddToGroupModal = $state(false);
+    let selectedGroupId = $state("");
+    let newGroupName = $state("");
+    let createNewGroup = $state(false);
+    let isDeleting = $state(false);
+    let showDeleteModal = $state(false);
+
+    // Computed
+    let selectionCount = $derived(selectedImages.size);
+
+    // Fetch available groups on mount
+    onMount(() => {
+        fetchGroups();
+        
+        // Listen for ControlBar events
+        window.addEventListener('toggle-group-mode', handleToggleGroupMode);
+        window.addEventListener('select-all', handleSelectAll);
+        window.addEventListener('clear-selection', handleClearSelection);
+        window.addEventListener('add-to-group', handleAddToGroup);
+        window.addEventListener('delete-selected', handleDeleteSelected);
+
+        return () => {
+            window.removeEventListener('toggle-group-mode', handleToggleGroupMode);
+            window.removeEventListener('select-all', handleSelectAll);
+            window.removeEventListener('clear-selection', handleClearSelection);
+            window.removeEventListener('add-to-group', handleAddToGroup);
+            window.removeEventListener('delete-selected', handleDeleteSelected);
+        };
+    });
 
     // Fetch available groups for "Add to Group" functionality
-    const fetchGroups = async () => {
+    async function fetchGroups() {
         try {
             const response = await fetch('/api/groups');
             const json = await response.json();
-            console.log(json.groups)
             if (json.groups) {
-                groups = await json.groups;
+                groups = json.groups;
             }
         } catch (error) {
             console.error("Error fetching groups:", error);
         }
-    };
+    }
 
-
-    
-
-
-    const toggleGroupAddMode = () => {
-        groupAddMode = !groupAddMode;
-        if (!groupAddMode) {
-            selectedImages.clear();
-            selectedImages = selectedImages; 
+    // Event handlers
+    function handleToggleGroupMode() {
+        groupMode = !groupMode;
+        if (!groupMode) {
+            selectedImages = new Set();
         }
     }
 
-    const toggleImageSelection = (imageId: string) => {
-        
-        if (selectedImages.has(imageId)) {
-            selectedImages.delete(imageId);
-        } else {
-            selectedImages.add(imageId);
-        }
-        selectedImages = selectedImages; // Trigger reactivity
+    function handleSelectAll() {
+        const imageIds = data.documents
+            .filter((doc: AppContent) => !('groupType' in doc))
+            .map((doc: AppContent) => doc._id);
+        selectedImages = new Set(imageIds);
     }
 
-    const toggleAddToGroupModal = () => {
+    function handleClearSelection() {
+        selectedImages = new Set();
+    }
+
+    function handleAddToGroup() {
         if (selectedImages.size === 0) {
             alert("Please select at least one image");
             return;
         }
-        showAddToGroupModal = !showAddToGroupModal;
+        showAddToGroupModal = true;
     }
 
-    const toggleView = () => {
-        flatState = !flatState;
+    function handleDeleteSelected() {
+        if (selectedImages.size === 0) {
+            alert("Please select at least one image");
+            return;
+        }
+        showDeleteModal = true;
     }
 
-    const handleDragStart = (event) => {
-        draggedImage = event.currentTarget.id;
+    // Toggle image selection
+    function toggleImageSelection(imageId: string) {
+        const newSet = new Set(selectedImages);
+        if (newSet.has(imageId)) {
+            newSet.delete(imageId);
+        } else {
+            newSet.add(imageId);
+        }
+        selectedImages = newSet;
     }
 
-    const handleDragOver = (event) => {
-        event.preventDefault();
-        draggedOverImage = event.currentTarget.id;
-    }
-
-    const handleDrop = (event) => {
-        event.preventDefault();
-        if (draggedImage && draggedOverImage) {
-            console.log(draggedImage, "::", draggedOverImage);
-            //Make an API call to create a new group with these images
-            fetch('api/groups', {
+    // Handle drag-drop group creation
+    async function handleDrop(sourceId: string, targetId: string) {
+        try {
+            const response = await fetch('api/groups', {
                 method: 'POST',
                 headers: {
-                  'Content-Type': 'application/json',
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     name: Date.now().toString(),
-                    imageIds: [draggedImage, draggedOverImage],
+                    imageIds: [sourceId, targetId],
                 }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log("Group created with ID:", data.data._id);
-                    // Refresh the groups list
-                    fetchGroups();
-                }
             });
-        }
-
-        draggedImage = null;
-        draggedOverImage = null;
-    }
-
-    const toggleCreateNewGroup = () => {
-        createNewGroup = !createNewGroup;
-        if (!createNewGroup) {
-            newGroupName = "";
+            const result = await response.json();
+            if (result.success) {
+                console.log("Group created with ID:", result.data._id);
+                // Refresh the page to show updated content
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error("Error creating group:", error);
         }
     }
 
-    const createGroup = async () => {
-
+    // Create a new group with selected images
+    async function createGroup() {
         if (selectedImages.size === 0) {
             alert("Please select at least one image");
             return;
@@ -160,14 +181,13 @@
             if (result.success) {
                 console.log("Group created successfully");
                 showAddToGroupModal = false;
-                selectedImages.clear();
-                selectedImages = selectedImages;
-                groupAddMode = false;
+                selectedImages = new Set();
+                groupMode = false;
                 newGroupName = "";
                 createNewGroup = false;
                 
-                // Refresh the groups list
-                fetchGroups();
+                // Refresh the page
+                window.location.reload();
             } else {
                 console.error("Failed to create group:", result.error);
                 alert("Failed to create group:" + result.error);
@@ -178,7 +198,8 @@
         }
     }
 
-    const addToExistingGroup = async () => {
+    // Add selected images to existing group
+    async function addToExistingGroup() {
         if (selectedImages.size === 0) {
             alert("Please select at least one image");
             return;
@@ -208,9 +229,8 @@
             if (result.message && result.message.includes('Added')) {
                 console.log("All images added to group successfully");
                 showAddToGroupModal = false;
-                selectedImages.clear();
-                selectedImages = selectedImages;
-                groupAddMode = false;
+                selectedImages = new Set();
+                groupMode = false;
                 selectedGroupId = "";
 
                 // Refresh the page
@@ -225,33 +245,11 @@
         }
     }
 
-    const selectAllImages = () => {
-        data.documents.forEach(element => {
-            if (!element.groupType) {
-                selectedImages.add(element._id);
-            }
-        });
-        selectedImages = selectedImages; // Trigger reactivity
-    }
-
-    const clearSelection = () => {
-        selectedImages.clear();
-        selectedImages = selectedImages; // Trigger reactivity
-    }
-
-    const handleBulkDelete = async () => {
-        if (selectedImages.size === 0) {
-            alert("Please select at least one image");
-            return;
-        }
-
-        showDeleteModal = true;
-    }
-
-    const confirmBulkDelete = async () => {
+    // Confirm bulk delete
+    async function confirmBulkDelete() {
         isDeleting = true;
         const imageIds = Array.from(selectedImages);
-        const imagesToDelete = data.documents.filter(doc => imageIds.includes(doc._id) && !doc.groupType);
+        const imagesToDelete = data.documents.filter((doc: AppContent) => imageIds.includes(doc._id) && !('groupType' in doc));
 
         try {
             const response = await fetch('/api/update', {
@@ -270,9 +268,8 @@
             if (result.success) {
                 console.log("Bulk delete completed:", result.message);
                 showDeleteModal = false;
-                selectedImages.clear();
-                selectedImages = selectedImages;
-                groupAddMode = false;
+                selectedImages = new Set();
+                groupMode = false;
                 // Refresh the page to show updated content
                 window.location.reload();
             } else {
@@ -291,160 +288,116 @@
 <div class="midContainer">
     <SideBar>
         <SearchBar />
-        <TagSection />
+        <TagSection imageTags={[]} editable={false} />
     </SideBar>
-    <div class="imageContainer">
-        <div class="controlBar">
-            <button class="groupButton" class:active={groupAddMode} on:click={toggleGroupAddMode}>
-                {groupAddMode ? 'Exit Group Mode' : 'Enter Group Mode'}
-            </button>
-            
-            {#if groupAddMode}
-                <div class="groupControls">
-                    <button on:click={selectAllImages}>Select All</button>
-                    <button on:click={clearSelection}>Clear Selection</button>
-                    <span class="selectedCount">{selectedImages.size} selected</span>
-                    <button class="addToGroupBtn" on:click={toggleAddToGroupModal} disabled={selectedImages.size === 0}>
-                        Add to Group
-                    </button>
-                    <button class="deleteBtn" on:click={handleBulkDelete} disabled={selectedImages.size === 0}>
-                        Delete Selected
-                    </button>
-                </div>
-            {/if}
-        </div>
 
-        <PageNav currPage={data.currPage} numPages={data.pageNum} />
-        <DropDown label="Image Size" options={sizes} bind:selectedValue={$improvImageSize} />
-        <DropDown label="Image Count" options={numImages} bind:selectedValue={$imageCount} />
+    <div class="imageContainer">
+        <PageNav baseUrl={browseDir} currentPage={data.currPage} totalPages={data.pageNum} />
         
-        <ImageBrowser minSize={$improvImageSize}>
-            {#each data.documents as element}
-                {#if element.groupType}
-                    <!-- Group element -->
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
-                    <div class="imageBox" id={element._id} 
-                         on:dragstart={handleDragStart} 
-                         on:dragover={handleDragOver} 
-                         on:drop={handleDrop}>
-                        {#if element.thumbnailPaths}
-                            <GroupThmb
-                                anchorLink="/postGroups/{element._id}"
-                                thmbSrc={element.thumbnailPaths[1]} 
-                                name={element.name} />
-                        {:else}
-                            <GroupThmb 
-                                thmbSrc="https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg" 
-                                anchorLink="/postGroups/{element._id}"
-                                name={element.name} />
-                        {/if}      
-                    </div>                
-                {:else}
-                    <!-- Image element -->
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <div class="imageBox" 
-                         class:selected={selectedImages.has(element._id)}
-                         id={element._id} 
-                         on:dragstart={handleDragStart} 
-                         on:dragover={handleDragOver} 
-                         on:drop={handleDrop}>
-                        {#if element.thumbnailPath}
-                            <div class="imageWrapper">
-                                <Image 
-                                    src="/{element.thumbnailPath}" 
-                                    mainLink={groupAddMode ? "" : "/posts/{element.uploadDate}"}
-                                    imageName={element.originalName} 
-                                    thumbnail={true}
-                                    selectable={groupAddMode}
-                                    on:select={() => toggleImageSelection(element._id)}
-                                />
-                                {#if groupAddMode}
-                                    <div class="checkboxOverlay">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={selectedImages.has(element._id)}
-                                            on:change={() => toggleImageSelection(element._id)}
-                                        />
-                                    </div>
-                                {/if}
-                            </div>
-                        {:else}
-                            <div class="imageWrapper">
-                                <Image 
-                                    src="https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg" 
-                                    mainLink={groupAddMode ? "" : "/posts/{element.uploadDate}"}
-                                    imageName={element.originalName}
-                                    selectable={groupAddMode}
-                                    on:select={() => toggleImageSelection(element._id)}
-                                />
-                                {#if groupAddMode}
-                                    <div class="checkboxOverlay">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={selectedImages.has(element._id)}
-                                            on:change={() => toggleImageSelection(element._id)}
-                                        />
-                                    </div>
-                                {/if}
-                            </div>
-                        {/if}      
-                    </div>
-                {/if}
-            {/each}
-        </ImageBrowser>
-        <PageNav currPage={data.currPage} numPages={data.pageNum} />
+        <ControlBar
+            mode={viewMode as 'browse' | 'select' | 'groupDetail'}
+            {groupMode}
+            {selectionCount}
+        />
+        
+        <ContentGrid
+            documents={data.documents ?? []}
+            mode={viewMode}
+            {groupMode}
+            selectedIds={selectedImages}
+            onToggleSelection={toggleImageSelection}
+            onDrop={handleDrop}
+        />
+        
+        <PageNav baseUrl={browseDir} currentPage={data.currPage} totalPages={data.pageNum} />
     </div>
-    <Modal show={modalShow}></Modal>
-    
+
     <!-- Add to Group Modal -->
     {#if showAddToGroupModal}
-    <div class="modalOverlay">
-        <div class="modalContent">
-            <h3>Add {selectedImages.size} Images to Group</h3>
-            
-            <div class="groupOptions">
-                <label>
-                    <input type="radio" name="groupOption" checked={!createNewGroup} on:change={() => createNewGroup = false}>
-                    Add to existing group
-                </label>
-                <label>
-                    <input type="radio" name="groupOption" checked={createNewGroup} on:change={() => createNewGroup = true}>
-                    Create new group
-                </label>
-            </div>
-            
-            {#if createNewGroup}
-                <div class="newGroupForm">
-                    <label for="newGroupName">Group Name</label>
-                    <input 
-                        type="text" 
-                        id="newGroupName" 
-                        bind:value={newGroupName} 
-                        placeholder="Enter group name (or timestamp will be used)"
-                    >
+        <div class="modal-overlay" onclick={() => showAddToGroupModal = false}>
+            <div class="modal-content" onclick={(e) => e.stopPropagation()}>
+                <h3>Add to Group</h3>
+                <p>{selectionCount} images selected</p>
+                
+                <div class="group-options">
+                    <label>
+                        <input 
+                            type="radio" 
+                            name="groupOption" 
+                            checked={!createNewGroup}
+                            onchange={() => createNewGroup = false}
+                        />
+                        Add to existing group
+                    </label>
+                    <label>
+                        <input 
+                            type="radio" 
+                            name="groupOption" 
+                            checked={createNewGroup}
+                            onchange={() => createNewGroup = true}
+                        />
+                        Create new group
+                    </label>
                 </div>
-            {:else}
-                <div class="groupSelector">
-                    <select bind:value={selectedGroupId}>
-                        <option value="">Select a group</option>
-                        {#each groups as group}
-                            <option value={group._id}>{group.name}</option>
-                        {/each}
-                    </select>
-                </div>
-            {/if}
-            
-            <div class="modalActions">
+
                 {#if createNewGroup}
-                    <button on:click={createGroup}>Create Group</button>
+                    <div class="new-group-form">
+                        <label>
+                            Group Name (optional):
+                            <input 
+                                type="text" 
+                                bind:value={newGroupName}
+                                placeholder="Leave empty for auto-generated name"
+                            />
+                        </label>
+                    </div>
                 {:else}
-                    <button on:click={addToExistingGroup} disabled={!selectedGroupId}>Add to Group</button>
+                    <div class="group-selector">
+                        <label>
+                            Select Group:
+                            <select bind:value={selectedGroupId}>
+                                <option value="">-- Select a group --</option>
+                                {#each groups as group}
+                                    <option value={group._id}>{group.name} ({group.imageCount || 0} images)</option>
+                                {/each}
+                            </select>
+                        </label>
+                    </div>
                 {/if}
-                <button on:click={() => showAddToGroupModal = false}>Cancel</button>
+
+                <div class="modal-actions">
+                    <button 
+                        onclick={createNewGroup ? createGroup : addToExistingGroup}
+                        disabled={(!createNewGroup && !selectedGroupId)}
+                    >
+                        {createNewGroup ? 'Create Group' : 'Add to Group'}
+                    </button>
+                    <button onclick={() => showAddToGroupModal = false}>Cancel</button>
+                </div>
             </div>
         </div>
-    </div>
+    {/if}
+
+    <!-- Delete Confirmation Modal -->
+    {#if showDeleteModal}
+        <div class="modal-overlay" onclick={() => showDeleteModal = false}>
+            <div class="modal-content" onclick={(e) => e.stopPropagation()}>
+                <h3>Confirm Delete</h3>
+                <p>Are you sure you want to delete {selectionCount} images?</p>
+                <p class="warning">This action cannot be undone.</p>
+                
+                <div class="modal-actions">
+                    <button 
+                        onclick={confirmBulkDelete}
+                        disabled={isDeleting}
+                        class="delete-btn"
+                    >
+                        {isDeleting ? 'Deleting...' : 'Delete'}
+                    </button>
+                    <button onclick={() => showDeleteModal = false}>Cancel</button>
+                </div>
+            </div>
+        </div>
     {/if}
 </div>
 
@@ -460,98 +413,11 @@
         }
     }
 
-    .controlBar {
-        display: flex;
-        align-items: center;
-        gap: 15px;
+    .imageContainer {
         padding: 10px;
-        background-color: #f0f0f0;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        flex-wrap: wrap;
     }
 
-    .groupButton {
-        background-color: #4a90e2;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 8px 16px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-
-    .groupButton.active {
-        background-color: #e74c3c;
-    }
-    
-    .groupControls {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    
-    .groupControls button {
-        background-color: #f8f8f8;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 6px 12px;
-        cursor: pointer;
-    }
-    
-    .selectedCount {
-        background-color: #4a90e2;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.9rem;
-    }
-    
-    .addToGroupBtn {
-        background-color: #2ecc71 !important;
-        color: white;
-    }
-    
-    .addToGroupBtn:disabled {
-        background-color: #ccc !important;
-        cursor: not-allowed;
-    }
-    
-    .imageWrapper {
-        position: relative;
-    }
-    
-    .checkboxOverlay {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        z-index: 10;
-    }
-    
-    .checkboxOverlay input {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-    }
-    
-    .imageBox.selected {
-        outline: 3px solid #4a90e2;
-        position: relative;
-    }
-    
-    .imageBox.selected::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(74, 144, 226, 0.1);
-        z-index: 5;
-    }
-    
-    .modalOverlay {
+    .modal-overlay {
         position: fixed;
         top: 0;
         left: 0;
@@ -563,60 +429,88 @@
         align-items: center;
         z-index: 1000;
     }
-    
-    .modalContent {
+
+    .modal-content {
         background-color: white;
         border-radius: 8px;
         padding: 20px;
         width: 400px;
         max-width: 90%;
     }
-    
-    .groupSelector, .newGroupForm {
+
+    .modal-content h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+
+    .group-options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 15px 0;
+    }
+
+    .group-options label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    .group-selector,
+    .new-group-form {
         margin: 20px 0;
     }
-    
-    .groupSelector select, .newGroupForm input {
+
+    .group-selector label,
+    .new-group-form label {
+        display: block;
+    }
+
+    .group-selector select,
+    .new-group-form input {
         width: 100%;
         padding: 8px;
         border-radius: 4px;
         border: 1px solid #ddd;
         margin-top: 5px;
     }
-    
-    .groupOptions {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin: 15px 0;
-    }
-    
-    .modalActions {
+
+    .modal-actions {
         display: flex;
         justify-content: flex-end;
         gap: 10px;
         margin-top: 20px;
     }
-    
-    .modalActions button {
+
+    .modal-actions button {
         padding: 8px 16px;
         border-radius: 4px;
         cursor: pointer;
     }
-    
-    .modalActions button:first-child {
+
+    .modal-actions button:first-child {
         background-color: #4a90e2;
         color: white;
         border: none;
     }
-    
-    .modalActions button:first-child:disabled {
+
+    .modal-actions button:first-child:disabled {
         background-color: #ccc;
         cursor: not-allowed;
     }
-    
-    .modalActions button:last-child {
+
+    .modal-actions button:last-child {
         background-color: #f0f0f0;
         border: 1px solid #ddd;
+    }
+
+    .delete-btn {
+        background-color: #e74c3c !important;
+    }
+
+    .warning {
+        color: #e74c3c;
+        font-size: 0.9rem;
     }
 </style>
