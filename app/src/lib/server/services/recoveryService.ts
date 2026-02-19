@@ -154,7 +154,7 @@ export const recoveryService = {
                         type: type,
                         originalName: filename,
                         sanitizedFilename: filename,
-                        imagePath: `images/${filePath}`,
+                        imagePath: filePath,
                         uploadDate: timestamp,
                         thumbnailPath: '',
                         group: [],
