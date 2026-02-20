@@ -1,6 +1,12 @@
 <script>
 	import Navigation from "$lib/navigation.svelte";
+	import { theme } from "$lib/stores/themeStore";
+	import "$lib/styles/theme.css";
+	import { onMount } from "svelte";
 
+	onMount(() => {
+		theme.initialize();
+	});
 </script>
 
 
@@ -26,10 +32,11 @@
         width:100%;
     }
     :global(body){
-        background-color:#ffecef;
+        background-color: var(--bg-primary);
         margin:0;
         height:100%;
         width:100%;
+        transition: background-color 0.3s ease;
     }
 
     .mainFlex{
@@ -46,10 +53,10 @@
     }
 
     .logo{
-        margin-left: 50px;        
+        margin-left: 50px;
         display:grid;
         grid-template-areas:
-        "logo . ." 
+        "logo . ."
         ". . tagline";
     }
 
@@ -57,14 +64,14 @@
         margin: 10px;
         grid-area: logo;
         font-family: 'Orbitron', sans-serif;
-        color:#7BAFD4;
+        color: var(--text-accent);
     }
 
     .logo h3{
         /* margin: 0px 180px 10px; */
         grid-area: tagline;
         font-family: 'Orbitron', sans-serif;
-        color:#345D7E;
+        color: var(--text-primary);
     }
 
     @media (max-width:1450px) {
