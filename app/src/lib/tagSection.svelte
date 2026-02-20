@@ -103,16 +103,18 @@
     .TagSection{
         display: grid;
         grid-template-rows: 2rem minmax(120px, auto) 1.5rem 1.5rem 1.5rem 1fr;
-        background-color: #FFFFFF;
+        background-color: var(--bg-card);
         border-radius: 15px;
         justify-content: center;
         width: 230px;
+        transition: background-color 0.3s ease;
     }
 
     .TagSection h3{
         font-family: 'Montserrat', sans-serif;
         margin:.2rem;
         text-align:center;
+        color: var(--text-primary);
     }
 
     ul{
@@ -139,13 +141,14 @@
     button{
         font-size:16px;
         font-family: 'Montserrat', sans-serif;
-        color:#fafafa;
-        background: #7c3036;
+        color: var(--button-text);
+        background: var(--button-primary);
         outline: none;
         border: none;
         border-radius: 6px;
         width:200px;
         margin: 0 20px 0 10px;
+        transition: background-color 0.3s ease;
     }
     
 </style>

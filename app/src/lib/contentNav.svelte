@@ -53,7 +53,7 @@ onMount(() => {
 
 <style>
     .pagination{
-        margin: 12px;
+        margin: 12px 0px;
         width: 100%;
         display: flex;
         justify-content: space-around;
