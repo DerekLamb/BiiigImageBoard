@@ -1,150 +1,191 @@
-<script lang=ts>
-    import { createEventDispatcher } from "svelte";
-    // https://svelte.dev/repl/5734f123973d4682978427024ca90850?version=3.29.0
+<script lang="ts">
+    let { autocompleteTags = [], ontag }: { autocompleteTags?: string[]; ontag?: (tag: string) => void } = $props();
+    
+    let inputRef = $state<HTMLInputElement | null>(null);
+    let inputValue = $state('');
+    let filteredTags = $state<string[]>([]);
+    let highlightIndex = $state<number | null>(null);
+    let showDropdown = $state(false);
 
-    export let autocompleteTags: string[] = []; // Should be an array sorted by popularity
-    export let filteredTags: string[] = [];
-    const dispatch = createEventDispatcher();
-    let searchInput: any; // bind:this on the tag element
-    let inputValue = "";
-    let highlightIndex: null | number = null;
-    let highlightedTag = "";
+    // Derived: highlighted tag
+    let highlightedTag = $derived(highlightIndex !== null ? filteredTags[highlightIndex] ?? '' : '');
 
-    const filterTags = () => { // builds the filtered list of tags to display, may add adjustable limit
-        let storageArr = [];
-        if( inputValue ) {
-
-            for (const tag of autocompleteTags) {
-                if( tag.toLowerCase().startsWith(inputValue.toLowerCase()) ) {
-                    storageArr.push(tag);
-                }
-                if( storageArr.length >= 5 ) {
-                    break;
-                }
-            }
+    // Effect: hide dropdown when input is empty
+    $effect(() => {
+        if (!inputValue) {
+            filteredTags = [];
+            highlightIndex = null;
+            showDropdown = false;
         }
-        filteredTags = storageArr;
-    }
+    });
 
-    $: if (!inputValue) { // clears the filtered list when the input is empty
-        filteredTags = [];
-        highlightIndex = null;
-    }
-
-
-    const clearInput = () => { // clears the input field
-        inputValue = "";
-        searchInput.focus();
-    }
-
-    const handleInputVal = (tag) => { // sets the input value to the selected tag
-        if(highlightIndex !== null) { 
-            dispatch("tag", {tag: tag});
-            clearInput();
-        } else {
-            dispatch("tag", {tag: inputValue});
-            clearInput();
-        }
-        filteredTags = [];
-        highlightIndex = null;
-        document.querySelector('#tagAddInput').focus();
-    }
-
-    $: highlightedTag = filteredTags[highlightIndex] ?? ""; 
-    //$: console.log(highlightIndex)
-
-    const navigateList = (e) => { // handles keyboard navigation of the list
-        if (e.key === "ArrowDown" && highlightIndex < filteredTags.length-1) {
-            highlightIndex === null ? highlightIndex = 0 : highlightIndex += 1
-        } else if (e.key === "ArrowUp" && highlightIndex !== null) {
-            highlightIndex === 0 ? highlightIndex = filteredTags.length-1 : highlightIndex -= 1
-        } else if (e.key === "Enter") {
-            handleInputVal(filteredTags[highlightIndex]);
-        } else if (e.key === "Escape") {
-            clearInput();
-        } else {
+    const filterTags = () => {
+        if (!inputValue) {
+            filteredTags = [];
+            showDropdown = false;
             return;
         }
-    } 
 
+        const storageArr: string[] = [];
+        const lowerInput = inputValue.toLowerCase();
 
+        for (const tag of autocompleteTags) {
+            if (tag.toLowerCase().startsWith(lowerInput)) {
+                storageArr.push(tag);
+            }
+            if (storageArr.length >= 5) {
+                break;
+            }
+        }
 
+        filteredTags = storageArr;
+        showDropdown = storageArr.length > 0;
+    };
+
+    const clearInput = () => {
+        inputValue = '';
+        filteredTags = [];
+        highlightIndex = null;
+        showDropdown = false;
+        inputRef?.focus();
+    };
+
+    const selectTag = (tag: string | null) => {
+        const tagToDispatch = tag ?? inputValue;
+        ontag?.(tagToDispatch);
+        clearInput();
+    };
+
+    const handleKeydown = (e: KeyboardEvent) => {
+        if (!showDropdown || filteredTags.length === 0) {
+            if (e.key === "Enter" && inputValue) {
+                e.preventDefault();
+                selectTag(null);
+            }
+            return;
+        }
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            if (highlightIndex === null || highlightIndex >= filteredTags.length - 1) {
+                highlightIndex = 0;
+            } else {
+                highlightIndex += 1;
+            }
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            if (highlightIndex === null || highlightIndex === 0) {
+                highlightIndex = filteredTags.length - 1;
+            } else {
+                highlightIndex -= 1;
+            }
+        } else if (e.key === "Enter") {
+            e.preventDefault();
+            selectTag(filteredTags[highlightIndex ?? 0]);
+        } else if (e.key === "Escape") {
+            clearInput();
+        }
+    };
+
+    const handleBlur = () => {
+        // Delay to allow click events on dropdown items
+        setTimeout(() => {
+            filteredTags = [];
+            highlightIndex = null;
+            showDropdown = false;
+        }, 150);
+    };
+
+    const handleFocus = () => {
+        if (inputValue && filteredTags.length > 0) {
+            showDropdown = true;
+        }
+    };
 </script>
 
-
-<div>
-    <input id="tagAddInput"
-            type="text"
-            placeholder="Enter Tag:"
-            bind:this={searchInput}
-            bind:value = {inputValue}
-            on:keydown={navigateList}
-            on:input={filterTags}>
+<div class="tag-input-wrapper">
+    <input 
+        id="tagAddInput"
+        type="text"
+        placeholder="Enter Tag:"
+        bind:this={inputRef}
+        bind:value={inputValue}
+        onkeydown={handleKeydown}
+        oninput={filterTags}
+        onblur={handleBlur}
+        onfocus={handleFocus}
+        autocomplete="off"
+    />
     
-    <div class="tagInputContainer">
-        {#if filteredTags.length > 0}
-            <ul id="autocomplete-items-list">
-                {#each filteredTags as tag, i}
-                    <li  class="autocomplete-items" class:autocomplete-active={highlightIndex == i}>{tag}</li>
-                {/each}
-            </ul>
-        {/if}
-    </div>
+    {#if showDropdown && filteredTags.length > 0}
+        <ul class="autocomplete-dropdown">
+            {#each filteredTags as tag, i}
+                <li 
+                    class="autocomplete-item"
+                    class:active={highlightIndex === i}
+                    onmousedown={() => selectTag(tag)}
+                    role="option"
+                    aria-selected={highlightIndex === i}
+                >
+                    {tag}
+                </li>
+            {/each}
+        </ul>
+    {/if}
 </div>
 
 <style>
-#tagAddInput {
-    box-sizing: border-box;
-    background: #f7d1d7;
-    font-family: 'Montserrat', sans-serif;
-    width: 100%;
-    font-size:14px;
-    padding: 4px;
-    outline: none;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
+    .tag-input-wrapper {
+        position: relative;
+    }
 
-.tagInputContainer {
-    position: relative;
+    #tagAddInput {
+        box-sizing: border-box;
+        background: #f7d1d7;
+        font-family: 'Montserrat', sans-serif;
+        width: 100%;
+        font-size: 14px;
+        padding: 4px;
+        outline: none;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
 
-}
+    .autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 100px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        border-radius: 0 0 5px 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        z-index: 99;
+    }
 
-#autocomplete-items-list {
-    position: absolute;
-	margin: 0;
-	padding: 0;
-	top: 0;
-	width: 100px;
-	border: 1px solid #ddd;
-	background-color: #ddd;
-}	
+    .autocomplete-item {
+        padding: 5px 12px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-bottom: 1px solid #d4d4d4;
+        font-family: 'Montserrat', sans-serif;
+        white-space: nowrap;
+    }
 
-li.autocomplete-items {
-    list-style: none;
-    border-bottom: 1px solid #d4d4d4;
-    font-family: 'Montserrat', sans-serif;
-    z-index: 99;
-    position:relative;
-    /*position the autocomplete items to be the same width as the container:*/
-    top: 100%;
-    left: 0;
-    right: 0;
-    padding: 5px 12px;
-    cursor: pointer;
-    background-color: #fff;
-    transition: background-color 0.2s;
-}
+    .autocomplete-item:last-child {
+        border-bottom: none;
+    }
 
-li.autocomplete-items:hover {
-    /*when hovering an item:*/
-    background-color: #81921f;
+    .autocomplete-item:hover {
+        background-color: #81921f;
         color: white;
-}
+    }
 
-li.autocomplete-active {
-    /*when navigating through the items using the arrow keys:*/
-    background-color: DodgerBlue !important;
-    color: #ffffff;
-}	
+    .autocomplete-item.active {
+        background-color: DodgerBlue !important;
+        color: #ffffff;
+    }
 </style>

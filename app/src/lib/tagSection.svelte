@@ -31,13 +31,13 @@
     }
 
 
-    function handleMessage(event) {
-        console.log(event.detail);
-        const newTag = event.detail.tag.toLowerCase().trim().replace(/ /g,"_");;
+    function handleTag(tag: string) {
+        console.log(tag);
+        const newTag = tag.toLowerCase().trim().replace(/ /g, "_");
         if (newTag !== "") {
             imageTags = imageTags ? [...imageTags, newTag] : [newTag];
             updateServerTags();
-            }
+        }
     }
 
     function handleDeleteTag(event){ 
@@ -77,7 +77,7 @@
                 </ul>
                 {#if editing}
                 <div class="inputContainer">
-                    <AutoTagInput autocompleteTags={autoTags} on:tag = {handleMessage} />
+                    <AutoTagInput autocompleteTags={autoTags} ontag={handleTag} />
                 </div>
                 {/if}
             </div>
