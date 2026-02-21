@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
+import { goto } from "$app/navigation";
 
 export let contentId = "";
 
@@ -20,20 +20,20 @@ function returnToPosts(){
         outline: none;
         width: 100%;
         height: 50px;
-        background: #f7d1d7;
+        background: var(--bg-input);
         border-radius:25px;
-        transition: background-color 0.2s;
+        transition: background-color 0.3s ease;
     }
 
     .returnBtn:hover {
-    background-color: #ffffff;
-  }
+        background-color: var(--button-hover);
+    }
 
     span{
         font-family: 'Montserrat', sans-serif;
         font-size: 20px;
         margin: 5px 10px;
-        color: #5b5b5b;
+        color: var(--text-muted);
         width: 100%;
         text-align: center;
     }
