@@ -32,9 +32,9 @@
         bottom: 0;
         left: -200px; /* Menu width */
         width: 200px; /* Menu width */
-        background-color: #fff;
+        background-color: var(--bg-secondary);
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-        transition: left 0.3s;
+        transition: left 0.3s, background-color 0.3s ease;
         z-index: 1000;
     }
 
