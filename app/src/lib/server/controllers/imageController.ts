@@ -2,6 +2,7 @@ import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
 import { FileModel } from '$lib/server/models/fileModel';
 import { localImageStorage } from '$lib/server/services/imageStorageAdapter/localImageStorage';
 import { localImageProcessing } from '$lib/server/services/imageStorageAdapter/localImageProcessing';
+import promptDecode from '$lib/ExtractPrompt';
 
 const constDefaultPath = 'images/';
 
@@ -163,10 +164,32 @@ class ImageController {
             }
             else{
                 await localImageProcessing.createThumbnail(imageDataObj, buffer);
+                
+                this.extractPromptAsync(hash, buffer).catch(err => {
+                    console.error(`Prompt extraction failed for ${hash}:`, err);
+                });
             }
 
             return dbResults;
         } catch (error: any) {}
+    }
+
+    /**
+     * Extract embedded prompt metadata from image and update database.
+     * Designed to be called as fire-and-forget after successful upload.
+     */
+    private async extractPromptAsync(imageId: string, buffer: Buffer): Promise<void> {
+        try {
+            const arrayBuffer = new Uint8Array(buffer).buffer as ArrayBuffer;
+            const promptData = promptDecode(arrayBuffer);
+            
+            if (promptData) {
+                await ImageModel.updateImage(imageId, 'embPrompt', promptData);
+            }
+        } catch (error) {
+            // Log but don't throw - this is fire-and-forget
+            console.error(`Error extracting prompt for ${imageId}:`, error);
+        }
     }
 
     async updateAllThumbnails() {

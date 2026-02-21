@@ -1,6 +1,7 @@
 import { ObjectId, Collection } from "mongodb"
 import { db } from '$lib/db.server'
 import txtToSearchParam from "./SearchTxtToFilter";
+import type { EmbeddedPrompt } from "./types/DocTypes";
 
 
 interface ImageData {
@@ -11,7 +12,7 @@ interface ImageData {
     uploadDate: string;
     thumbnailPath: string | null;
     tags: string[] | null;
-    embPrompt?: string[][] | null;
+    embPrompt?: EmbeddedPrompt | null;
     related?: string[] | null;
     favorite?: string[] | null;
     hidden?: string[] | null;
