@@ -2,7 +2,6 @@ import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
 import { FileModel } from '$lib/server/models/fileModel';
 import { localImageStorage } from '$lib/server/services/imageStorageAdapter/localImageStorage';
 import { localImageProcessing } from '$lib/server/services/imageStorageAdapter/localImageProcessing';
-import promptDecode from '$lib/ExtractPrompt';
 
 const constDefaultPath = 'images/';
 
@@ -128,8 +127,14 @@ class ImageController {
         }
     }
 
+    /**
+     * Process a new image upload.
+     * Saves image to disk and inserts metadata into database.
+     * Thumbnail generation and prompt extraction are deferred to the background task queue
+     * (imageProcessor.processAllImages()) to avoid blocking the upload response.
+     */
     async newImage(file: imgFile, uniqueID: string) {
-        // process image data
+        // Read file into buffer for hashing and storage
         let buffer = Buffer.from(await file.arrayBuffer());
         let hash = await FileModel.hashFile(buffer);
 
@@ -138,13 +143,14 @@ class ImageController {
             console.log(hash);
             return null;
         }
-        const supportedVideo = ["mp4", "webm", ];
+
+        const supportedVideo = ["mp4", "webm"];
         let ext = file.name.split('.').pop() ?? "";
         let newFileName = `${uniqueID}.${ext}`;
 
         let type: "image" | "video" = supportedVideo.includes(ext) ? "video" : "image"
 
-        const imageDataObj : AppImageData = {
+        const imageDataObj: AppImageData = {
             _id: hash,
             originalName: file.name,
             sanitizedFilename: newFileName,
@@ -157,39 +163,16 @@ class ImageController {
         }
 
         try {
+            // Save image to disk and insert metadata into database
+            // Thumbnail/prompt work is deferred to background processor
             const dbResults = await this.addImage(imageDataObj, buffer);
 
-            if(type === "video"){
-                await localImageProcessing.createVideoThumbnail(imageDataObj);
-            }
-            else{
-                await localImageProcessing.createThumbnail(imageDataObj, buffer);
-                
-                this.extractPromptAsync(hash, buffer).catch(err => {
-                    console.error(`Prompt extraction failed for ${hash}:`, err);
-                });
-            }
+            // Release buffer reference to allow GC to reclaim memory
+            // Image is now safely on disk, buffer is no longer needed
+            buffer = Buffer.alloc(0);
 
             return dbResults;
         } catch (error: any) {}
-    }
-
-    /**
-     * Extract embedded prompt metadata from image and update database.
-     * Designed to be called as fire-and-forget after successful upload.
-     */
-    private async extractPromptAsync(imageId: string, buffer: Buffer): Promise<void> {
-        try {
-            const arrayBuffer = new Uint8Array(buffer).buffer as ArrayBuffer;
-            const promptData = promptDecode(arrayBuffer);
-            
-            if (promptData) {
-                await ImageModel.updateImage(imageId, 'embPrompt', promptData);
-            }
-        } catch (error) {
-            // Log but don't throw - this is fire-and-forget
-            console.error(`Error extracting prompt for ${imageId}:`, error);
-        }
     }
 
     async updateAllThumbnails() {
@@ -199,7 +182,8 @@ class ImageController {
             const images = await ImageModel.findImages({}, 500, i * 500);
             for (let j = 0; j < images.length; j++){
                 const imageData = images[j];
-                await localImageProcessing.createThumbnail(imageData);
+                const buffer = await FileModel.read(imageData.imagePath);
+                await localImageProcessing.createThumbnail(imageData, buffer);
             }
         }
     }
@@ -208,7 +192,8 @@ class ImageController {
         const images = await ImageModel.findImages({thumbnailPath: ''});
         for (let i = 0; i < images.length; i++){
             const imageData = images[i];
-            await localImageProcessing.createThumbnail(imageData);
+            const buffer = await FileModel.read(imageData.imagePath);
+            await localImageProcessing.createThumbnail(imageData, buffer);
         }
     }
 
