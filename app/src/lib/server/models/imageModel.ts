@@ -1,5 +1,5 @@
 import { ObjectId, type Sort, } from "mongodb";
-import { type BaseImage } from "$lib/types/DocTypes";
+import { type BaseImage, type AppImage } from "$lib/types/DocTypes";
 import { imageCollection } from "$lib/db.server"
 import { createMongoCollection } from "../collectionLayer";
 
@@ -104,6 +104,23 @@ export const ImageModel = {
         return 0; //todo later
         // obj = {currName = "", oldNames = [] }
         // if properties.map( in oldNames, change to newName. Break on err if multiple found )
-                
+                    
+    },
+
+    async updateManyImages(imageIds: string[], updates: Partial<AppImage>) {
+        const updatePromises = imageIds.map(id =>
+            imageColl.updateOne({ _id: new ObjectId(id) }, { $set: updates })
+        );
+        await Promise.all(updatePromises);
+        return { success: true, count: imageIds.length };
+    },
+
+    async deleteManyImages(imageIds: string[]) {
+        const deletePromises = imageIds.map(id =>
+            imageColl.deleteOne({ _id: new ObjectId(id) })
+        );
+        const results = await Promise.all(deletePromises);
+        const deletedCount = results.reduce((sum, r) => sum + (r.deletedCount || 0), 0);
+        return { success: deletedCount === imageIds.length, deleted: deletedCount };
     }
 }

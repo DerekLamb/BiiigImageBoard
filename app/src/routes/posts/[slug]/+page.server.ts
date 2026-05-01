@@ -70,15 +70,24 @@ export const actions = {
         redirect(303, redirectSlug);
     },
 
-    update: async ({ request, locals }) => {  // may not be using any more... TODO 
-        if( !locals.user){
+    updatePrompt: async ({ request, locals }) => {
+        if (!locals.user) {
             redirect(307, '/login');
         }
 
         const data = await request.json();
-        const genName = data.genName;
-        const tags = data.tags;
-        console.log(genName);
-        console.log(tags);
+        const { imageId, embPrompt } = data;
+
+        if (!imageId || !embPrompt) {
+            throw new Error('Missing required fields');
+        }
+
+        try {
+            await imageController.updateImageProperty(imageId, 'embPrompt', embPrompt);
+            return { success: true };
+        } catch (error: any) {
+            console.error('Error updating embedded prompt:', error);
+            throw new Error(error.message);
+        }
     }
 }

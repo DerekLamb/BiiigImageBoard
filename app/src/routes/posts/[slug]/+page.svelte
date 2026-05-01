@@ -6,15 +6,21 @@ import Image from "$lib/image.svelte";
 import Video from "$lib/video.svelte"
 import ContentNav from "$lib/contentNav.svelte";
 import ReturnButton from '$lib/returnButton.svelte';
+import Modal from "$lib/svelteComponents/modal.svelte";
 import promptDecode from '$lib/ExtractPrompt';
 import type { EmbeddedPrompt } from '$lib/types/DocTypes';
 import type { PageData } from './$types';
 
 export let data: PageData;
-let tags = data.image?.tags ?? [];
-let embPrompt: EmbeddedPrompt | null | undefined = data.image?.embPrompt;
+$: tags = data.image?.tags ?? [];
+$: embPrompt = data.image?.embPrompt;
 let imageYScroll = 0;
 let showRawPrompt = false;
+
+// Extraction state
+let extractionResult: EmbeddedPrompt | null = null;
+let isExtractionModalOpen = false;
+let isProcessing = false;
 
 function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
@@ -46,8 +52,56 @@ function toggleRawPrompt() {
 }
 
 async function decodePrompt() {
-    let imgBuffer = await fetch(`/${data.image?.imagePath}`);
-    console.log(promptDecode(await imgBuffer.arrayBuffer()));
+    isProcessing = true;
+    try {
+        let imgBuffer = await fetch(`/${data.image?.imagePath}`);
+        const extracted = promptDecode(await imgBuffer.arrayBuffer());
+        if (extracted) {
+            extractionResult = extracted;
+            isExtractionModalOpen = true;
+        } else {
+            alert('No embedded prompt data found in this image.');
+        }
+    } catch (error) {
+        console.error('Extraction error:', error);
+        alert('Failed to extract prompt data.');
+    } finally {
+        isProcessing = false;
+    }
+}
+
+async function saveExtraction() {
+    if (!extractionResult || !data.image?._id) return;
+    
+    isProcessing = true;
+    try {
+        const response = await fetch('/api/extraction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                imageId: data.image._id,
+                embPrompt: extractionResult
+            })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            // Refresh the page data by reloading
+            window.location.reload();
+        } else {
+            alert(`Failed to save: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('Save error:', error);
+        alert('Failed to save extraction results.');
+    } finally {
+        isProcessing = false;
+    }
+}
+
+function cancelExtraction() {
+    extractionResult = null;
+    isExtractionModalOpen = false;
 }
 
 function getSourceLabel(source: string): string {
@@ -176,8 +230,78 @@ function getSourceColor(source: string): string {
         {:else if data.image?.type !== 'video'}
             <div class="promptPanel empty">
                 <p>No embedded prompt data found in this image.</p>
-                <button class="actionBtn" on:click={decodePrompt}>Attempt Extraction</button>
+                <button class="actionBtn" on:click={decodePrompt} disabled={isProcessing}>
+                    {isProcessing ? 'Extracting...' : 'Attempt Extraction'}
+                </button>
             </div>
+        {/if}
+
+        <!-- Extraction Results Modal -->
+        {#if isExtractionModalOpen && extractionResult}
+            <Modal show={isExtractionModalOpen}>
+                <h3 slot="header">Extraction Results</h3>
+                <div class="extractionPreview">
+                    <div class="extractionSource">
+                        <span class="sourceBadge" style="background-color: {getSourceColor(extractionResult.source)}">
+                            {getSourceLabel(extractionResult.source)}
+                        </span>
+                    </div>
+
+                    {#if extractionResult.positive.length > 0}
+                        <div class="extractionSection">
+                            <h4>Positive Prompt</h4>
+                            <div class="promptTags">
+                                {#each extractionResult.positive as tag, i}
+                                    <span class="tag positive">{tag}{#if i < extractionResult.positive.length - 1}{/if}</span>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if extractionResult.negative.length > 0}
+                        <div class="extractionSection">
+                            <h4>Negative Prompt</h4>
+                            <div class="promptTags">
+                                {#each extractionResult.negative as tag, i}
+                                    <span class="tag negative">{tag}{#if i < extractionResult.negative.length - 1}{/if}</span>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if extractionResult.metadata.length > 0}
+                        <div class="extractionSection metadata">
+                            <h4>Generation Settings</h4>
+                            <div class="metadataGrid">
+                                {#each extractionResult.metadata as meta}
+                                    {@const [key, ...valueParts] = meta.split(':')}
+                                    {@const value = valueParts.join(':').trim()}
+                                    <div class="metaItem">
+                                        <span class="metaKey">{key}</span>
+                                        <span class="metaValue">{value}</span>
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if extractionResult.raw}
+                        <div class="rawPrompt">
+                            <h4>Raw Data</h4>
+                            <pre>{extractionResult.raw}</pre>
+                        </div>
+                    {/if}
+
+                    <div class="extractionActions">
+                        <button class="actionBtn" on:click={saveExtraction} disabled={isProcessing}>
+                            {isProcessing ? 'Saving...' : 'Save Changes'}
+                        </button>
+                        <button class="actionBtn secondary" on:click={cancelExtraction} disabled={isProcessing}>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         {/if}
 
         <!-- Image Info Panel -->
@@ -498,5 +622,34 @@ function getSourceColor(source: string): string {
 
     .deleteBtn:hover {
         background-color: #c82333;
+    }
+
+    /* Extraction Modal Preview Styles */
+    .extractionPreview {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .extractionSource {
+        margin-bottom: 16px;
+        text-align: right;
+    }
+
+    .extractionSection {
+        margin-bottom: 16px;
+    }
+
+    .extractionSection h4 {
+        margin: 0 0 8px 0;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+
+    .extractionActions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid #dee2e6;
     }
 </style>
