@@ -37,19 +37,16 @@ export const actions = {
 
         // Process uploads in batches to control memory usage and concurrency
         // This prevents overwhelming disk I/O, database connections, and Node.js heap
-        const uploadResults: PromiseSettledResult<{ success: boolean; error?: string } | undefined>[] = [];
+        const uploadResults: Array<{ status: 'success' | 'duplicate' | 'error'; error?: string }> = [];
 
         for (let i = 0; i < files.length; i += UPLOAD_BATCH_SIZE) {
             const batch = files.slice(i, i + UPLOAD_BATCH_SIZE);
-            const batchResults = await Promise.allSettled(batch.map(async (file, index) => {
-                try {
-                    const globalIndex = i + index;
-                    const sequentialTimestamp = (parseInt(baseTimestamp) + globalIndex).toString();
-                    await imageController.newImage(file, sequentialTimestamp);
-                } catch (error) {
-                    return { success: false, error: `Error processing file ${file.name}: ${error}` };
-                }
-            }));
+            const batchPromises = batch.map(async (file, index) => {
+                const globalIndex = i + index;
+                const sequentialTimestamp = (parseInt(baseTimestamp) + globalIndex).toString();
+                return await imageController.newImage(file, sequentialTimestamp);
+            });
+            const batchResults = await Promise.all(batchPromises);
             uploadResults.push(...batchResults);
 
             // Small delay between batches to allow GC and prevent CPU spikes
@@ -65,22 +62,30 @@ export const actions = {
             console.error("Thumbnail processing failed:", err);
         });
 
-        // Check if all uploads succeeded
-        const allSuccess = uploadResults.every(
-            result => result.status === "fulfilled" && result.value?.success !== false
-        );
+        // Tally results by status
+        const successCount = uploadResults.filter(r => r.status === 'success').length;
+        const duplicateCount = uploadResults.filter(r => r.status === 'duplicate').length;
+        const failedResults = uploadResults.filter(r => r.status === 'error');
+        const failedCount = failedResults.length;
 
-        if (!allSuccess) {
-            const errors = uploadResults
-                .filter(result => result.status === "rejected" || (result.status === "fulfilled" && result.value?.success === false))
-                .map(result => {
-                    if (result.status === "rejected") return `Upload rejected: ${result.reason}`;
-                    return result.value?.error || "Unknown error";
-                });
-            return { success: false, submitted: 0, errors };
+        // Return detailed results including duplicate count
+        if (failedCount > 0) {
+            const errors = failedResults.map(r => r.error).filter(Boolean);
+            return {
+                success: false,
+                submitted: successCount,
+                duplicates: duplicateCount,
+                failed: failedCount,
+                errors
+            };
         }
 
-        return { success: true, submitted: files.length };
+        return {
+            success: true,
+            submitted: successCount,
+            duplicates: duplicateCount,
+            total: files.length
+        };
     }
 };
 

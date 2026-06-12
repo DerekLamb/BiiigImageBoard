@@ -7,6 +7,8 @@ import Video from "$lib/video.svelte"
 import ContentNav from "$lib/contentNav.svelte";
 import ReturnButton from '$lib/returnButton.svelte';
 import Modal from "$lib/svelteComponents/modal.svelte";
+import TrainingCaptionEditor from "$lib/svelteComponents/trainingCaptionEditor.svelte";
+import CleanupControls from "$lib/svelteComponents/cleanupControls.svelte";
 import promptDecode from '$lib/ExtractPrompt';
 import type { EmbeddedPrompt } from '$lib/types/DocTypes';
 import type { PageData } from './$types';
@@ -235,6 +237,16 @@ function getSourceColor(source: string): string {
                 </button>
             </div>
         {/if}
+
+        <!-- Training Caption Editor -->
+        <TrainingCaptionEditor
+            imageId={data.image?._id}
+            embPromptPositive={embPrompt?.positive ?? []}
+            editable={true}
+        />
+
+        <!-- ComfyUI Cleanup Controls -->
+        <CleanupControls imageId={data.image?._id} />
 
         <!-- Extraction Results Modal -->
         {#if isExtractionModalOpen && extractionResult}

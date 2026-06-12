@@ -2,24 +2,45 @@
     import AutoTagInput from "$lib/autoTagInput.svelte";
     import Tag from "$lib/tag.svelte";
 
-    let files:FileList = [];
-    let uploadQueue = [];
-    let uploadStatus = {
-        started:0,
-        results:[],
-        makeRequests:[]
+    interface UploadItem {
+        file: File;
+        name: string;
+        tags: string[];
+        size: number;
+        previewImage: string;
+        metadata: { title: string; description: string };
     }
 
+    interface UploadResult {
+        status: 'fulfilled' | 'rejected';
+        value?: any;
+        reason?: unknown;
+    }
 
-    function handleFilesChange(event) {
+    interface MakeRequestFn {
+        (): Promise<Response>;
+    }
+
+    let files: FileList = {} as FileList;
+    let uploadQueue: UploadItem[] = [];
+    let uploadStatus = {
+        started: 0,
+        results: [] as UploadResult[],
+        makeRequests: [] as MakeRequestFn[]
+    };
+
+    function handleFilesChange(event: Event) {
+        const target = event.target as HTMLInputElement;
+        files = target.files as FileList;
+
         uploadStatus = {
             started: 0,
             results: [],
-            makeRequests:[]
-        }
+            makeRequests: []
+        };
 
         const newFiles = Array.from(files);
-        console.log(event)
+        console.log(event);
         newFiles.forEach(file => {
             console.log(file);
             uploadQueue.push({
@@ -31,16 +52,13 @@
                 metadata: { title: '', description: '' }
             });
         });
-        // uploadQueue = uploadQueue.slice();
-        // makeRequests = uploadQueue.map(file => () => fileRequest(file))     
     }
 
-    function updateMetadata(index, key, value) {
+    function updateMetadata(index: number, key: 'title' | 'description', value: string) {
         uploadQueue[index].metadata[key] = value;
-        // uploadQueue = uploadQueue.slice();
     }
 
-    const fileRequest = (file) => {
+    const fileRequest = (file: UploadItem) => {
         let formData = new FormData();
         formData.append('image', file.file)
         return fetch('/upload', {
@@ -49,18 +67,21 @@
         })
     }
 
-    const processBatch = () => {
-    const i = uploadStatus.started++;
-    if (!uploadStatus.makeRequests[i]) return null;
+    const processBatch = async () => {
+        const i = uploadStatus.started++;
+        if (!uploadStatus.makeRequests[i]) return null;
 
-    return Promise.allSettled([uploadStatus.makeRequests[i]()])
-        .then(result => {
-        uploadStatus.results[i] = result[0];
+        try {
+            const response = await uploadStatus.makeRequests[i]();
+            const result = await response.json();
+            uploadStatus.results[i] = { status: 'fulfilled', value: result };
+        } catch (reason) {
+            uploadStatus.results[i] = { status: 'rejected', reason };
+        }
         return processBatch();
-        });
     };
 
-    const batchFileUpload = () => {
+    const batchFileUpload = async () => {
         uploadStatus = {
             started: 0,
             results: [],
@@ -68,16 +89,28 @@
         };
 
         const limit = Math.min(16, uploadQueue.length);
-        Promise.all(Array(limit).fill().map(processBatch))
-            .then(() => {
-            const successes = uploadStatus.results.filter(r => 
-                r?.status === "fulfilled").length;
-            const failures = uploadStatus.results.filter(r => 
-                r?.status === "rejected").length;
+        const runners: Promise<any>[] = [];
+        for (let i = 0; i < limit; i++) {
+            runners.push(processBatch());
+        }
+        await Promise.all(runners);
 
-            alert(`Successfully uploaded: ${successes}\nFailed: ${failures}`);
-            uploadQueue = [];
-            });
+        const successes = uploadStatus.results
+            .filter(r => r?.status === 'fulfilled' && r.value?.success === true)
+            .reduce((sum, r) => sum + (r.value.submitted || 0), 0);
+        const duplicates = uploadStatus.results
+            .filter(r => r?.status === 'fulfilled' && r.value?.duplicates !== undefined)
+            .reduce((sum, r) => sum + (r.value.duplicates || 0), 0);
+        const failures = uploadStatus.results
+            .filter(r => r?.status === 'rejected' || (r?.status === 'fulfilled' && r.value?.success === false))
+            .length;
+
+        let message = `Successfully uploaded: ${successes}`;
+        if (duplicates > 0) message += `\nDuplicates skipped: ${duplicates}`;
+        if (failures > 0) message += `\nFailed: ${failures}`;
+        
+        alert(message);
+        uploadQueue = [];
     };
 
 </script>
@@ -96,7 +129,6 @@
                     {#each item.tags as tag, tagIndex}
                         <Tag tag={tag} edit={true} />
                     {/each}
-                <input type="text" id="tagAddInput" placeholder="Add tag and press Enter" on:keydown="{e => handleKeyDown(e, index)}">
                 <AutoTagInput autocompleteTags={["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9"]} />
             </div>
         </div>

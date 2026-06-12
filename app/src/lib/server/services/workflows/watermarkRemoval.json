@@ -1,0 +1,59 @@
+{
+  "_comment": "ComfyUI API-format workflow for watermark removal using inpainting. PLACEHOLDER - Customize nodes to match your ComfyUI setup.",
+  "3": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "INPUT_FILENAME_PLACEHOLDER",
+      "upload": "image"
+    }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "clean, high quality, detailed",
+      "clip": ["5", 1]
+    }
+  },
+  "5": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": {
+      "ckpt_name": "v1-5-pruned-emaonly.ckpt"
+    }
+  },
+  "6": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "watermark, text, signature, logo, blur, low quality",
+      "clip": ["5", 1]
+    }
+  },
+  "7": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": ["5", 0],
+      "positive": ["4", 0],
+      "negative": ["6", 0],
+      "latent_image": ["3", 1],
+      "seed": 8566257,
+      "steps": 20,
+      "cfg": 8,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 0.35
+    }
+  },
+  "8": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["7", 0],
+      "vae": ["5", 2]
+    }
+  },
+  "9": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": ["8", 0],
+      "filename_prefix": "watermark_removal"
+    }
+  }
+}

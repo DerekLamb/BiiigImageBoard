@@ -49,6 +49,10 @@ export interface BaseImage { // should extend BaseDoc
     related?: string[];
     favorite?: string[];
     hidden?: string[];
+    /** Training caption for diffusion model training (separate from embPrompt) */
+    trainingPrompt?: string;
+    /** Status of cleanup processing pipeline */
+    cleanupStatus?: 'none' | 'pending' | 'processing' | 'completed' | 'failed';
 }
 
 

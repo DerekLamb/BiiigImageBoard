@@ -132,16 +132,16 @@ class ImageController {
      * Saves image to disk and inserts metadata into database.
      * Thumbnail generation and prompt extraction are deferred to the background task queue
      * (imageProcessor.processAllImages()) to avoid blocking the upload response.
+     * @returns Structured result indicating success, duplicate, or error state.
      */
-    async newImage(file: imgFile, uniqueID: string) {
+    async newImage(file: imgFile, uniqueID: string): Promise<{ status: 'success' | 'duplicate' | 'error'; data?: any; error?: string }> {
         // Read file into buffer for hashing and storage
         let buffer = Buffer.from(await file.arrayBuffer());
         let hash = await FileModel.hashFile(buffer);
 
-        if (await ImageModel.uniqueHash(hash) > 0) { // check if duplicate _id: hash; prevents duplicate images from being inserted
-            console.log(`Image already exists. _id:${hash} file.name:${file.name}`)
-            console.log(hash);
-            return null;
+        if (await ImageModel.uniqueHash(hash) > 0) {
+            console.log(`Duplicate image skipped. _id:${hash} file.name:${file.name}`);
+            return { status: 'duplicate', error: `Duplicate: ${file.name}` };
         }
 
         const supportedVideo = ["mp4", "webm"];
@@ -171,8 +171,11 @@ class ImageController {
             // Image is now safely on disk, buffer is no longer needed
             buffer = Buffer.alloc(0);
 
-            return dbResults;
-        } catch (error: any) {}
+            return { status: 'success', data: dbResults };
+        } catch (error: any) {
+            console.error(`Failed to upload image "${file.name}":`, error);
+            return { status: 'error', error: error.message || String(error) };
+        }
     }
 
     async updateAllThumbnails() {
