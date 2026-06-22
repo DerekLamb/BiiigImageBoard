@@ -295,7 +295,7 @@
         <PageNav baseUrl={browseDir} currentPage={data.currPage} totalPages={data.pageNum} />
         
         <ControlBar
-            mode={viewMode as 'browse' | 'select' | 'groupDetail'}
+            mode={viewMode}
             {groupMode}
             {selectionCount}
         />
