@@ -1,37 +1,18 @@
-import { auth } from "$lib/auth";
-import type { Handle } from "@sveltejs/kit";
+import { auth, initializeAdminUser } from "$lib/auth";
+import { svelteKitHandler } from "better-auth/svelte-kit";
+import { building } from "$app/environment";
 import { start_mongo } from "$lib/db.server";
 
-start_mongo().then(() => {
-	console.log("Connected to MongoDB");
-	auth.initialize();
-}).catch((err) => {
-	console.error(err);
-});
+// Initialize MongoDB connection
+start_mongo().then(async () => {
+    console.log("Connected to MongoDB");
+    
+    // Initialize admin user if credentials are configured
+    await initializeAdminUser();
+    }).catch((err) => {
+        console.error("MongoDB connection error:", err);
+    });
 
-export const handle: Handle = async ({ event, resolve }) => {
-	const sessionId = event.cookies.get("better-auth.session_token");
-
-	let user = null;
-	let session = null;
-
-	if (sessionId) {
-		try {
-			const sessionData = await auth.api.getSession({
-				headers: new Headers({
-					cookie: `better-auth.session_token=${sessionId}`,
-				}),
-			});
-			if (sessionData) {
-				user = sessionData.user;
-				session = sessionData.session;
-			}
-		} catch (err) {
-			console.error("Session validation error:", err);
-		}
-	}
-
-	event.locals.user = user;
-	event.locals.session = session;
-	return resolve(event);
-};
+export async function handle({ event, resolve }) {
+    return svelteKitHandler({ event, resolve, auth, building });
+}
