@@ -58,6 +58,7 @@ const imageCountChange = () => { //TODO Bug here
     </SideBar>
     <div class = "imageBrowser">
         <PageNav currentPage={data.pagination.currentPage} totalPages = {data.pagination.pageCount} baseUrl = {baseUrl} length = {$imageCount}/>
+        <a href="/review" class="reviewLink">Review</a>
         <span> Size:
             <select bind:value={$improvImageSize} >
                 {#each sizes as size}
@@ -138,6 +139,24 @@ const imageCountChange = () => { //TODO Bug here
         font-size: 20px;
         margin: 5px 10px;
         color: #5b5b5b;
+    }
+
+    .reviewLink {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 17px;
+        margin: 5px 10px;
+        color: #dc3545;
+        text-decoration: none;
+        font-weight: 600;
+        border: 1px solid #dc3545;
+        padding: 2px 12px;
+        border-radius: 7px;
+        transition: background 0.15s;
+    }
+
+    .reviewLink:hover {
+        background: #dc3545;
+        color: white;
     }
 
     select {

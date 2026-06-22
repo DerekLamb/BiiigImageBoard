@@ -17,6 +17,7 @@
 <div class="navContainer">
     <div class="navbar">
         <a href="/posts" >Posts</a>
+        <a href="/review" >Review</a>
         <a href="/tags" >Tags</a>
         <a href="/upload" >Upload</a>
         <a href="/" >Home</a>
@@ -39,6 +40,7 @@
 {#key menuOpen}
 <SlideMenu menuOpen = {menuOpen}>
     <li><a href="/posts" on:click={toggleMenu}>Posts</a></li>
+    <li><a href="/review" on:click={toggleMenu}>Review</a></li>
     <li><a href="/tags" on:click={toggleMenu}>Tags</a></li>
     <li><a href="/upload" on:click={toggleMenu}>Upload</a></li>
     <li><a href="/" on:click={toggleMenu}>Home</a></li>
