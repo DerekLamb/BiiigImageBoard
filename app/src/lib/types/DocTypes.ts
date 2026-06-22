@@ -53,6 +53,8 @@ export interface BaseImage { // should extend BaseDoc
     trainingPrompt?: string;
     /** Status of cleanup processing pipeline */
     cleanupStatus?: 'none' | 'pending' | 'processing' | 'completed' | 'failed';
+    /** Difference hash for perceptual similarity detection (64-bit, 16 hex chars) */
+    dhash?: string;
 }
 
 

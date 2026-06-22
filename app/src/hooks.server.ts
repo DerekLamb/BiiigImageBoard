@@ -1,45 +1,37 @@
-import { lucia, initialize } from "$lib/auth";
+import { auth } from "$lib/auth";
 import type { Handle } from "@sveltejs/kit";
 import { start_mongo } from "$lib/db.server";
 
 start_mongo().then(() => {
-    console.log("Connected to MongoDB")
-    initialize(); //creates admin user if it doesn't exist
-    }).catch((err) => {
-        console.error(err);
-    });
-
-
+	console.log("Connected to MongoDB");
+	auth.initialize();
+}).catch((err) => {
+	console.error(err);
+});
 
 export const handle: Handle = async ({ event, resolve }) => {
-    const sessionId = event.cookies.get(lucia.sessionCookieName);
-    if(!sessionId){
-        event.locals.user = null;
-        event.locals.session = null;
-        console.log("No session id");
-        return resolve(event);
-    }
+	const sessionId = event.cookies.get("better-auth.session_token");
 
-    const { session, user} = await lucia.validateSession(sessionId);
+	let user = null;
+	let session = null;
 
-    if( session && session.fresh){
-        const sessionCookie = lucia.createSessionCookie(session.id);
-        
-        event.cookies.set(sessionCookie.name, sessionCookie.value, {
-            path: ".", //TODO add way to have specific path based on environment variables 
-            ...sessionCookie.attributes
-        })
-    }	
-    
-    if (!session) {
-		const sessionCookie = lucia.createBlankSessionCookie();
-		event.cookies.set(sessionCookie.name, sessionCookie.value, {
-			path: ".",
-			...sessionCookie.attributes
-		});
+	if (sessionId) {
+		try {
+			const sessionData = await auth.api.getSession({
+				headers: new Headers({
+					cookie: `better-auth.session_token=${sessionId}`,
+				}),
+			});
+			if (sessionData) {
+				user = sessionData.user;
+				session = sessionData.session;
+			}
+		} catch (err) {
+			console.error("Session validation error:", err);
+		}
 	}
 
-    event.locals.user = user;
-    event.locals.session = session;
-    return resolve(event);
-}
+	event.locals.user = user;
+	event.locals.session = session;
+	return resolve(event);
+};

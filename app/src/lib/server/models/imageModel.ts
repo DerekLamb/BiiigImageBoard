@@ -122,5 +122,22 @@ export const ImageModel = {
         const results = await Promise.all(deletePromises);
         const deletedCount = results.reduce((sum, r) => sum + (r.deletedCount || 0), 0);
         return { success: deletedCount === imageIds.length, deleted: deletedCount };
+    },
+
+    /** Get lightweight hash records for dedup scanning, with optional filter */
+    async getAllHashes(filter: any = {}): Promise<Pick<AppImageData, '_id' | 'dhash' | 'uploadDate' | 'thumbnailPath' | 'originalName' | 'imagePath'>[]> {
+        const results = await imageColl.find(filter, {
+            projection: { _id: 1, dhash: 1, uploadDate: 1, thumbnailPath: 1, originalName: 1, imagePath: 1 }
+        });
+        return results as Pick<AppImageData, '_id' | 'dhash' | 'uploadDate' | 'thumbnailPath' | 'originalName' | 'imagePath'>[];
+    },
+
+    /** Get multiple images by their IDs */
+    async getImagesByIds(ids: string[]): Promise<AppImageData[]> {
+        const objectIds = ids.map(id => {
+            try { return new ObjectId(id); } catch { return id; }
+        });
+        const results = await imageColl.find({ _id: { $in: objectIds } });
+        return results as AppImageData[];
     }
 }

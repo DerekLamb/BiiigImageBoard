@@ -2,6 +2,7 @@ import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
 import { FileModel } from '$lib/server/models/fileModel';
 import { localImageStorage } from '$lib/server/services/imageStorageAdapter/localImageStorage';
 import { localImageProcessing } from '$lib/server/services/imageStorageAdapter/localImageProcessing';
+import { dhash } from '$lib/server/services/perceptualHash';
 
 const constDefaultPath = 'images/';
 
@@ -150,6 +151,16 @@ class ImageController {
 
         let type: "image" | "video" = supportedVideo.includes(ext) ? "video" : "image"
 
+        // Compute perceptual dHash for image-type uploads (not video)
+        let perceptualHash: string | undefined;
+        if (type === 'image') {
+            try {
+                perceptualHash = await dhash(buffer);
+            } catch (err) {
+                console.warn(`Failed to compute dHash for ${file.name}: ${err}`);
+            }
+        }
+
         const imageDataObj: AppImageData = {
             _id: hash,
             originalName: file.name,
@@ -159,7 +170,8 @@ class ImageController {
             thumbnailPath: "",
             group: [],
             tags: [],
-            type: type
+            type: type,
+            dhash: perceptualHash
         }
 
         try {

@@ -1,12 +1,13 @@
 /**
  * Image Processor Service
- * Handles batch processing of images for thumbnails and prompt extraction
+ * Handles batch processing of images for thumbnails, prompt extraction, and dHash computation
  * Processes in batches of 5-10 async jobs to avoid overloading the Node.js engine
  */
 
 import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
 import { FileModel } from '$lib/server/models/fileModel';
 import { imageService } from '$lib/server/services/imageService';
+import { dhash } from '$lib/server/services/perceptualHash';
 import promptDecode from '$lib/ExtractPrompt';
 import type { BatchProcessingResult, TaskQueueStats } from './types';
 
@@ -18,6 +19,7 @@ interface ProcessingTask {
     imageId: string;
     needsThumbnail: boolean;
     needsPromptExtraction: boolean;
+    needsDHash: boolean;
 }
 
 class ImageProcessor {
@@ -45,14 +47,14 @@ class ImageProcessor {
     }
 
     /**
-     * Find all images that need processing (missing thumbnail or prompt extraction)
+     * Find all images that need processing (missing thumbnail, prompt extraction, or dHash)
      */
     async findImagesNeedingProcessing(limit = 100): Promise<ProcessingTask[]> {
         const tasks: ProcessingTask[] = [];
         
         // Get images without thumbnails
         const imagesWithoutThumbnails = await ImageModel.findImages(
-            { 
+            {
                 $or: [
                     { thumbnailPath: { $exists: false } },
                     { thumbnailPath: '' },
@@ -71,7 +73,8 @@ class ImageProcessor {
                 tasks.push({
                     imageId: image._id,
                     needsThumbnail: true,
-                    needsPromptExtraction: false
+                    needsPromptExtraction: false,
+                    needsDHash: false
                 });
             }
         }
@@ -98,7 +101,36 @@ class ImageProcessor {
                 tasks.push({
                     imageId: image._id,
                     needsThumbnail: false,
-                    needsPromptExtraction: true
+                    needsPromptExtraction: true,
+                    needsDHash: false
+                });
+            }
+        }
+
+        // Get images without dHash (images only, not video)
+        const imagesWithoutDHash = await ImageModel.findImages(
+            {
+                type: 'image',
+                $or: [
+                    { dhash: { $exists: false } },
+                    { dhash: null },
+                    { dhash: '' }
+                ]
+            },
+            limit,
+            0
+        );
+
+        for (const image of imagesWithoutDHash) {
+            const existing = tasks.find(t => t.imageId === image._id);
+            if (existing) {
+                existing.needsDHash = true;
+            } else {
+                tasks.push({
+                    imageId: image._id,
+                    needsThumbnail: false,
+                    needsPromptExtraction: false,
+                    needsDHash: true
                 });
             }
         }
@@ -107,7 +139,7 @@ class ImageProcessor {
     }
 
     /**
-     * Process a single image - create thumbnail and/or extract prompt
+     * Process a single image - create thumbnail, extract prompt, and/or compute dHash
      */
     private async processImage(image: AppImageData, task: ProcessingTask): Promise<{ success: boolean; error?: string }> {
         const errors: string[] = [];
@@ -139,6 +171,17 @@ class ImageProcessor {
                 }
             } catch (error) {
                 errors.push(`Prompt extraction failed: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        }
+
+        // Process dHash if needed
+        if (task.needsDHash && image.type === 'image') {
+            try {
+                const buffer = await FileModel.read(image.imagePath);
+                const hash = await dhash(buffer);
+                await ImageModel.updateImage(image._id, 'dhash', hash);
+            } catch (error) {
+                errors.push(`dHash computation failed: ${error instanceof Error ? error.message : String(error)}`);
             }
         }
 
@@ -259,15 +302,17 @@ class ImageProcessor {
         const needsThumbnail = !image.thumbnailPath;
         const needsPromptExtraction = image.type === 'image' && (!image.embPrompt ||
             (image.embPrompt.positive.length === 0 && image.embPrompt.negative.length === 0));
+        const needsDHash = image.type === 'image' && !image.dhash;
 
-        if (!needsThumbnail && !needsPromptExtraction) {
+        if (!needsThumbnail && !needsPromptExtraction && !needsDHash) {
             return { success: true }; // Nothing to do
         }
 
         return this.processImage(image, {
             imageId,
             needsThumbnail,
-            needsPromptExtraction
+            needsPromptExtraction,
+            needsDHash
         });
     }
 

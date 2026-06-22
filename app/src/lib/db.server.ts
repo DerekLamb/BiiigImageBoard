@@ -26,6 +26,7 @@ export function start_mongo() {
 
     // setup index
     client.db(dbName).collection(collections.images).createIndex({uploadDate: 1});
+    client.db(dbName).collection(collections.images).createIndex({dhash: 1});
     
     return client.connect();
 }

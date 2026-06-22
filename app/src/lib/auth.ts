@@ -1,72 +1,48 @@
-import { Lucia, generateId } from 'lucia';
-import { MongodbAdapter } from '@lucia-auth/adapter-mongodb';
+import { betterAuth } from 'better-auth';
+import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { db } from '$lib/db.server';
-import type { Collection } from 'mongodb';
-import { Argon2id } from 'oslo/password';
 import { env } from '$env/dynamic/private';
 
-export const User = db.collection('users') as Collection<UserDoc>;
-export const Session = db.collection('sessions') as Collection<Session>;
-
-const adapter = new MongodbAdapter(db.collection('sessions'), User);
-
-interface DatabaseUserAttributes {
-    username: string;
-    passwordHash: string;
-    role: string;
-    passwordChangeRequired: boolean;
-}
-
-interface UserDoc { //needs to mirror DatabaseUserAttributes (ignore _id)
-	_id: string;
-    username: string;
-    passwordHash: string;
-    role: string;
-    passwordChangeRequired: boolean;
-}
-
-interface Session {
-	_id: string;
-	expires_at: Date;
-	user_id: string;
-}
-
-export const lucia = new Lucia( adapter, {
-    sessionCookie: {
-        name:  env.SESS_COOKIE_NAME || "auth_sesison" , //add ENV change 
-        attributes: {
-            secure: true // need to add dev env check TODO
-        }
-    },
-    getUserAttributes: (attributes) => {
-        return {
-            username: attributes.username
-
-        }
-    }
+export const auth = betterAuth({
+	appId: 'biiig-image-board',
+	database: mongodbAdapter(db, {
+		provider: 'mongodb',
+	}),
+	secret: env.BETTER_AUTH_SECRET || 'default-secret-change-me',
+	emailAndPassword: {
+		enabled: true,
+		requireEmailVerification: false,
+	},
+	user: {
+		additionalFields: {
+			role: {
+				type: 'string',
+				defaultValue: 'user',
+			},
+			passwordChangeRequired: {
+				type: 'boolean',
+				defaultValue: true,
+			},
+		},
+	},
+	session: {
+		cookiePrefix: 'better-auth',
+	},
 });
 
-
 export const initialize = async () => {
-
-    if( await db.collection('users').countDocuments() === 0){
-
-        const userId = generateId(15);
-		const hashedPassword = await new Argon2id().hash('myOwnPersonalApp');
-
-        User.insertOne({
-            _id: userId,
-            username: 'admin',
-            passwordHash: hashedPassword,
-            role: 'admin',
-            passwordChangeRequired: true
-        });
-    }
-}
-
-declare module 'lucia' {
-    interface Register {
-        Lucia: typeof Lucia;
-        DatabaseUserAttributes: DatabaseUserAttributes;
-    }
-}
+	const count = await db.collection('users').countDocuments();
+	if (count === 0) {
+		await db.collection('users').insertOne({
+			id: 'admin',
+			name: 'admin',
+			email: 'admin@localhost',
+			emailVerified: true,
+			role: 'admin',
+			passwordChangeRequired: true,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
+		console.log('Admin user created');
+	}
+};

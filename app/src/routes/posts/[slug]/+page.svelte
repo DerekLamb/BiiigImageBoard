@@ -9,6 +9,7 @@ import ReturnButton from '$lib/returnButton.svelte';
 import Modal from "$lib/svelteComponents/modal.svelte";
 import TrainingCaptionEditor from "$lib/svelteComponents/trainingCaptionEditor.svelte";
 import CleanupControls from "$lib/svelteComponents/cleanupControls.svelte";
+import ExportPanel from "$lib/svelteComponents/exportPanel.svelte";
 import promptDecode from '$lib/ExtractPrompt';
 import type { EmbeddedPrompt } from '$lib/types/DocTypes';
 import type { PageData } from './$types';
@@ -349,6 +350,12 @@ function getSourceColor(source: string): string {
                 {/if}
             </form>
         </div>
+
+        <!-- Export Panel -->
+        <ExportPanel
+            imageId={data.image?._id}
+            hasCaption={!!data.image?.trainingPrompt}
+        />
 
         <!-- Comments Section (placeholder) -->
         <!-- <div class="commentsSection">
