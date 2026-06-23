@@ -6,13 +6,20 @@ import { start_mongo } from "$lib/db.server";
 // Initialize MongoDB connection
 start_mongo().then(async () => {
     console.log("Connected to MongoDB");
-    
-    // Initialize admin user if credentials are configured
     await initializeAdminUser();
-    }).catch((err) => {
-        console.error("MongoDB connection error:", err);
-    });
+}).catch((err) => {
+    console.error("MongoDB connection error:", err);
+});
 
 export async function handle({ event, resolve }) {
+    if (building) return resolve(event);
+
+    const session = await auth.api.getSession({
+        headers: event.request.headers
+    }).catch(() => null);
+
+    event.locals.user = session?.user ?? null;
+    event.locals.session = session?.session ?? null;
+
     return svelteKitHandler({ event, resolve, auth, building });
 }
