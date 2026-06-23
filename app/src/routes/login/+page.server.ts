@@ -9,8 +9,8 @@ export async function load({ request }) {
         { headers: request.headers } 
     );
 
-    if (!session) {
-        redirect(307, '/login');
+    if (session) {
+        redirect(307, '/');
     }
     return {};
 }
