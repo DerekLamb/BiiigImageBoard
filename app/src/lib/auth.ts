@@ -1,5 +1,7 @@
 import { betterAuth } from "better-auth"; 
 import { mongodbAdapter } from "better-auth/adapters/mongodb"
+import { sveltekitCookies } from "better-auth/svelte-kit";
+import { getRequestEvent } from "$app/server";
 import { db } from "$lib/db.server";
 import { env } from '$env/dynamic/private';
 
@@ -25,6 +27,7 @@ export const auth = betterAuth({
         enabled: true,
         requireEmailVerification: false,
     },
+    plugins: [sveltekitCookies(getRequestEvent)],
     user: {
         additionalFields: {
             role: {

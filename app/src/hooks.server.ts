@@ -12,14 +12,16 @@ start_mongo().then(async () => {
 });
 
 export async function handle({ event, resolve }) {
-    if (building) return resolve(event);
+    // if (building) return resolve(event);
 
     const session = await auth.api.getSession({
         headers: event.request.headers
-    }).catch(() => null);
+    });
+    if(session) {
+        event.locals.user = session?.user
+        event.locals.session = session?.session 
 
-    event.locals.user = session?.user ?? null;
-    event.locals.session = session?.session ?? null;
+    }
 
     return svelteKitHandler({ event, resolve, auth, building });
 }
