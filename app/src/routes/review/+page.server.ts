@@ -3,6 +3,8 @@ import { ImageModel } from '$lib/server/models/imageModel';
 import imageController from '$lib/server/controllers/imageController';
 import type { PageServerLoad } from './$types';
 
+const PAGE_SIZE = 200;
+
 export const load: PageServerLoad = async ({ url, locals }) => {
     if (!locals.user) {
         redirect(307, '/login');
@@ -28,19 +30,25 @@ export const load: PageServerLoad = async ({ url, locals }) => {
         }
     }
 
-    const allImages = await ImageModel.findImages(filter, 0, 0, { uploadDate: -1 });
+    const totalImages = await ImageModel.countFilteredImages(filter);
+
+    const page = 0;
+    const images = await ImageModel.findImages(filter, PAGE_SIZE, 0, { uploadDate: -1 });
 
     let startIndex = 0;
     if (startId) {
-        const idx = allImages.findIndex(img => img.uploadDate === startId || img._id === startId);
+        const idx = images.findIndex(img => img.uploadDate === startId || img._id === startId);
         if (idx >= 0) startIndex = idx;
     }
 
     return {
-        images: allImages,
+        images,
         startIndex,
         searchTerm,
-        notag
+        notag,
+        page,
+        totalImages,
+        pageSize: PAGE_SIZE
     };
 };
 

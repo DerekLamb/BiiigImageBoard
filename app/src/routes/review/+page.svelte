@@ -10,6 +10,10 @@
 
     let currentIndex = $state(data.startIndex);
     let images = $state(data.images);
+    let currentPage = $state(data.page);
+    let totalImages = $state(data.totalImages);
+    let loadingMore = $state(false);
+
     let showConfirm = $state(false);
     let deleting = $state(false);
     let imageLoaded = $state(false);
@@ -17,17 +21,43 @@
     $effect(() => {
         images = data.images;
         currentIndex = data.startIndex;
+        currentPage = data.page;
+        totalImages = data.totalImages;
     });
 
     let currentImage = $derived(images[currentIndex] ?? null);
     let hasPrev = $derived(currentIndex > 0);
-    let hasNext = $derived(currentIndex < images.length - 1);
+    let hasNext = $derived(currentIndex < images.length - 1 || currentIndex < totalImages - 1);
+
+    async function loadPage(pageNum: number) {
+        if (loadingMore) return;
+        loadingMore = true;
+        try {
+            const params = new URLSearchParams();
+            if (data.searchTerm) params.set('search', data.searchTerm);
+            if (data.notag) params.set('notag', data.notag);
+            params.set('page', String(pageNum));
+            const resp = await fetch(`/api/review/page?${params}`);
+            const result = await resp.json();
+            if (result.images?.length) {
+                images = [...images, ...result.images];
+                currentPage = pageNum;
+            }
+        } catch (err) {
+            console.error('Failed to load more images:', err);
+        } finally {
+            loadingMore = false;
+        }
+    }
 
     function navigateTo(index: number) {
         if (index >= 0 && index < images.length) {
             currentIndex = index;
             imageLoaded = false;
             showConfirm = false;
+        }
+        if (index >= images.length - 20 && totalImages > images.length) {
+            loadPage(currentPage + 1);
         }
     }
 
@@ -53,6 +83,7 @@
             if (result.success) {
                 const deletedIndex = currentIndex;
                 images = images.filter((_: unknown, i: number) => i !== deletedIndex);
+                totalImages--;
                 if (images.length === 0) {
                     goto('/posts');
                     return;
@@ -134,7 +165,7 @@
             </button>
 
             <span class="position">
-                {currentIndex + 1} / {images.length}
+                {currentIndex + 1} / {totalImages}
                 {#if currentImage}
                     <span class="filename">— {currentImage.originalName}</span>
                     <span class="date">{formatDate(currentImage.uploadDate)}</span>
