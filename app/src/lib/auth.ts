@@ -23,6 +23,11 @@ export const auth = betterAuth({
     database: mongodbAdapter(db),
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL || "http://localhost:3000",
+    session: {
+        cookieCache: {
+            enabled: true,
+        }
+    },
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: false,
@@ -41,7 +46,8 @@ export const auth = betterAuth({
             },
         },
     },
-    // Hooks to control signup behavior
+
+
     hooks: {
         before: async (ctx) => {
             // Only allow signup if:

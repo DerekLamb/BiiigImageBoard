@@ -39,10 +39,8 @@ export const GET: RequestHandler = async ({ url, locals }) => {
                 } else {
                     // Otherwise use the simpler query
                     const countFilter = { uploadDate: { $gt: image.uploadDate } };
-                    const docs = await ImageModel.findImages(countFilter, 1000000, 0);
-                    count = docs.length;
-
-                    //TODO possibly improve this? Maybe write a queryBased ImageModel function that utilizes .count() 
+                    const docs = await ImageModel.countFilteredImages(countFilter);
+                    count = docs.length; 
                 }
                 
                 skip = Math.floor(count / limit) * limit;
@@ -76,6 +74,6 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 // TODO move to model at some point.
 async function countDocumentsBeforeUploadDate(filter: any, uploadDate: string): Promise<number> {
     const countFilter = { ...filter, uploadDate: { $gt: uploadDate } };
-    const docs = await ImageModel.findImages(countFilter, 1000000, 0);
+    const docs = await ImageModel.countFilteredImages(countFilter);
     return docs.length;
 }

@@ -25,8 +25,10 @@ export function start_mongo() {
     console.log("Connecting to MongoDB");
 
     // setup index
-    client.db(dbName).collection(collections.images).createIndex({uploadDate: 1});
-    client.db(dbName).collection(collections.images).createIndex({dhash: 1});
+    client.db(dbName).collection(collections.images).createIndex({ uploadDate: 1 });
+    client.db(dbName).collection(collections.images).createIndex({ dhash: 1 });
+    client.db(dbName).collection(collections.images).createIndex({ tags: 1, uploadDate: -1});
+    client.db(dbName).collection(collections.images).createIndex({ group: 1 });
     
     return client.connect();
 }

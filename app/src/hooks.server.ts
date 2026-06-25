@@ -11,17 +11,19 @@ start_mongo().then(async () => {
     console.error("MongoDB connection error:", err);
 });
 
-export async function handle({ event, resolve }) {
-    // if (building) return resolve(event);
 
+const sessionCache = new Map<string, { user: any; session: any; expiresAt: number}>();
+const sessionCacheTTL = 60_000;
+
+
+
+export async function handle({ event, resolve }) {
     const session = await auth.api.getSession({
         headers: event.request.headers
     });
     if(session) {
-        event.locals.user = session?.user
-        event.locals.session = session?.session 
-
+        event.locals.user = session.user;
+        event.locals.session = session.session;
     }
-
     return svelteKitHandler({ event, resolve, auth, building });
 }
