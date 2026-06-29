@@ -1,16 +1,5 @@
-<script>
-	import { createEventDispatcher } from "svelte";
-
-    export let tag = "";
-    export let edit = false;
-
-    const dispatch = createEventDispatcher();
-
-    function deleteTagMessage() {
-        dispatch('message', {
-            deletedTag: tag
-        })
-    }
+<script lang="ts">
+    let { tag = "", edit = false, onDelete } = $props();
 </script>
 
 <li class = "tag">
@@ -20,9 +9,8 @@
     <span class = 'tag-title'><a href="/posts?search={tag}">{tag}</a></span>   
     {#if edit}
     <div class = 'delete-flex'>
-        <button class = 'tag-close-icon' on:click={deleteTagMessage}>x</button>
+        <button class = 'tag-close-icon' onclick={() => onDelete?.(tag)}>x</button>
     </div>
-    
     {/if}
 
 </li>

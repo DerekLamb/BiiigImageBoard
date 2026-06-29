@@ -54,8 +54,8 @@
         });
     }
 
-    function updateMetadata(index: number, key: 'title' | 'description', value: string) {
-        uploadQueue[index].metadata[key] = value;
+    function updateMetadata(index: number, key: 'title' | 'description', e: Event & { currentTarget: HTMLInputElement}) {
+        if(e.currentTarget.value) uploadQueue[index].metadata[key] = e.currentTarget.value 
     }
 
     const fileRequest = (file: UploadItem) => {
@@ -116,18 +116,18 @@
 </script>
 
 <div>
-    <input type="file" multiple bind:files on:change="{handleFilesChange}">
-    <button on:click="{batchFileUpload}">Upload All</button>
+    <input type="file" multiple bind:files onchange="{handleFilesChange}">
+    <button onclick="{batchFileUpload}">Upload All</button>
     
     {#each uploadQueue as item, index}
         <div class = "uploadContainer">
             <img src="" alt="preview" class="upload-preview" style="width: 400px; height: auto;">
             <label for="title" class="upload-label">Name:</label>
-            <input type="text" class="upload-input" id="title" value="{item.name}" on:input="{e => updateMetadata(index, 'title', e.target.value)}">
+            <input type="text" class="upload-input" id="title" value="{item.name}" oninput="{e => updateMetadata(index, 'title', e)}">
             <label for="tagBox">Tags:</label>
             <div id = "tagBox" class="upload-tagBox">
                     {#each item.tags as tag, tagIndex}
-                        <Tag tag={tag} edit={true} />
+                        <Tag tag={tag} edit={true} onDelete={tag}/>
                     {/each}
                 <AutoTagInput autocompleteTags={["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9"]} />
             </div>
@@ -188,14 +188,6 @@
         padding: 12px;
         background-color: white;
         border-radius: 8px;
-    }
-
-    #tagAddInput {
-        flex-grow: 1;
-        min-width: 120px;
-        padding: 8px 10px;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
     }
 
     @media (min-width: 768px) {

@@ -18,20 +18,21 @@
     async function fetchTags() {
         try {
             const response = await fetch(`/api/tags`);
+
             if (response.ok) {
-                const data = await response.json();
-                autoTags = data;
-                //console.log(autoTags);
-            } else {
-                throw new Error('Failed to fetch tags');
+                throw new Error(`HTTP error: Status ${response.status}`)
             }
+
+            const data = await response.json();
+            autoTags = data;
+            //console.log(autoTags);
         } catch (error) {
             console.error('Error fetching tags:', error);
         }
     }
 
 
-    function handleMessage(event) {
+    function handleMessage(event:CustomEvent) {
         console.log(event.detail);
         const newTag = event.detail.tag.toLowerCase().trim().replace(/ /g,"_");;
         if (newTag !== "") {
@@ -40,7 +41,7 @@
             }
     }
 
-    function handleDeleteTag(event){ 
+    function handleDeleteTag(event:CustomEvent){ 
         imageTags = imageTags.filter((tag) => tag !== event.detail.deletedTag);
         updateServerTags()
     }
@@ -69,7 +70,7 @@
                 <ul>
                     {#if imageTags}
                         {#each imageTags as tag }
-                            <Tag tag = {tag} edit = {editing} on:message = {handleDeleteTag} ></Tag>
+                            <Tag tag = {tag} edit = {editing} onDelete={(tag) => handleDeleteTag(tag)} ></Tag>
                         {/each}
                     {:else}
                         <p>Blank</p>

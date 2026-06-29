@@ -1,14 +1,12 @@
-<script>
+<script lang="ts">
     import { improvSearch } from '$lib/stores/searchStore';
 
-    function onSubmit(e) {
-        const formData = new FormData(e.target);
-        const data = {};
+    function onSubmit(e:SubmitEvent) {
+        e.preventDefault
 
-        for(let field of formData){
-            const [key, value] = field;
-            data[key] = value;
-        }
+        const formData = new FormData(e.target as HTMLFormElement);
+        const data = Object.fromEntries(new FormData(e.target as HTMLFormElement));
+
         console.log(data);
     }
 

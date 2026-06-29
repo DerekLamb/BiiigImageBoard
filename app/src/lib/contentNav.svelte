@@ -1,49 +1,37 @@
 <script lang='ts'>
 import { browser } from "$app/environment";
-import { onMount, beforeUpdate } from "svelte"
 
-export let prevId = "";
-export let nextId = "";
-export let contentName = "";
-export let baseUrl = "/";
-export let queryParams = {};
+    let {
+        prevId = "",
+        nextId = "",
+        contentName = "",
+        baseUrl = "/",
+        queryParams = {},
+        }: {
+        prevId?: string;
+        nextId?: string;
+        contentName?: string;
+        baseUrl?: string;
+        queryParams?: Record<string, string>;
+    } = $props();
 
-let prevUrl = "";
-let nextUrl = "";
+let prevUrl = $state("");
+let nextUrl = $state("");
 
 function buildUrl(contentId: string) {
-    
-    if(!browser){
-            return "";
-        }
-    
-    const urlRoute = baseUrl + contentId;
-    console.log(contentId);
-    const url = new URL(urlRoute, window.location.origin);
-
-    for (const [key, value] of Object.entries(queryParams)){ //curious how to set type here... TODO 
-            url.searchParams.set(key, value);
+    if (!browser) return "";
+    const url = new URL(baseUrl + contentId, window.location.origin);
+    for (const [key, value] of Object.entries(queryParams)) {
+        url.searchParams.set(key, value);
     }
-
     return url.toString();
 }
 
-
-onMount(() => {
-        prevUrl = buildUrl(prevId);
-        nextUrl = buildUrl(nextId)
-    });
-
-    beforeUpdate(() => {
-        prevUrl = buildUrl(prevId);
-        nextUrl = buildUrl(nextId)
-    });
-
-
-
+$effect(() => {
+    prevUrl = buildUrl(prevId);
+    nextUrl = buildUrl(nextId);
+});
 </script>
-
-
 
 <div class="pagination">
     <a href="{prevId ? prevUrl : null}" class="pagination-item" id="prev" data-sveltekit-noscroll>&lt&lt&lt</a>
@@ -66,15 +54,6 @@ onMount(() => {
         text-decoration: none;
         margin: .2em;
         color: #808080;
-    }
-
-    .pageNum:link, .pageNum:visited{
-        color: #345D7E;
-    }
-
-    .pageNum:hover{
-        color: #7bb7a2;
-        transition:.2s;
     }
 
     .right {
