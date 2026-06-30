@@ -1,8 +1,9 @@
 <script lang="ts">
     import GroupCard from "$lib/svelteComponents/GroupCard.svelte";
     import ImageCard from "$lib/svelteComponents/ImageCard.svelte";
+    import UploadEventCard from "$lib/svelteComponents/UploadEventCard.svelte";
     import { dragDropItem } from "$lib/actions/dragDrop";
-    import type { AppContent, AppImage, AppGroup } from "$lib/types/DocTypes.js";
+    import type { AppContent, AppImage, AppGroup, UploadEvent } from "$lib/types/DocTypes.js";
 
     // Props
     interface Props {
@@ -35,6 +36,10 @@
         return 'groupType' in doc;
     }
 
+    function isUploadEvent(doc: AppContent): doc is UploadEvent {
+        return doc.type === 'uploadEvent';
+    }
+
     // Drag-drop handlers
     function handleDragStart(id: string, event: DragEvent) {
         // Visual feedback handled by CSS class
@@ -56,7 +61,10 @@
 
 <div class="content-grid" class:group-mode={groupMode} style = "grid-template-columns: repeat(auto-fit, minmax({minSize}px, 1fr)">
     {#each documents as doc (doc._id)}
-        {#if isGroup(doc)}
+        {#if isUploadEvent(doc)}
+            <UploadEventCard {doc}>
+            </UploadEventCard>
+        {:else if isGroup(doc)}
             <GroupCard {doc} {groupMode}>
             </GroupCard>
         {:else}

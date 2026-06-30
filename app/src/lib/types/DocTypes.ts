@@ -74,4 +74,14 @@ export interface AppImage extends BaseImage {
     _id: string;
 }
 
-export type AppContent = AppImage | AppGroup
+export interface UploadEvent {
+    _id: string;
+    type: 'uploadEvent',
+    startDate: string,
+    endDate: string,
+    imageCount: number,
+    imageIds: string[],
+    thumbnailPaths: string[],
+}
+
+export type AppContent = AppImage | AppGroup | UploadEvent
