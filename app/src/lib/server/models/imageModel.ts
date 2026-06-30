@@ -109,7 +109,10 @@ export const ImageModel = {
 
     async updateManyImages(imageIds: string[], updates: Partial<AppImage>) {
         const updatePromises = imageIds.map(id =>
-            imageColl.updateOne({ _id: new ObjectId(id) }, { $set: updates })
+            imageCollection.updateOne(
+                { $or: [{ _id: new ObjectId(id) }, { _id: id }] },
+                { $set: updates }
+            )
         );
         await Promise.all(updatePromises);
         return { success: true, count: imageIds.length };
@@ -117,7 +120,9 @@ export const ImageModel = {
 
     async deleteManyImages(imageIds: string[]) {
         const deletePromises = imageIds.map(id =>
-            imageColl.deleteOne({ _id: new ObjectId(id) })
+            imageCollection.deleteOne(
+                { $or: [{ _id: new ObjectId(id) }, { _id: id }] }
+            )
         );
         const results = await Promise.all(deletePromises);
         const deletedCount = results.reduce((sum, r) => sum + (r.deletedCount || 0), 0);
@@ -137,7 +142,7 @@ export const ImageModel = {
         const objectIds = ids.map(id => {
             try { return new ObjectId(id); } catch { return id; }
         });
-        const results = await imageColl.find({ _id: { $in: objectIds } });
+        const results = await imageCollection.find({ _id: { $in: [...objectIds, ...ids] } }).toArray();
         return results as AppImageData[];
     }
 }

@@ -23,6 +23,7 @@ export const auth = betterAuth({
     database: mongodbAdapter(db),
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL || "http://localhost:3000",
+    basePath: "/api/auth",
     session: {
         cookieCache: {
             enabled: true,
@@ -105,26 +106,32 @@ export async function initializeAdminUser(): Promise<boolean> {
             return true;
         }
 
-        // Create new admin user via better-auth API
-        const response = await auth.api.signUpEmail({
-            body: {
-                email: env.ADMIN_EMAIL,
-                password: env.ADMIN_PASSWORD,
-                name: "Admin",
-            }
+        const { hashPassword } = await import('@better-auth/utils/password');
+        const hashedPassword = await hashPassword(env.ADMIN_PASSWORD);
+        const userId = crypto.randomUUID ? crypto.randomUUID() : 'admin-' + Date.now();
+
+        await db.collection("user").insertOne({
+            id: userId,
+            email: env.ADMIN_EMAIL,
+            emailVerified: true,
+            name: "Admin",
+            role: "admin",
+            passwordChangeRequired: true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
         });
 
-        if (response?.user) {
-            // Update the created user to have admin role
-            await db.collection("user").updateOne(
-                { email: env.ADMIN_EMAIL },
-                { $set: { role: "admin", emailVerified: true, passwordChangeRequired: true } }
-            );
-            console.log("Admin user created successfully");
-            return true;
-        }
+        await db.collection("account").insertOne({
+            id: crypto.randomUUID ? crypto.randomUUID() : 'acct-' + Date.now(),
+            userId: userId,
+            accountId: env.ADMIN_EMAIL,
+            providerId: "credential",
+            password: hashedPassword,
+            createdAt: new Date(),
+        });
 
-        return false;
+        console.log("Admin user created successfully");
+        return true;
     } catch (error) {
         console.error("Failed to initialize admin user:", error);
         return false;

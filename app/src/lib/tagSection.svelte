@@ -102,11 +102,9 @@
 <style>
 
     .TagSection{
-        display: grid;
-        grid-template-rows: 2rem minmax(120px, auto) 1.5rem 1.5rem 1.5rem 1fr;
         background-color: var(--bg-card);
         border-radius: 15px;
-        justify-content: center;
+        padding: 8px;
         width: 230px;
         transition: background-color 0.3s ease;
     }
