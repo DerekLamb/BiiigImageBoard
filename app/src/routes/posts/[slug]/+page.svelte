@@ -160,6 +160,7 @@ function getSourceLabel(source: string): string {
         'a1111': 'Automatic1111 / Stable Diffusion WebUI',
         'civitai': 'CivitAI',
         'comfyui': 'ComfyUI',
+        'sui': 'Stable Diffusion.cpp',
         'unknown': 'Unknown Format'
     };
     return labels[source] || source;
@@ -170,6 +171,7 @@ function getSourceColor(source: string): string {
         'a1111': '#4a90d9',
         'civitai': '#36b3a0',
         'comfyui': '#9b59b6',
+        'sui': '#2e8b57',
         'unknown': '#7f8c8d'
     };
     return colors[source] || '#7f8c8d';
