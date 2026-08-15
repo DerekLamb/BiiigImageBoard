@@ -300,7 +300,20 @@ function getSourceColor(source: string): string {
         </div>
     {/if}
 
-    <!-- Training Caption Editor -->
+    <!-- Delete: just under the prompt card, with a confirm guard -->
+    <div class="deleteRow">
+        <form method="post" action="?/delete" class="deleteForm"
+            on:submit={(e) => confirmDelete(e)}>
+            <button type="submit" class="deleteBtn">Delete image</button>
+            <input type="hidden" name="strId" value={data.image?._id}>
+            {#if data.adjacents?.next != null}
+            <input type="hidden" name="next" value="{data.adjacents.next.uploadDate}">
+            {/if}
+            {#if data.adjacents?.prev != null}
+            <input type="hidden" name="prev" value="{data.adjacents.prev.uploadDate}">
+            {/if}
+        </form>
+    </div>
     <TrainingCaptionEditor
         imageId={data.image?._id}
         embPromptPositive={embPrompt?.positive ?? []}
@@ -316,7 +329,7 @@ function getSourceColor(source: string): string {
         hasCaption={!!data.image?.trainingPrompt}
     />
 
-    <!-- File footer: meta + delete (kept low and out of the way on mobile) -->
+    <!-- File footer: compact meta line -->
     <footer class="fileFooter">
         <div class="fileMeta">
             <span class="mono">{data.image.sanitizedFilename}</span>
@@ -325,17 +338,6 @@ function getSourceColor(source: string): string {
             <span class="metaDot">·</span>
             <span>{data.image.imagePath}</span>
         </div>
-        <form method="post" action="?/delete" class="deleteForm"
-            on:submit={(e) => confirmDelete(e)}>
-            <button type="submit" class="deleteBtn">Delete image</button>
-            <input type="hidden" name="strId" value={data.image?._id}>
-            {#if data.adjacents?.next != null}
-            <input type="hidden" name="next" value="{data.adjacents.next.uploadDate}">
-            {/if}
-            {#if data.adjacents?.prev != null}
-            <input type="hidden" name="prev" value="{data.adjacents.prev.uploadDate}">
-            {/if}
-        </form>
     </footer>
 
     <!-- Extraction Results Modal -->
@@ -504,6 +506,11 @@ function getSourceColor(source: string): string {
         border-radius: 6px;
         padding: 8px 12px;
         font-size: 0.85rem;
+    }
+
+    .deleteRow {
+        display: flex;
+        margin-top: -4px;
     }
 
     .inlineError {
@@ -724,7 +731,6 @@ function getSourceColor(source: string): string {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        justify-content: space-between;
         gap: 12px;
         margin-top: 8px;
         padding-top: 16px;
