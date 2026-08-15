@@ -1,5 +1,6 @@
 <script>
     import SlideMenu from "$lib/svelteComponents/slideMenu.svelte";
+    import { theme } from "$lib/stores/themeStore";
 
     let menuOpen = false;
 
@@ -7,16 +8,24 @@
         menuOpen = !menuOpen;
     }
 
+    function toggleTheme() {
+        theme.toggle();
+    }
 </script>
    
 <!-- Regular Navbar -->
 <div class="navContainer">
     <div class="navbar">
         <a href="/posts" >Posts</a>
+        <a href="/postsByDate" >By Date</a>
+        <a href="/review" >Review</a>
         <a href="/tags" >Tags</a>
         <a href="/upload" >Upload</a>
         <a href="/" >Home</a>
         <a href="/login" >Login</a>
+        <button class="theme-toggle" on:click={toggleTheme} title="Toggle theme">
+            <span class="icon">🌙</span>
+        </button>
     </div>
 </div>
 
@@ -32,6 +41,8 @@
 {#key menuOpen}
 <SlideMenu menuOpen = {menuOpen}>
     <li><a href="/posts" on:click={toggleMenu}>Posts</a></li>
+    <li><a href="/postsByDate" on:click={toggleMenu}>By Date</a></li>
+    <li><a href="/review" on:click={toggleMenu}>Review</a></li>
     <li><a href="/tags" on:click={toggleMenu}>Tags</a></li>
     <li><a href="/upload" on:click={toggleMenu}>Upload</a></li>
     <li><a href="/" on:click={toggleMenu}>Home</a></li>
@@ -77,7 +88,7 @@
     }
 
     .navbar a {
-        color: #678c9e;
+        color: var(--nav-text);
         font-family: 'Montserrat', sans-serif;
         font-size: 1.2rem;
         margin:5px 10px ;
@@ -85,9 +96,31 @@
         display:inline;
     }
 
+    .theme-toggle {
+        background: var(--button-bg);
+        border: none;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 10px;
+        transition: background-color 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+        opacity: 0.8;
+    }
+
+    .theme-toggle .icon {
+        font-size: 1.1rem;
+    }
+
     li {
         list-style-type: none;
-        color: #678c9e;
+        color: var(--nav-text);
         font-family: 'Montserrat', sans-serif;
         font-size: 1.2rem;
         margin:10px 30px;
@@ -99,19 +132,19 @@
     }
 
     a {
-        color: #678c9e;
+        color: var(--nav-text);
         text-decoration: none;
     }
     a:visited{
-        color: #678c9e;
+        color: var(--nav-text);
     }
 
     @keyframes blinkFade {
         0% {
-            color: #ffffff;
+            color: var(--text-blink);
         }
         100% {
-            color: #8dd4b8;
+            color: var(--text-hover);
         }
     }
 
@@ -122,18 +155,18 @@
         height: 50px;
         width: 50px;
         right: 30px;
-        bottom: 30px; 
+        bottom: 30px;
         border-radius: 50%;
         transform: translateX(-50%);
-        transform: translateY(-50%); 
-        background-color: #8dd4b8;
-        z-index: 1000; 
+        transform: translateY(-50%);
+        background-color: var(--button-bg);
+        z-index: 1000;
         border:none;
     }
 
 
     .menu-button i {
-        background-color: #fff;
+        background-color: var(--button-text);
         border-radius: 2px;
         content: "";
         display: block;

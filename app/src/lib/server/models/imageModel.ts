@@ -1,5 +1,5 @@
 import { ObjectId, type Sort, } from "mongodb";
-import { type BaseImage } from "$lib/types/DocTypes";
+import { type BaseImage, type AppImage } from "$lib/types/DocTypes";
 import { imageCollection } from "$lib/db.server"
 import { createMongoCollection } from "../collectionLayer";
 
@@ -104,6 +104,45 @@ export const ImageModel = {
         return 0; //todo later
         // obj = {currName = "", oldNames = [] }
         // if properties.map( in oldNames, change to newName. Break on err if multiple found )
-                
+                    
+    },
+
+    async updateManyImages(imageIds: string[], updates: Partial<AppImage>) {
+        const updatePromises = imageIds.map(id =>
+            imageCollection.updateOne(
+                { $or: [{ _id: new ObjectId(id) }, { _id: id }] },
+                { $set: updates }
+            )
+        );
+        await Promise.all(updatePromises);
+        return { success: true, count: imageIds.length };
+    },
+
+    async deleteManyImages(imageIds: string[]) {
+        const deletePromises = imageIds.map(id =>
+            imageCollection.deleteOne(
+                { $or: [{ _id: new ObjectId(id) }, { _id: id }] }
+            )
+        );
+        const results = await Promise.all(deletePromises);
+        const deletedCount = results.reduce((sum, r) => sum + (r.deletedCount || 0), 0);
+        return { success: deletedCount === imageIds.length, deleted: deletedCount };
+    },
+
+    /** Get lightweight hash records for dedup scanning, with optional filter */
+    async getAllHashes(filter: any = {}): Promise<Pick<AppImageData, '_id' | 'dhash' | 'uploadDate' | 'thumbnailPath' | 'originalName' | 'imagePath'>[]> {
+        const results = await imageColl.find(filter, {
+            projection: { _id: 1, dhash: 1, uploadDate: 1, thumbnailPath: 1, originalName: 1, imagePath: 1 }
+        });
+        return results as Pick<AppImageData, '_id' | 'dhash' | 'uploadDate' | 'thumbnailPath' | 'originalName' | 'imagePath'>[];
+    },
+
+    /** Get multiple images by their IDs */
+    async getImagesByIds(ids: string[]): Promise<AppImageData[]> {
+        const objectIds = ids.map(id => {
+            try { return new ObjectId(id); } catch { return id; }
+        });
+        const results = await imageCollection.find({ _id: { $in: [...objectIds, ...ids] } }).toArray();
+        return results as AppImageData[];
     }
 }

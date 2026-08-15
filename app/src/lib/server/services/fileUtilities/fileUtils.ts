@@ -4,7 +4,8 @@ import sharp from "sharp"
 import Ffmpeg from 'fluent-ffmpeg';
 import path from "path";
 
-
+// Limit concurrent Sharp operations to prevent CPU/memory overload during batch processing
+sharp.concurrency(5);
 
 export const fileUtils = {
 

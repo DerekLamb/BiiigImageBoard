@@ -1,0 +1,56 @@
+/* Theme CSS Variables */
+
+/* Light Theme (Default) */
+:root,
+[data-theme="light"] {
+  --bg-primary: #ffecef;
+  --bg-secondary: #fff;
+  --bg-accent: #8dd4b8;
+  --bg-input: #f7d1d7;
+  --bg-card: #FFFFFF;
+  
+  --text-primary: #345D7E;
+  --text-secondary: #678c9e;
+  --text-accent: #7BAFD4;
+  --text-hover: #8dd4b8;
+  --text-blink: #ffffff;
+  --text-muted: #5b5b5b;
+  --text-icon: #666666;
+  
+  --nav-bg: transparent;
+  --nav-text: #678c9e;
+  
+  --button-bg: #8dd4b8;
+  --button-text: #fff;
+  --button-primary: #7c3036;
+  --button-hover: #ffffff;
+  
+  --border-color: #e0e0e0;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-accent: #1f6feb;
+  --bg-input: #21262d;
+  --bg-card: #161b22;
+  
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-accent: #58a6ff;
+  --text-hover: #58a6ff;
+  --text-blink: #ffffff;
+  --text-muted: #8b949e;
+  --text-icon: #8b949e;
+  
+  --nav-bg: transparent;
+  --nav-text: #8b949e;
+  
+  --button-bg: #21262d;
+  --button-text: #c9d1d9;
+  --button-primary: #1f6feb;
+  --button-hover: #30363d;
+  
+  --border-color: #30363d;
+}

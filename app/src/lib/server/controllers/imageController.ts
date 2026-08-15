@@ -2,6 +2,7 @@ import { ImageModel, type AppImageData } from '$lib/server/models/imageModel';
 import { FileModel } from '$lib/server/models/fileModel';
 import { localImageStorage } from '$lib/server/services/imageStorageAdapter/localImageStorage';
 import { localImageProcessing } from '$lib/server/services/imageStorageAdapter/localImageProcessing';
+import { dhash } from '$lib/server/services/perceptualHash';
 
 const constDefaultPath = 'images/';
 
@@ -93,7 +94,11 @@ class ImageController {
     }
 
     async addImage(imageData: AppImageData, buffer: Buffer) {
-        await localImageStorage.writeImage(imageData.imagePath, buffer);
+        const writeResult = await localImageStorage.writeImage(imageData.imagePath, buffer);
+        if (!writeResult.success) {
+            // Failing fast here avoids orphaned DB records pointing at missing files.
+            throw new Error(writeResult.message || `Failed to save image to ${imageData.imagePath}`);
+        }
         return await ImageModel.addImage(imageData);
     }
 
@@ -127,23 +132,40 @@ class ImageController {
         }
     }
 
-    async newImage(file: imgFile, uniqueID: string) {
-        // process image data
+    /**
+     * Process a new image upload.
+     * Saves image to disk and inserts metadata into database.
+     * Thumbnail generation and prompt extraction are deferred to the background task queue
+     * (imageProcessor.processAllImages()) to avoid blocking the upload response.
+     * @returns Structured result indicating success, duplicate, or error state.
+     */
+    async newImage(file: imgFile, uniqueID: string): Promise<{ status: 'success' | 'duplicate' | 'error'; data?: any; error?: string }> {
+        // Read file into buffer for hashing and storage
         let buffer = Buffer.from(await file.arrayBuffer());
         let hash = await FileModel.hashFile(buffer);
 
-        if (await ImageModel.uniqueHash(hash) > 0) { // check if duplicate _id: hash; prevents duplicate images from being inserted
-            console.log(`Image already exists. _id:${hash} file.name:${file.name}`)
-            console.log(hash);
-            return null;
+        if (await ImageModel.uniqueHash(hash) > 0) {
+            console.log(`Duplicate image skipped. _id:${hash} file.name:${file.name}`);
+            return { status: 'duplicate', error: `Duplicate: ${file.name}` };
         }
-        const supportedVideo = ["mp4", "webm", ];
+
+        const supportedVideo = ["mp4", "webm"];
         let ext = file.name.split('.').pop() ?? "";
         let newFileName = `${uniqueID}.${ext}`;
 
         let type: "image" | "video" = supportedVideo.includes(ext) ? "video" : "image"
 
-        const imageDataObj : AppImageData = {
+        // Compute perceptual dHash for image-type uploads (not video)
+        let perceptualHash: string | undefined;
+        if (type === 'image') {
+            try {
+                perceptualHash = await dhash(buffer);
+            } catch (err) {
+                console.warn(`Failed to compute dHash for ${file.name}: ${err}`);
+            }
+        }
+
+        const imageDataObj: AppImageData = {
             _id: hash,
             originalName: file.name,
             sanitizedFilename: newFileName,
@@ -152,21 +174,24 @@ class ImageController {
             thumbnailPath: "",
             group: [],
             tags: [],
-            type: type
+            type: type,
+            dhash: perceptualHash
         }
 
         try {
+            // Save image to disk and insert metadata into database
+            // Thumbnail/prompt work is deferred to background processor
             const dbResults = await this.addImage(imageDataObj, buffer);
 
-            if(type === "video"){
-                await localImageProcessing.createVideoThumbnail(imageDataObj);
-            }
-            else{
-                await localImageProcessing.createThumbnail(imageDataObj, buffer);
-            }
+            // Release buffer reference to allow GC to reclaim memory
+            // Image is now safely on disk, buffer is no longer needed
+            buffer = Buffer.alloc(0);
 
-            return dbResults;
-        } catch (error: any) {}
+            return { status: 'success', data: dbResults };
+        } catch (error: any) {
+            console.error(`Failed to upload image "${file.name}":`, error);
+            return { status: 'error', error: error.message || String(error) };
+        }
     }
 
     async updateAllThumbnails() {
@@ -176,7 +201,8 @@ class ImageController {
             const images = await ImageModel.findImages({}, 500, i * 500);
             for (let j = 0; j < images.length; j++){
                 const imageData = images[j];
-                await localImageProcessing.createThumbnail(imageData);
+                const buffer = await FileModel.read(imageData.imagePath);
+                await localImageProcessing.createThumbnail(imageData, buffer);
             }
         }
     }
@@ -185,7 +211,8 @@ class ImageController {
         const images = await ImageModel.findImages({thumbnailPath: ''});
         for (let i = 0; i < images.length; i++){
             const imageData = images[i];
-            await localImageProcessing.createThumbnail(imageData);
+            const buffer = await FileModel.read(imageData.imagePath);
+            await localImageProcessing.createThumbnail(imageData, buffer);
         }
     }
 

@@ -6,78 +6,341 @@ import Image from "$lib/image.svelte";
 import Video from "$lib/video.svelte"
 import ContentNav from "$lib/contentNav.svelte";
 import ReturnButton from '$lib/returnButton.svelte';
-import promptDecode  from '$lib/ExtractPrompt';
+import Modal from "$lib/svelteComponents/modal.svelte";
+import TrainingCaptionEditor from "$lib/svelteComponents/trainingCaptionEditor.svelte";
+import CleanupControls from "$lib/svelteComponents/cleanupControls.svelte";
+import ExportPanel from "$lib/svelteComponents/exportPanel.svelte";
+import promptDecode from '$lib/ExtractPrompt';
+import type { EmbeddedPrompt } from '$lib/types/DocTypes';
+import type { PageData } from './$types';
 
-/** @type {import('./$types').PageData} */ 
-export let data;
-let tags = data.image?.tags ?? [];
-let embPrompt = data.image?.embPrompt ?? [];
+export let data: PageData;
+$: tags = data.image?.tags ?? [];
+$: embPrompt = data.image?.embPrompt;
 let imageYScroll = 0;
+let showRawPrompt = false;
 
-function copyItems() {
-      const copyText = embPrompt.join(",");
-      navigator.clipboard.writeText(copyText);
-    }
+// Extraction state
+let extractionResult: EmbeddedPrompt | null = null;
+let isExtractionModalOpen = false;
+let isProcessing = false;
 
-async function decodePrompt() {
-    let imgBuffer = await fetch(`/${data.image?.imagePath}`);
-
-    console.log(promptDecode(await imgBuffer.arrayBuffer()))
+function copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text);
 }
 
+function copyPositive() {
+    if (embPrompt?.positive) {
+        copyToClipboard(embPrompt.positive.join(", "));
+    }
+}
 
+function copyNegative() {
+    if (embPrompt?.negative) {
+        copyToClipboard(embPrompt.negative.join(", "));
+    }
+}
+
+function copyAll() {
+    if (embPrompt) {
+        const parts = [];
+        if (embPrompt.positive.length > 0) parts.push(embPrompt.positive.join(", "));
+        if (embPrompt.negative.length > 0) parts.push("Negative: " + embPrompt.negative.join(", "));
+        copyToClipboard(parts.join("\n\n"));
+    }
+}
+
+function toggleRawPrompt() {
+    showRawPrompt = !showRawPrompt;
+}
+
+async function decodePrompt() {
+    isProcessing = true;
+    try {
+        let imgBuffer = await fetch(`/${data.image?.imagePath}`);
+        const extracted = promptDecode(await imgBuffer.arrayBuffer());
+        if (extracted) {
+            extractionResult = extracted;
+            isExtractionModalOpen = true;
+        } else {
+            alert('No embedded prompt data found in this image.');
+        }
+    } catch (error) {
+        console.error('Extraction error:', error);
+        alert('Failed to extract prompt data.');
+    } finally {
+        isProcessing = false;
+    }
+}
+
+async function saveExtraction() {
+    if (!extractionResult || !data.image?._id) return;
+    
+    isProcessing = true;
+    try {
+        const response = await fetch('/api/extraction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                imageId: data.image._id,
+                embPrompt: extractionResult
+            })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            // Refresh the page data by reloading
+            window.location.reload();
+        } else {
+            alert(`Failed to save: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('Save error:', error);
+        alert('Failed to save extraction results.');
+    } finally {
+        isProcessing = false;
+    }
+}
+
+function cancelExtraction() {
+    extractionResult = null;
+    isExtractionModalOpen = false;
+}
+
+function getSourceLabel(source: string): string {
+    const labels: Record<string, string> = {
+        'a1111': 'Automatic1111 / Stable Diffusion WebUI',
+        'civitai': 'CivitAI',
+        'comfyui': 'ComfyUI',
+        'unknown': 'Unknown Format'
+    };
+    return labels[source] || source;
+}
+
+function getSourceColor(source: string): string {
+    const colors: Record<string, string> = {
+        'a1111': '#4a90d9',
+        'civitai': '#36b3a0',
+        'comfyui': '#9b59b6',
+        'unknown': '#7f8c8d'
+    };
+    return colors[source] || '#7f8c8d';
+}
 </script>
 
 <svelte:window bind:scrollY={imageYScroll} />
 
-<div class = midContainer>
+<div class="midContainer">
 
-    <SideBar itemCount = {3}>
+    <SideBar itemCount={3}>
         <SearchBar></SearchBar>
-        <ReturnButton contentId = {data.image?._id}/>
-        <TagSection editable = {true} imageID = {data.image?._id} imageTags = {tags}></TagSection>
+        <ReturnButton contentId={data.image?._id}/>
+        <TagSection editable={true} imageID={data.image?._id} imageTags={tags}></TagSection>
+
     </SideBar>
-    <div class="imageWindow">
-        {#if data.image?.type == "video"}
-            {#key data.image?.imagePath}
-            <Video src= "../../{data.image?.imagePath}"></Video>
-            {/key}
-        {:else}
-            <Image src = "../../{data.image?.imagePath}"  
-            leftLink = {data.adjacents?.prev?.uploadDate}
-            rightLink = {data.adjacents?.next?.uploadDate}>
-            </Image>
-        {/if}
-
-        <ContentNav baseUrl={"/posts/"} contentName={data.image?.originalName} prevId={data.adjacents?.prev?.uploadDate} nextId={data.adjacents?.next?.uploadDate} />
-        {#if false}
-        <ContentNav baseUrl={"/posts"} contentName={data.image.group} prevId={data.adjacents.next.uploadDate} nextId={data.adjacents?.next?.uploadDate}/>    
-        {/if}
-        <div class="pageNumContainer" id="mobileButton">
-            <ReturnButton contentId = {data.image?._id}/>
-        </div>
-        <button on:click={decodePrompt}>Decode Prompt</button>
-        <div class="imageInfo">
-            <p><span>Image Name: </span>{data.image?.originalName}</p>
-            <p><span>Filename: </span>{data.image?.sanitizedFilename}</p>
-            <p><span>File Location: </span>{data.image?.imagePath}</p>
-            <p><span>Image Id:</span>{data.image?._id}</p>
-            {#if embPrompt.length != 0}
-                <div>embeddedPrompt:
-                    <p>
-                        {#each embPrompt as item}
-                            
-                            <span>{item},</span>
-                            
-                        {/each}
-                    </p>
-                </div>
-                <button on:click={copyItems}>Copy Prompt</button>
-                <button on:click={decodePrompt}>Decode Prompt</button>
+    
+    <div class="contentArea">
+        <div class="imageWindow">
+            {#if data.image?.type == "video"}
+                {#key data.image?.imagePath}
+                <Video src="/{data.image?.imagePath}"></Video>
+                {/key}
+            {:else}
+                <Image src="/{data.image?.imagePath}"
+                leftLink={data.adjacents?.prev?.uploadDate}
+                rightLink={data.adjacents?.next?.uploadDate}>
+                </Image>
             {/if}
+        </div>
 
-            <form method="post" action="?/delete">
-                <button type="submit">Delete Image</button>
+        <ContentNav baseUrl="/posts/" contentName={data.image?.originalName} prevId={data.adjacents?.prev?.uploadDate} nextId={data.adjacents?.next?.uploadDate} />
+        <div id="smallVisible">
+            <ReturnButton contentId={data.image?._id}/>
+        </div>
+
+
+        <!-- Prompt Information Panel -->
+        {#if embPrompt && (embPrompt.positive.length > 0 || embPrompt.negative.length > 0 || embPrompt.metadata.length > 0)}
+            <div class="promptPanel">
+                <div class="promptHeader">
+                    <h3>Generation Prompt</h3>
+                    <span class="sourceBadge" style="background-color: {getSourceColor(embPrompt.source)}">
+                        {getSourceLabel(embPrompt.source)}
+                    </span>
+                </div>
+
+                {#if embPrompt.positive.length > 0}
+                    <div class="promptSection">
+                        <div class="sectionHeader">
+                            <h4>Positive Prompt</h4>
+                            <button class="copyBtn" on:click={copyPositive} title="Copy positive prompt">📋</button>
+                        </div>
+                        <div class="promptTags">
+                            {#each embPrompt.positive as tag, i}
+                                <span class="tag positive">{tag}{#if i < embPrompt.positive.length - 1}{/if}</span>
+                            {/each}
+                        </div>
+                    </div>
+                {/if}
+
+                {#if embPrompt.negative.length > 0}
+                    <div class="promptSection">
+                        <div class="sectionHeader">
+                            <h4>Negative Prompt</h4>
+                            <button class="copyBtn" on:click={copyNegative} title="Copy negative prompt">📋</button>
+                        </div>
+                        <div class="promptTags">
+                            {#each embPrompt.negative as tag, i}
+                                <span class="tag negative">{tag}{#if i < embPrompt.negative.length - 1}{/if}</span>
+                            {/each}
+                        </div>
+                    </div>
+                {/if}
+
+                {#if embPrompt.metadata.length > 0}
+                    <div class="promptSection metadata">
+                        <div class="sectionHeader">
+                            <h4>Generation Settings</h4>
+                        </div>
+                        <div class="metadataGrid">
+                            {#each embPrompt.metadata as meta}
+                                {@const [key, ...valueParts] = meta.split(':')}
+                                {@const value = valueParts.join(':').trim()}
+                                <div class="metaItem">
+                                    <span class="metaKey">{key}</span>
+                                    <span class="metaValue">{value}</span>
+                                </div>
+                            {/each}
+                        </div>
+                    </div>
+                {/if}
+
+                <div class="promptActions">
+                    <button class="actionBtn" on:click={copyAll}>Copy All Prompts</button>
+                    {#if embPrompt.raw}
+                        <button class="actionBtn secondary" on:click={toggleRawPrompt}>
+                            {showRawPrompt ? 'Hide Raw Data' : 'Show Raw Data'}
+                        </button>
+                    {/if}
+                </div>
+
+                {#if showRawPrompt && embPrompt.raw}
+                    <div class="rawPrompt">
+                        <pre>{embPrompt.raw}</pre>
+                    </div>
+                {/if}
+            </div>
+        {:else if data.image?.type !== 'video'}
+            <div class="promptPanel empty">
+                <p>No embedded prompt data found in this image.</p>
+                <button class="actionBtn" on:click={decodePrompt} disabled={isProcessing}>
+                    {isProcessing ? 'Extracting...' : 'Attempt Extraction'}
+                </button>
+            </div>
+        {/if}
+
+        <!-- Training Caption Editor -->
+        <TrainingCaptionEditor
+            imageId={data.image?._id}
+            embPromptPositive={embPrompt?.positive ?? []}
+            editable={true}
+        />
+
+        <!-- ComfyUI Cleanup Controls -->
+        <CleanupControls imageId={data.image?._id} />
+
+        <!-- Extraction Results Modal -->
+        {#if isExtractionModalOpen && extractionResult}
+            <Modal show={isExtractionModalOpen}>
+                <h3 slot="header">Extraction Results</h3>
+                <div class="extractionPreview">
+                    <div class="extractionSource">
+                        <span class="sourceBadge" style="background-color: {getSourceColor(extractionResult.source)}">
+                            {getSourceLabel(extractionResult.source)}
+                        </span>
+                    </div>
+
+                    {#if extractionResult.positive.length > 0}
+                        <div class="extractionSection">
+                            <h4>Positive Prompt</h4>
+                            <div class="promptTags">
+                                {#each extractionResult.positive as tag, i}
+                                    <span class="tag positive">{tag}{#if i < extractionResult.positive.length - 1}{/if}</span>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if extractionResult.negative.length > 0}
+                        <div class="extractionSection">
+                            <h4>Negative Prompt</h4>
+                            <div class="promptTags">
+                                {#each extractionResult.negative as tag, i}
+                                    <span class="tag negative">{tag}{#if i < extractionResult.negative.length - 1}{/if}</span>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if extractionResult.metadata.length > 0}
+                        <div class="extractionSection metadata">
+                            <h4>Generation Settings</h4>
+                            <div class="metadataGrid">
+                                {#each extractionResult.metadata as meta}
+                                    {@const [key, ...valueParts] = meta.split(':')}
+                                    {@const value = valueParts.join(':').trim()}
+                                    <div class="metaItem">
+                                        <span class="metaKey">{key}</span>
+                                        <span class="metaValue">{value}</span>
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if extractionResult.raw}
+                        <div class="rawPrompt">
+                            <h4>Raw Data</h4>
+                            <pre>{extractionResult.raw}</pre>
+                        </div>
+                    {/if}
+
+                    <div class="extractionActions">
+                        <button class="actionBtn" on:click={saveExtraction} disabled={isProcessing}>
+                            {isProcessing ? 'Saving...' : 'Save Changes'}
+                        </button>
+                        <button class="actionBtn secondary" on:click={cancelExtraction} disabled={isProcessing}>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+        {/if}
+
+        <!-- Image Info Panel -->
+        <div class="imageInfo">
+            <h3>File Information</h3>
+            <div class="infoGrid">
+                <div class="infoItem">
+                    <span class="infoLabel">Original Name</span>
+                    <span class="infoValue">{data.image?.originalName}</span>
+                </div>
+                <div class="infoItem">
+                    <span class="infoLabel">Filename</span>
+                    <span class="infoValue">{data.image?.sanitizedFilename}</span>
+                </div>
+                <div class="infoItem">
+                    <span class="infoLabel">Location</span>
+                    <span class="infoValue">{data.image?.imagePath}</span>
+                </div>
+                <div class="infoItem">
+                    <span class="infoLabel">ID</span>
+                    <span class="infoValue mono">{data.image?._id}</span>
+                </div>
+            </div>
+
+            <form method="post" action="?/delete" class="deleteForm">
+                <button type="submit" class="deleteBtn">🗑️ Delete Image</button>
                 <input type="hidden" name="strId" value="{data.image?._id}">
                 {#if data.adjacents?.next != null}
                 <input type="hidden" name="next" value="{data.adjacents.next.uploadDate}">
@@ -86,77 +349,345 @@ async function decodePrompt() {
                 <input type="hidden" name="prev" value="{data.adjacents.prev.uploadDate}">
                 {/if}
             </form>
-    
+        </div>
 
-        </div>
-        <div>
-            
-            <p>Comments</p>
-            <div class = "imageWindow">{data.image?.group}</div>
-            <div class = "imageWindow"> Here be comments</div>
-            <div class = "imageWindow"> Here be comments</div>
-            <div class = "imageWindow"> Here be comments</div>
-        </div>
+        <!-- Export Panel -->
+        <ExportPanel
+            imageId={data.image?._id}
+            hasCaption={!!data.image?.trainingPrompt}
+        />
+
+        <!-- Comments Section (placeholder) -->
+        <!-- <div class="commentsSection">
+            <h3>Comments</h3>
+            <div class="commentPlaceholder">
+                <p>Comments coming soon...</p>
+            </div>
+        </div> -->
     </div>
-   
-
 </div>
 
 <style>
-
-    .midContainer{
-        display:grid;
-        gap:60px;
-        height:100%;
+    .midContainer {
+        display: grid;
+        gap: 60px;
+        height: 100%;
         align-self: stretch;
     }
 
-    #mobileButton{
-            display:block;
-            height: 50px;
-            padding: 10px;
-        }
+    .contentArea {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding-bottom: 40px;
+        font-family: 'Montserrat', sans-serif;
+        color: var(--text-primary);
+    }
 
-    @media (min-width:960px) {
-        .midContainer{
+    .contentArea h3,
+    .contentArea h4 {
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    @media (min-width: 960px) {
+        .midContainer {
             grid-template-columns: 200px 1fr;
         }
-
-        #mobileButton{ 
-        display:none;
+        #smallVisible {
+            display:none;
         }
 
-
-    }
-    
-    @media (max-width: 768px){
-        .pageNumContainer{
-            margin: 2px 12px;
-        }
     }
 
-    .imageWindow{
-        background-color: #9ac7d6;
-
+    .imageWindow {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.205);
-        display:flex;
-        flex-wrap:wrap;
+        display: flex;
+        flex-wrap: wrap;
         flex-grow: 1;
     }
 
-    .pageNumContainer{
-        margin: 2 12px;
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1fr, 1fr, 1fr;
-        grid-template-rows: auto;
-        grid-template-areas:
-            "prev title next"
+    /* Prompt Panel Styles */
+    .promptPanel {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     }
 
-    span {
-        padding: 8px;
-        border: 2px solid #ddd;
+    .promptPanel.empty {
+        text-align: center;
+        color: var(--text-secondary);
+        padding: 30px;
+    }
+
+    .promptHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .promptHeader h3 {
+        margin: 0;
+        color: var(--text-primary);
+        font-size: 1.2rem;
+    }
+
+    .sourceBadge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .promptSection {
+        margin-bottom: 16px;
+    }
+
+    .sectionHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .sectionHeader h4 {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .copyBtn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+
+    .copyBtn:hover {
+        opacity: 1;
+    }
+
+    .promptTags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .tag {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .tag.positive {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .tag.negative {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .metadata {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 12px;
+    }
+
+    .metadataGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 8px;
+    }
+
+    .metaItem {
+        display: flex;
+        gap: 8px;
+        font-size: 0.85rem;
+    }
+
+    .metaKey {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .metaKey::after {
+        content: ':';
+    }
+
+    .metaValue {
+        color: var(--text-primary);
+    }
+
+    .promptActions {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .actionBtn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        background-color: var(--button-primary);
+        color: #fff;
+        transition: opacity 0.2s;
+    }
+
+    .actionBtn:hover:not(:disabled) {
+        opacity: 0.88;
+    }
+
+    .actionBtn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .actionBtn.secondary {
+        background-color: color-mix(in srgb, var(--text-secondary) 22%, var(--bg-secondary));
+        color: var(--text-primary);
+    }
+
+    .actionBtn.secondary:hover:not(:disabled) {
+        opacity: 0.85;
+    }
+
+    .rawPrompt {
+        margin-top: 16px;
+        padding: 12px;
+        background-color: #1e242c;
+        border-radius: 8px;
+        overflow-x: auto;
+    }
+
+    .rawPrompt pre {
+        margin: 0;
+        color: #f8f9fa;
+        font-size: 0.75rem;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    /* Image Info Styles */
+    .imageInfo {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    .imageInfo h3 {
+        margin: 0 0 16px 0;
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 8px;
+    }
+
+    .infoGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .infoItem {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .infoLabel {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .infoValue {
+        font-size: 0.9rem;
+        color: var(--text-primary);
+    }
+
+    .infoValue.mono {
+        font-family: monospace;
+        font-size: 0.8rem;
+        background-color: var(--bg-secondary);
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+
+    .deleteForm {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .deleteBtn {
+        padding: 10px 20px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.9rem;
+        transition: opacity 0.2s;
+    }
+
+    .deleteBtn:hover {
+        opacity: 0.88;
+    }
+
+    /* Extraction Modal Preview Styles */
+    .extractionPreview {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .extractionSource {
+        margin-bottom: 16px;
+        text-align: right;
+    }
+
+    .extractionSection {
+        margin-bottom: 16px;
+    }
+
+    .extractionSection h4 {
+        margin: 0 0 8px 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .extractionActions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-color);
     }
 </style>

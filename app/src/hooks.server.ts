@@ -1,45 +1,29 @@
-import { lucia, initialize } from "$lib/auth";
-import type { Handle } from "@sveltejs/kit";
+import { auth, initializeAdminUser } from "$lib/auth";
+import { svelteKitHandler } from "better-auth/svelte-kit";
+import { building } from "$app/environment";
 import { start_mongo } from "$lib/db.server";
 
-start_mongo().then(() => {
-    console.log("Connected to MongoDB")
-    initialize(); //creates admin user if it doesn't exist
-    }).catch((err) => {
-        console.error(err);
+// Initialize MongoDB connection
+start_mongo().then(async () => {
+    console.log("Connected to MongoDB");
+    await initializeAdminUser();
+}).catch((err) => {
+    console.error("MongoDB connection error:", err);
+});
+
+
+const sessionCache = new Map<string, { user: any; session: any; expiresAt: number}>();
+const sessionCacheTTL = 60_000;
+
+
+
+export async function handle({ event, resolve }) {
+    const session = await auth.api.getSession({
+        headers: event.request.headers
     });
-
-
-
-export const handle: Handle = async ({ event, resolve }) => {
-    const sessionId = event.cookies.get(lucia.sessionCookieName);
-    if(!sessionId){
-        event.locals.user = null;
-        event.locals.session = null;
-        console.log("No session id");
-        return resolve(event);
+    if(session) {
+        event.locals.user = session.user;
+        event.locals.session = session.session;
     }
-
-    const { session, user} = await lucia.validateSession(sessionId);
-
-    if( session && session.fresh){
-        const sessionCookie = lucia.createSessionCookie(session.id);
-        
-        event.cookies.set(sessionCookie.name, sessionCookie.value, {
-            path: ".", //TODO add way to have specific path based on environment variables 
-            ...sessionCookie.attributes
-        })
-    }	
-    
-    if (!session) {
-		const sessionCookie = lucia.createBlankSessionCookie();
-		event.cookies.set(sessionCookie.name, sessionCookie.value, {
-			path: ".",
-			...sessionCookie.attributes
-		});
-	}
-
-    event.locals.user = user;
-    event.locals.session = session;
-    return resolve(event);
+    return svelteKitHandler({ event, resolve, auth, building });
 }

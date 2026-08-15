@@ -1,29 +1,42 @@
-import { json } from '@sveltejs/kit'
-import { GroupModel } from "$lib/server/models/groupModel"
+import { json, error } from '@sveltejs/kit'
+import { BatchService } from "$lib/server/services/batchService"
+import type { BatchOperationRequest } from "$lib/server/services/batchService"
 
+export async function POST ({ request, locals }: { request: Request; locals: { user: any } }) {
+    if (!locals.user) {
+        throw error(401, 'Unauthorized')
+    }
 
-export async function POST ({ request } : Request){
-    // user access check here TODO
     try {
-        const body = await request.json();
-        console.log(body);
+        const body = await request.json() as BatchOperationRequest;
+        console.log('Batch operation request:', body);
 
-        GroupModel.createGroup({name: Date.now().toString(), 
-            uploadDate: Date.now().toString(), 
-            children: [body.draggedImage, body.draggedOverImage], 
-            groups: [], 
-            groupType: 'default', 
-            groupTags: []});
-        
-        
-        // GroupModel.getGroupChildren(body.id, body.page, body.limit);
-        // Insert image into group collection if first element is image 
+        const batchService = new BatchService();
+        const result = await batchService.handleBatchOperation(body);
 
-        return json({ success: true });
-    } catch (e) {
-
-        console.error(e);
-        return json({ success: false });
+        if (result.success) {
+            return json({
+                success: true,
+                message: result.message,
+                groupId: (result as any).groupId
+            });
+        }
         
+        return json({
+            success: false,
+            message: result.message
+        }, { status: 500 });
+        
+    } catch (e: any) {
+        console.error('Batch operation error:', e);
+        
+        if (e.status) {
+            throw error(e.status, e.message);
+        }
+        
+        return json({
+            success: false,
+            message: 'An unexpected error occurred'
+        }, { status: 500 });
     }
 }

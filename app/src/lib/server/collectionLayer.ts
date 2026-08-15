@@ -3,10 +3,14 @@ import { databaseDocUtil as dbUtil } from "$lib/server/utility/dbUtil";
 
 export const createMongoCollection = (collection: Collection) => {
     return {
-        async find(query: Filter<any> = {}) {
+        async find(query: Filter<any> = {}, options?: { projection?: Record<string, any> }) {
             try {
                 const mongoQuery = dbUtil.convertStringToId(query);
-                const docs = await collection.find(mongoQuery).toArray();
+                let cursor = collection.find(mongoQuery);
+                if (options?.projection) {
+                    cursor = cursor.project(options.projection);
+                }
+                const docs = await cursor.toArray();
                 return docs.map(dbUtil.convertIdToString);
             } catch (error: any) {
                 throw new Error(`Find operation failed: ${error.message}`);

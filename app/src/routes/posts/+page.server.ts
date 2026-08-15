@@ -5,7 +5,7 @@ import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url, locals }) => {
     if (!locals.user) {
-        console.log("no user"); //expand out to debug flag check + log user session or some id; works for now
+        console.debug("no user:"); //expand out to debug flag check + log user session or some id; works for now
         redirect(307, '/login');
     }
 

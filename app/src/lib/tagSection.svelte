@@ -18,20 +18,21 @@
     async function fetchTags() {
         try {
             const response = await fetch(`/api/tags`);
+
             if (response.ok) {
-                const data = await response.json();
-                autoTags = data;
-                //console.log(autoTags);
-            } else {
-                throw new Error('Failed to fetch tags');
+                throw new Error(`HTTP error: Status ${response.status}`)
             }
+
+            const data = await response.json();
+            autoTags = data;
+            //console.log(autoTags);
         } catch (error) {
             console.error('Error fetching tags:', error);
         }
     }
 
 
-    function handleMessage(event) {
+    function handleMessage(event:CustomEvent) {
         console.log(event.detail);
         const newTag = event.detail.tag.toLowerCase().trim().replace(/ /g,"_");;
         if (newTag !== "") {
@@ -40,7 +41,7 @@
             }
     }
 
-    function handleDeleteTag(event){ 
+    function handleDeleteTag(event:CustomEvent){ 
         imageTags = imageTags.filter((tag) => tag !== event.detail.deletedTag);
         updateServerTags()
     }
@@ -69,7 +70,7 @@
                 <ul>
                     {#if imageTags}
                         {#each imageTags as tag }
-                            <Tag tag = {tag} edit = {editing} on:message = {handleDeleteTag} ></Tag>
+                            <Tag tag = {tag} edit = {editing} onDelete={(tag) => handleDeleteTag(tag)} ></Tag>
                         {/each}
                     {:else}
                         <p>Blank</p>
@@ -101,18 +102,18 @@
 <style>
 
     .TagSection{
-        display: grid;
-        grid-template-rows: 2rem minmax(120px, auto) 1.5rem 1.5rem 1.5rem 1fr;
-        background-color: #FFFFFF;
+        background-color: var(--bg-card);
         border-radius: 15px;
-        justify-content: center;
+        padding: 8px;
         width: 230px;
+        transition: background-color 0.3s ease;
     }
 
     .TagSection h3{
         font-family: 'Montserrat', sans-serif;
         margin:.2rem;
         text-align:center;
+        color: var(--text-primary);
     }
 
     ul{
@@ -139,13 +140,14 @@
     button{
         font-size:16px;
         font-family: 'Montserrat', sans-serif;
-        color:#fafafa;
-        background: #7c3036;
+        color: var(--button-text);
+        background: var(--button-primary);
         outline: none;
         border: none;
         border-radius: 6px;
         width:200px;
         margin: 0 20px 0 10px;
+        transition: background-color 0.3s ease;
     }
     
 </style>

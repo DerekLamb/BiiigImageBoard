@@ -8,7 +8,7 @@ COPY . .
 
 RUN apt-get update -qq && apt-get install ffmpeg -y
 
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 RUN npm run build 
 
