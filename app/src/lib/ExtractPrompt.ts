@@ -172,6 +172,8 @@ function tryParseComment(text: string, source: string) {
             const json = JSON.parse(text);
             if (json.prompt || json.negativePrompt) return parseCivitai(text);
             if (json.nodes || json.workflow) return parseComfy(text);
+            if (looksLikeApiPrompt(json)) return parseComfy(text);
+            if (json.sui_image_params) return parseSuiParams(json, text);
         } catch(e) {}
     }
     // Fallback to A1111
@@ -238,10 +240,9 @@ function decodeUserComment(view: DataView, tiffStart: number, valueOffset: numbe
     const dataLen = count - 8;
     
     if (encoding.startsWith('UNICODE')) {
-        // UTF-16
+        // UTF-16 (endianness varies by writer - sniff it)
         const textBytes = new Uint8Array(view.buffer).subarray(dataStart, dataStart + dataLen);
-        const decoderLabel = isLittleEndian ? 'utf-16le' : 'utf-16be';
-        return new TextDecoder(decoderLabel).decode(textBytes).replace(/\0/g, '');
+        return decodeUtf16EitherEndianness(textBytes);
     } else if (encoding.startsWith('ASCII')) {
         const textBytes = new Uint8Array(view.buffer).subarray(dataStart, dataStart + dataLen);
         return new TextDecoder('ascii').decode(textBytes).replace(/\0/g, '');
@@ -260,7 +261,118 @@ function getAsciiString(uint8: Uint8Array, offset: number, length: number) {
     return str;
 }
 
+function splitTags(text: string): string[] {
+    // Prompts use commas; some writers use double spaces as separators too.
+    return text
+        .split(',')
+        .flatMap(part => part.split(/\s{2,}/))
+        .map(part => part.trim())
+        .filter(part => part.length > 0);
+}
+
+/**
+ * EXIF UserComment "UNICODE" text is UTF-16, but writers disagree on
+ * endianness (often big-endian even inside little-endian TIFF). Decode both
+ * ways and keep whichever reads like text.
+ */
+function decodeUtf16EitherEndianness(bytes: Uint8Array): string {
+    const le = new TextDecoder('utf-16le').decode(bytes);
+    const be = new TextDecoder('utf-16be').decode(bytes);
+    return (printableRatio(le) >= printableRatio(be) ? le : be).replace(/\0/g, '');
+}
+
+function printableRatio(text: string): number {
+    if (text.length === 0) return 0;
+    let printable = 0;
+    for (const ch of text) {
+        const c = ch.codePointAt(0)!;
+        if (c === 9 || c === 10 || (c >= 32 && c < 127)) printable++;
+    }
+    return printable / text.length;
+}
+
+/** True for ComfyUI API-format prompt maps: { "id": { class_type, inputs } } */
+function looksLikeApiPrompt(json: any): boolean {
+    if (!json || typeof json !== 'object') return false;
+    let hits = 0;
+    for (const key in json) {
+        const node = json[key];
+        if (node && typeof node === 'object' && typeof node.class_type === 'string') hits++;
+        if (hits >= 2) return true;
+    }
+    return false;
+}
+
+/**
+ * Stable Diffusion.cpp / SD.Next style: { "sui_image_params": { prompt, negativeprompt, ... } }
+ */
+function parseSuiParams(json: any, rawText: string): EmbeddedPrompt {
+    const p = json.sui_image_params || json;
+    const meta: string[] = [];
+    for (const [k, v] of Object.entries(p)) {
+        if (k === 'prompt' || k === 'negativeprompt' || k === 'negative_prompt') continue;
+        if (typeof v === 'string' || typeof v === 'number') {
+            meta.push(`${k}: ${v}`);
+            if (meta.length >= 10) break;
+        }
+    }
+    return {
+        source: 'sui',
+        positive: splitTags(p.prompt || ''),
+        negative: splitTags(p.negativeprompt || p.negative_prompt || ''),
+        metadata: meta,
+        raw: rawText
+    };
+}
+
+/** Collect generation settings (sampler, size, model, loras) from API-format nodes. */
+function collectComfyMetadata(nodes: Record<string, any>, meta: Set<string>) {
+    for (const key in nodes) {
+        const node = nodes[key];
+        if (!node || typeof node !== 'object' || !node.inputs) continue;
+        const ct = node.class_type || '';
+        const inp = node.inputs;
+
+        if (ct === 'KSampler' || ct === 'KSamplerAdvanced' || ct === 'SamplerCustom') {
+            if (inp.steps != null) meta.add(`Steps: ${inp.steps}`);
+            if (inp.sampler_name) meta.add(`Sampler: ${inp.sampler_name}`);
+            if (inp.scheduler) meta.add(`Scheduler: ${inp.scheduler}`);
+            if (inp.cfg != null) meta.add(`CFG Scale: ${inp.cfg}`);
+            if (inp.seed != null) meta.add(`Seed: ${inp.seed}`);
+            if (ct === 'KSampler' && inp.denoise != null) meta.add(`Denoise: ${inp.denoise}`);
+        } else if (ct === 'EmptyLatentImage' || ct === 'ImageScale' || ct === 'ImageScaleBy') {
+            if (inp.width && inp.height) meta.add(`Size: ${inp.width}x${inp.height}`);
+        } else if (ct === 'CheckpointLoaderSimple') {
+            if (inp.ckpt_name) meta.add(`Model: ${friendlyResourceName(inp.ckpt_name)}`);
+        } else if (ct === 'LoraLoader' || ct === 'LoraLoaderModelOnly') {
+            if (inp.lora_name) {
+                const strength = inp.strength_model ?? inp.weight ?? 1;
+                meta.add(`Lora: ${friendlyResourceName(inp.lora_name)} (${strength})`);
+            }
+        }
+    }
+}
+
+/** Shorten long resource URNs (urn:air:sdxl:lora:civitai:ID@VER -> civitai:ID) */
+function friendlyResourceName(name: string): string {
+    if (name.startsWith('urn:')) {
+        const tail = name.split(':').slice(-2).join(':');
+        return tail.split('@')[0];
+    }
+    return name;
+}
+
 function parseA1111(text: string, name: string): EmbeddedPrompt {
+    // Some writers (SD.Next / stable-diffusion.cpp) embed JSON in "parameters".
+    if (text.trim().startsWith('{')) {
+        try {
+            const json = JSON.parse(text);
+            if (json.sui_image_params || json.prompt) {
+                return parseSuiParams(json, text);
+            }
+        } catch(e) {}
+    }
+
     // Remove newlines for regex matching if needed, but A1111 usually relies on them.
     const cleanText = text.replace(/(\r\n|\n|\r)/gm, " ");
     
@@ -347,15 +459,22 @@ function parseComfy(promptJson?: string, workflowJson?: string): EmbeddedPrompt 
             const json = JSON.parse(promptJson);
             // Handle "nodes" wrapper if present (from user example)
             const nodes = json.nodes || json;
-            
+
             // First, try to find prompts via KSampler references (most reliable)
             const foundViaSampler = processComfyViaSampler(nodes, pos, neg);
-            
+
             // If we didn't find prompts via sampler, fall back to heuristic approach
             if (!foundViaSampler) {
                 for (const key in nodes) {
                     processComfyNodeHeuristic(nodes[key], pos, neg);
                 }
+            }
+
+            // Generation settings (sampler params, size, model, loras)
+            const metaSet = new Set<string>();
+            collectComfyMetadata(nodes, metaSet);
+            for (const m of metaSet) {
+                if (meta.length < 12) meta.push(m);
             }
         } catch (e) {
             // console.error("Comfy parse error", e);
@@ -398,9 +517,7 @@ function processComfyViaSampler(nodes: Record<string, any>, pos: string[], neg: 
                     if (positiveNode) {
                         const text = extractTextFromNode(positiveNode);
                         if (text) {
-                            // Split by comma and trim each part
-                            const parts = text.split(',').map(s => s.trim()).filter(s => s);
-                            pos.push(...parts);
+                            pos.push(...splitTags(text));
                         }
                     }
                 }
@@ -413,9 +530,7 @@ function processComfyViaSampler(nodes: Record<string, any>, pos: string[], neg: 
                     if (negativeNode) {
                         const text = extractTextFromNode(negativeNode);
                         if (text) {
-                            // Split by comma and trim each part
-                            const parts = text.split(',').map(s => s.trim()).filter(s => s);
-                            neg.push(...parts);
+                            neg.push(...splitTags(text));
                         }
                     }
                 }
@@ -466,15 +581,10 @@ function processComfyNodeHeuristic(node: any, pos: string[], neg: string[]) {
             // Check metadata for title
             const title = node._meta?.title?.toLowerCase();
             if (title && title.includes('negative')) {
-                const parts = text.split(',').map(s => s.trim()).filter(s => s);
-                neg.push(...parts);
-            } else if (title && title.includes('positive')) {
-                const parts = text.split(',').map(s => s.trim()).filter(s => s);
-                pos.push(...parts);
+                neg.push(...splitTags(text));
             } else {
-                // Heuristic: default to positive if unknown
-                const parts = text.split(',').map(s => s.trim()).filter(s => s);
-                pos.push(...parts);
+                // Default to positive (explicit "positive" titles and unknown both go here)
+                pos.push(...splitTags(text));
             }
         }
     }

@@ -83,32 +83,33 @@
 </script>
 
 <div class="cleanup-controls">
-    <div class="header">
-        <h3>ComfyUI Cleanup</h3>
-        <div class="connection-status" class:connected class:disconnected={!connected}>
-            {connected ? '● Connected' : '○ Disconnected'}
-        </div>
-    </div>
-
     {#if !connected}
-        <div class="warning">
-            ComfyUI is not reachable. Make sure it's running and configured correctly.
+        <!-- Collapsed state: one quiet line instead of a full panel of dead buttons -->
+        <div class="cleanup-row">
+            <h3>ComfyUI Cleanup</h3>
+            <span class="connection-status disconnected">○ Disconnected</span>
+            <button class="retryBtn" on:click={checkConnection}>Retry</button>
+        </div>
+    {:else}
+        <div class="header">
+            <h3>ComfyUI Cleanup</h3>
+            <div class="connection-status connected">● Connected</div>
+        </div>
+
+        <div class="operations-grid">
+            {#each operations as op}
+                <button
+                    class="op-button"
+                    on:click={() => runCleanup(op.id)}
+                    disabled={isProcessing}
+                    title={op.description}
+                >
+                    <span class="icon">{op.icon}</span>
+                    <span class="label">{op.label}</span>
+                </button>
+            {/each}
         </div>
     {/if}
-
-    <div class="operations-grid">
-        {#each operations as op}
-            <button
-                class="op-button"
-                on:click={() => runCleanup(op.id)}
-                disabled={!connected || isProcessing}
-                title={op.description}
-            >
-                <span class="icon">{op.icon}</span>
-                <span class="label">{op.label}</span>
-            </button>
-        {/each}
-    </div>
 
     {#if isProcessing}
         <div class="processing-status">
@@ -148,6 +149,34 @@
         margin-bottom: 12px;
     }
 
+    .cleanup-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .cleanup-row h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        opacity: 0.7;
+    }
+
+    .retryBtn {
+        font-size: 0.75rem;
+        font-family: inherit;
+        color: var(--text-primary, #345D7E);
+        background: none;
+        border: 1px solid var(--border-color, #e0e0e0);
+        border-radius: 12px;
+        padding: 2px 10px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .retryBtn:hover {
+        opacity: 0.75;
+    }
+
     .header h3 {
         margin: 0;
         font-family: 'Montserrat', sans-serif;
@@ -169,15 +198,6 @@
     .connection-status.disconnected {
         background-color: #f8d7da;
         color: #721c24;
-    }
-
-    .warning {
-        background-color: #fff3cd;
-        color: #856404;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        margin-bottom: 12px;
     }
 
     .operations-grid {
