@@ -267,7 +267,6 @@
     {/if}
 </div>
 
-
 <style>
     .uploadPage {
         display: flex;
