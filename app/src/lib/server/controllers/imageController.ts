@@ -94,7 +94,11 @@ class ImageController {
     }
 
     async addImage(imageData: AppImageData, buffer: Buffer) {
-        await localImageStorage.writeImage(imageData.imagePath, buffer);
+        const writeResult = await localImageStorage.writeImage(imageData.imagePath, buffer);
+        if (!writeResult.success) {
+            // Failing fast here avoids orphaned DB records pointing at missing files.
+            throw new Error(writeResult.message || `Failed to save image to ${imageData.imagePath}`);
+        }
         return await ImageModel.addImage(imageData);
     }
 

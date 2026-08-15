@@ -78,15 +78,19 @@ const imageCountChange = () => { //TODO Bug here
             {#each data.images as image}
                 {#if image.thumbnailPath}
                     <div class = "imageBox">
-                        <Image src = "/{image.thumbnailPath}" 
-                        mainLink = "/posts/{image.uploadDate}" 
-                         
+                        <Image src = "/{image.thumbnailPath}"
+                        mainLink = "/posts/{image.uploadDate}"
+                        fallbackSrc = "/{image.imagePath}"
+                        lazy={true}
+                        alt={image.originalName}
                         thumbnail={true}></Image>
                     </div>
                 {:else}
                     <div class = "imageBox">
-                        <Image src = "/{image.imagePath}" 
-                        mainLink = "/posts/{image.uploadDate}" 
+                        <Image src = "/{image.imagePath}"
+                        mainLink = "/posts/{image.uploadDate}"
+                        lazy={true}
+                        alt={image.originalName}
                          ></Image>
                     </div>
                 {/if}
@@ -136,9 +140,13 @@ const imageCountChange = () => { //TODO Bug here
 
     span{
         font-family: 'Montserrat', sans-serif;
-        font-size: 20px;
-        margin: 5px 10px;
-        color: #5b5b5b;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin: 5px 10px 5px 0;
+        color: var(--text-secondary, #678c9e);
+        align-self: center;
     }
 
     .reviewLink {
@@ -161,11 +169,18 @@ const imageCountChange = () => { //TODO Bug here
 
     select {
         font-family: 'Montserrat', sans-serif;
-        font-size: 17px;
-        appearance: none;
-        color: #345D7E;
-        background-color: #f7d1d7;
-        border:none;
-        border-radius: 7px;
+        font-size: 0.9rem;
+        color: var(--text-primary, #345D7E);
+        background-color: var(--bg-input, #f7d1d7);
+        border: 1px solid var(--border-color, #e0e0e0);
+        border-radius: 8px;
+        padding: 5px 8px;
+        margin-right: 12px;
+        cursor: pointer;
+        transition: border-color 0.15s;
+    }
+
+    select:hover {
+        border-color: var(--text-accent, #7BAFD4);
     }
 </style>

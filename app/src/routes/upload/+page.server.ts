@@ -8,13 +8,22 @@ const MAX_UPLOAD_COUNT = 5000;         // Max files per request to prevent abuse
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB per file limit
 const BATCH_DELAY_MS = 50;             // Delay between batches to allow GC
 
+// Monotonically increasing per-file upload IDs. Two uploads landing in the
+// same millisecond used to derive identical file paths, so the second image
+// silently overwrote the first on disk.
+let lastUploadId = 0;
+function nextUploadId(): number {
+    const now = Date.now();
+    lastUploadId = Math.max(now, lastUploadId + 1);
+    return lastUploadId;
+}
+
 /** @type {import('./$types').Actions} */
 
 export const actions = {
     default: async ({ request }) => {
         const formdata = await request.formData();
         const files = formdata.getAll("image").filter(file => file instanceof File && file.name) as File[]; // readabliity fix TODO;
-        const baseTimestamp = Date.now().toString();
 
         // Validate upload limits before processing
         if (files.length > MAX_UPLOAD_COUNT) {
@@ -42,8 +51,7 @@ export const actions = {
         for (let i = 0; i < files.length; i += UPLOAD_BATCH_SIZE) {
             const batch = files.slice(i, i + UPLOAD_BATCH_SIZE);
             const batchPromises = batch.map(async (file, index) => {
-                const globalIndex = i + index;
-                const sequentialTimestamp = (parseInt(baseTimestamp) + globalIndex).toString();
+                const sequentialTimestamp = nextUploadId().toString();
                 return await imageController.newImage(file, sequentialTimestamp);
             });
             const batchResults = await Promise.all(batchPromises);

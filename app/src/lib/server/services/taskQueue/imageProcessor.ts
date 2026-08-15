@@ -211,14 +211,22 @@ class ImageProcessor {
         return Promise.all(promises);
     }
 
-    /**
-     * Main processing function - processes all images needing attention in batches
-     */
-    async processAllImages(onProgress?: (stats: TaskQueueStats) => void): Promise<BatchProcessingResult> {
-        if (this.isProcessing) {
-            throw new Error('Processing already in progress');
-        }
+    // Serializes processing runs: concurrent calls (e.g. back-to-back uploads)
+    // queue behind the active run instead of being rejected, which previously
+    // left newly uploaded images without thumbnails.
+    private processingQueue: Promise<unknown> = Promise.resolve();
 
+    /**
+     * Main processing function - processes all images needing attention in batches.
+     * Concurrent calls are serialized through an internal queue.
+     */
+    processAllImages(onProgress?: (stats: TaskQueueStats) => void): Promise<BatchProcessingResult> {
+        const run = this.processingQueue.then(() => this.runProcessing(onProgress));
+        this.processingQueue = run.catch(() => undefined); // keep the queue alive
+        return run;
+    }
+
+    private async runProcessing(onProgress?: (stats: TaskQueueStats) => void): Promise<BatchProcessingResult> {
         this.isProcessing = true;
         this.stats = { pending: 0, running: 0, completed: 0, failed: 0 };
 

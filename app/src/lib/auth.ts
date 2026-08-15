@@ -109,8 +109,12 @@ export async function initializeAdminUser(): Promise<boolean> {
         const { hashPassword } = await import('@better-auth/utils/password');
         const hashedPassword = await hashPassword(env.ADMIN_PASSWORD);
         const userId = crypto.randomUUID ? crypto.randomUUID() : 'admin-' + Date.now();
+        const accountId = crypto.randomUUID ? crypto.randomUUID() : 'acct-' + Date.now();
 
+        // NOTE: the mongo adapter treats the document _id as the better-auth "id" field
+        // (joins map id -> _id), so _id must equal the id we reference elsewhere.
         await db.collection("user").insertOne({
+            _id: userId,
             id: userId,
             email: env.ADMIN_EMAIL,
             emailVerified: true,
@@ -122,7 +126,8 @@ export async function initializeAdminUser(): Promise<boolean> {
         });
 
         await db.collection("account").insertOne({
-            id: crypto.randomUUID ? crypto.randomUUID() : 'acct-' + Date.now(),
+            _id: accountId,
+            id: accountId,
             userId: userId,
             accountId: env.ADMIN_EMAIL,
             providerId: "credential",

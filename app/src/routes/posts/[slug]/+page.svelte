@@ -143,10 +143,10 @@ function getSourceColor(source: string): string {
         <div class="imageWindow">
             {#if data.image?.type == "video"}
                 {#key data.image?.imagePath}
-                <Video src="../../{data.image?.imagePath}"></Video>
+                <Video src="/{data.image?.imagePath}"></Video>
                 {/key}
             {:else}
-                <Image src="../../{data.image?.imagePath}"
+                <Image src="/{data.image?.imagePath}"
                 leftLink={data.adjacents?.prev?.uploadDate}
                 rightLink={data.adjacents?.next?.uploadDate}>
                 </Image>
@@ -380,6 +380,13 @@ function getSourceColor(source: string): string {
         flex-direction: column;
         gap: 20px;
         padding-bottom: 40px;
+        font-family: 'Montserrat', sans-serif;
+        color: var(--text-primary);
+    }
+
+    .contentArea h3,
+    .contentArea h4 {
+        font-family: 'Montserrat', sans-serif;
     }
 
     @media (min-width: 960px) {
@@ -393,7 +400,8 @@ function getSourceColor(source: string): string {
     }
 
     .imageWindow {
-        background-color: #9ac7d6;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.205);
         display: flex;
@@ -403,15 +411,16 @@ function getSourceColor(source: string): string {
 
     /* Prompt Panel Styles */
     .promptPanel {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     }
 
     .promptPanel.empty {
         text-align: center;
-        color: #6c757d;
+        color: var(--text-secondary);
         padding: 30px;
     }
 
@@ -421,12 +430,12 @@ function getSourceColor(source: string): string {
         justify-content: space-between;
         margin-bottom: 16px;
         padding-bottom: 12px;
-        border-bottom: 2px solid #dee2e6;
+        border-bottom: 1px solid var(--border-color);
     }
 
     .promptHeader h3 {
         margin: 0;
-        color: #343a40;
+        color: var(--text-primary);
         font-size: 1.2rem;
     }
 
@@ -452,7 +461,7 @@ function getSourceColor(source: string): string {
 
     .sectionHeader h4 {
         margin: 0;
-        color: #495057;
+        color: var(--text-secondary);
         font-size: 0.9rem;
     }
 
@@ -495,7 +504,8 @@ function getSourceColor(source: string): string {
     }
 
     .metadata {
-        background-color: #f8f9fa;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
         padding: 12px;
     }
@@ -513,7 +523,7 @@ function getSourceColor(source: string): string {
     }
 
     .metaKey {
-        color: #6c757d;
+        color: var(--text-secondary);
         font-weight: 500;
     }
 
@@ -522,7 +532,7 @@ function getSourceColor(source: string): string {
     }
 
     .metaValue {
-        color: #343a40;
+        color: var(--text-primary);
     }
 
     .promptActions {
@@ -530,7 +540,7 @@ function getSourceColor(source: string): string {
         gap: 10px;
         margin-top: 16px;
         padding-top: 12px;
-        border-top: 1px solid #dee2e6;
+        border-top: 1px solid var(--border-color);
     }
 
     .actionBtn {
@@ -538,29 +548,36 @@ function getSourceColor(source: string): string {
         border-radius: 6px;
         border: none;
         cursor: pointer;
+        font-family: inherit;
         font-size: 0.85rem;
         font-weight: 500;
-        background-color: #007bff;
-        color: white;
-        transition: background-color 0.2s;
+        background-color: var(--button-primary);
+        color: #fff;
+        transition: opacity 0.2s;
     }
 
-    .actionBtn:hover {
-        background-color: #0056b3;
+    .actionBtn:hover:not(:disabled) {
+        opacity: 0.88;
+    }
+
+    .actionBtn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
     .actionBtn.secondary {
-        background-color: #6c757d;
+        background-color: color-mix(in srgb, var(--text-secondary) 22%, var(--bg-secondary));
+        color: var(--text-primary);
     }
 
-    .actionBtn.secondary:hover {
-        background-color: #545b62;
+    .actionBtn.secondary:hover:not(:disabled) {
+        opacity: 0.85;
     }
 
     .rawPrompt {
         margin-top: 16px;
         padding: 12px;
-        background-color: #343a40;
+        background-color: #1e242c;
         border-radius: 8px;
         overflow-x: auto;
     }
@@ -575,17 +592,18 @@ function getSourceColor(source: string): string {
 
     /* Image Info Styles */
     .imageInfo {
-        background-color: #fff;
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
     }
 
     .imageInfo h3 {
         margin: 0 0 16px 0;
-        color: #343a40;
+        color: var(--text-primary);
         font-size: 1.1rem;
-        border-bottom: 2px solid #e9ecef;
+        border-bottom: 1px solid var(--border-color);
         padding-bottom: 8px;
     }
 
@@ -604,20 +622,20 @@ function getSourceColor(source: string): string {
 
     .infoLabel {
         font-size: 0.75rem;
-        color: #6c757d;
+        color: var(--text-secondary);
         text-transform: uppercase;
         font-weight: 600;
     }
 
     .infoValue {
         font-size: 0.9rem;
-        color: #343a40;
+        color: var(--text-primary);
     }
 
     .infoValue.mono {
         font-family: monospace;
         font-size: 0.8rem;
-        background-color: #f8f9fa;
+        background-color: var(--bg-secondary);
         padding: 4px 8px;
         border-radius: 4px;
     }
@@ -625,7 +643,7 @@ function getSourceColor(source: string): string {
     .deleteForm {
         margin-top: 16px;
         padding-top: 16px;
-        border-top: 1px solid #e9ecef;
+        border-top: 1px solid var(--border-color);
     }
 
     .deleteBtn {
@@ -635,12 +653,13 @@ function getSourceColor(source: string): string {
         border: none;
         border-radius: 6px;
         cursor: pointer;
+        font-family: inherit;
         font-size: 0.9rem;
-        transition: background-color 0.2s;
+        transition: opacity 0.2s;
     }
 
     .deleteBtn:hover {
-        background-color: #c82333;
+        opacity: 0.88;
     }
 
     /* Extraction Modal Preview Styles */
@@ -660,7 +679,7 @@ function getSourceColor(source: string): string {
 
     .extractionSection h4 {
         margin: 0 0 8px 0;
-        color: #495057;
+        color: var(--text-secondary);
         font-size: 0.9rem;
     }
 
@@ -669,6 +688,6 @@ function getSourceColor(source: string): string {
         gap: 10px;
         margin-top: 20px;
         padding-top: 16px;
-        border-top: 1px solid #dee2e6;
+        border-top: 1px solid var(--border-color);
     }
 </style>
