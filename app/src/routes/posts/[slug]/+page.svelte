@@ -1,29 +1,42 @@
 <script lang=ts>
-import SearchBar from "$lib/searchBar.svelte";
-import TagSection from "$lib/tagSection.svelte";
-import SideBar from "$lib/sideBar.svelte";
 import Image from "$lib/image.svelte";
 import Video from "$lib/video.svelte"
 import ContentNav from "$lib/contentNav.svelte";
-import ReturnButton from '$lib/returnButton.svelte';
+import Tag from "$lib/tag.svelte";
+import AutoTagInput from "$lib/autoTagInput.svelte";
 import Modal from "$lib/svelteComponents/modal.svelte";
 import TrainingCaptionEditor from "$lib/svelteComponents/trainingCaptionEditor.svelte";
 import CleanupControls from "$lib/svelteComponents/cleanupControls.svelte";
 import ExportPanel from "$lib/svelteComponents/exportPanel.svelte";
 import promptDecode from '$lib/ExtractPrompt';
+import { onMount } from 'svelte';
 import type { EmbeddedPrompt } from '$lib/types/DocTypes';
 import type { PageData } from './$types';
 
 export let data: PageData;
 $: tags = data.image?.tags ?? [];
 $: embPrompt = data.image?.embPrompt;
-let imageYScroll = 0;
+
 let showRawPrompt = false;
 
-// Extraction state
+// Tag editing (inline row — previously lived in the desktop-only sidebar)
+let tagEditing = false;
+let autoTags: string[] = [];
+let tagError = '';
+
+// Prompt extraction state
 let extractionResult: EmbeddedPrompt | null = null;
 let isExtractionModalOpen = false;
 let isProcessing = false;
+let extractionMessage = '';
+let modalMessage = '';
+
+onMount(async () => {
+    try {
+        const res = await fetch('/api/tags');
+        if (res.ok) autoTags = await res.json();
+    } catch { /* autocomplete is optional */ }
+});
 
 function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
@@ -54,8 +67,36 @@ function toggleRawPrompt() {
     showRawPrompt = !showRawPrompt;
 }
 
+function addTag(raw: string) {
+    const clean = (raw || '').toLowerCase().trim().replace(/\s+/g, '_');
+    if (!clean || tags.includes(clean)) return;
+    tags = [...tags, clean];
+    saveTags();
+}
+
+function removeTag(tag: string) {
+    tags = tags.filter(t => t !== tag);
+    saveTags();
+}
+
+async function saveTags() {
+    if (!data.image?._id) return;
+    tagError = '';
+    try {
+        const res = await fetch('/api/tags', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tags, imageID: data.image._id })
+        });
+        if (!res.ok) throw new Error('save failed');
+    } catch {
+        tagError = 'Failed to save tags.';
+    }
+}
+
 async function decodePrompt() {
     isProcessing = true;
+    extractionMessage = '';
     try {
         let imgBuffer = await fetch(`/${data.image?.imagePath}`);
         const extracted = promptDecode(await imgBuffer.arrayBuffer());
@@ -63,11 +104,11 @@ async function decodePrompt() {
             extractionResult = extracted;
             isExtractionModalOpen = true;
         } else {
-            alert('No embedded prompt data found in this image.');
+            extractionMessage = 'No embedded prompt data found in this image.';
         }
     } catch (error) {
         console.error('Extraction error:', error);
-        alert('Failed to extract prompt data.');
+        extractionMessage = 'Failed to extract prompt data.';
     } finally {
         isProcessing = false;
     }
@@ -75,8 +116,9 @@ async function decodePrompt() {
 
 async function saveExtraction() {
     if (!extractionResult || !data.image?._id) return;
-    
+
     isProcessing = true;
+    modalMessage = '';
     try {
         const response = await fetch('/api/extraction', {
             method: 'POST',
@@ -86,17 +128,16 @@ async function saveExtraction() {
                 embPrompt: extractionResult
             })
         });
-        
+
         const result = await response.json();
         if (result.success) {
-            // Refresh the page data by reloading
             window.location.reload();
         } else {
-            alert(`Failed to save: ${result.error}`);
+            modalMessage = `Failed to save: ${result.error}`;
         }
     } catch (error) {
         console.error('Save error:', error);
-        alert('Failed to save extraction results.');
+        modalMessage = 'Failed to save extraction results.';
     } finally {
         isProcessing = false;
     }
@@ -105,6 +146,13 @@ async function saveExtraction() {
 function cancelExtraction() {
     extractionResult = null;
     isExtractionModalOpen = false;
+    modalMessage = '';
+}
+
+function confirmDelete(e: Event) {
+    if (!confirm('Delete this image? This cannot be undone.')) {
+        e.preventDefault();
+    }
 }
 
 function getSourceLabel(source: string): string {
@@ -128,82 +176,206 @@ function getSourceColor(source: string): string {
 }
 </script>
 
-<svelte:window bind:scrollY={imageYScroll} />
+{#if data.image}
+<div class="postPage">
 
-<div class="midContainer">
+    <div class="postHeader">
+        <a href="/posts" class="backLink">← Posts</a>
+        <span class="postName">{data.image.originalName}</span>
+    </div>
 
-    <SideBar itemCount={3}>
-        <SearchBar></SearchBar>
-        <ReturnButton contentId={data.image?._id}/>
-        <TagSection editable={true} imageID={data.image?._id} imageTags={tags}></TagSection>
+    <div class="imageWindow">
+        {#if data.image.type == "video"}
+            {#key data.image.imagePath}
+            <Video src="/{data.image.imagePath}"></Video>
+            {/key}
+        {:else}
+            <Image src="/{data.image.imagePath}"
+            leftLink={data.adjacents?.prev?.uploadDate}
+            rightLink={data.adjacents?.next?.uploadDate}>
+            </Image>
+        {/if}
+    </div>
 
-    </SideBar>
-    
-    <div class="contentArea">
-        <div class="imageWindow">
-            {#if data.image?.type == "video"}
-                {#key data.image?.imagePath}
-                <Video src="/{data.image?.imagePath}"></Video>
-                {/key}
-            {:else}
-                <Image src="/{data.image?.imagePath}"
-                leftLink={data.adjacents?.prev?.uploadDate}
-                rightLink={data.adjacents?.next?.uploadDate}>
-                </Image>
+    <ContentNav baseUrl="/posts/" contentName={data.image.originalName} prevId={data.adjacents?.prev?.uploadDate} nextId={data.adjacents?.next?.uploadDate} />
+
+    <!-- Inline tags (works on both desktop and mobile) -->
+    <div class="tagRow">
+        {#each tags as tag (tag)}
+            <Tag tag={tag} edit={tagEditing} onDelete={(t: string) => removeTag(t)} />
+        {/each}
+        {#if tagEditing}
+            <div class="tagAddInput">
+                <AutoTagInput autocompleteTags={autoTags} on:tag={(e) => addTag((e as CustomEvent<{ tag: string }>).detail.tag)} />
+            </div>
+        {/if}
+        <button class="tagToggle" on:click={() => { tagEditing = !tagEditing; }}>
+            {tagEditing ? 'Done' : tags.length > 0 ? 'Edit tags' : 'Add tag'}
+        </button>
+    </div>
+    {#if tagError}
+        <div class="formError">{tagError}</div>
+    {/if}
+
+    <!-- Prompt Information Panel -->
+    {#if embPrompt && (embPrompt.positive.length > 0 || embPrompt.negative.length > 0 || embPrompt.metadata.length > 0)}
+        <div class="promptPanel">
+            <div class="promptHeader">
+                <h3>Generation Prompt</h3>
+                <span class="sourceBadge" style="background-color: {getSourceColor(embPrompt.source)}">
+                    {getSourceLabel(embPrompt.source)}
+                </span>
+            </div>
+
+            {#if embPrompt.positive.length > 0}
+                <div class="promptSection">
+                    <div class="sectionHeader">
+                        <h4>Positive Prompt</h4>
+                        <button class="copyBtn" on:click={copyPositive} title="Copy positive prompt">Copy</button>
+                    </div>
+                    <div class="promptTags">
+                        {#each embPrompt.positive as tag (tag)}
+                            <span class="tag positive">{tag}</span>
+                        {/each}
+                    </div>
+                </div>
+            {/if}
+
+            {#if embPrompt.negative.length > 0}
+                <div class="promptSection">
+                    <div class="sectionHeader">
+                        <h4>Negative Prompt</h4>
+                        <button class="copyBtn" on:click={copyNegative} title="Copy negative prompt">Copy</button>
+                    </div>
+                    <div class="promptTags">
+                        {#each embPrompt.negative as tag (tag)}
+                            <span class="tag negative">{tag}</span>
+                        {/each}
+                    </div>
+                </div>
+            {/if}
+
+            {#if embPrompt.metadata.length > 0}
+                <div class="promptSection metadata">
+                    <div class="sectionHeader">
+                        <h4>Generation Settings</h4>
+                    </div>
+                    <div class="metadataGrid">
+                        {#each embPrompt.metadata as meta (meta)}
+                            {@const [key, ...valueParts] = meta.split(':')}
+                            {@const value = valueParts.join(':').trim()}
+                            <div class="metaItem">
+                                <span class="metaKey">{key}</span>
+                                <span class="metaValue">{value}</span>
+                            </div>
+                        {/each}
+                    </div>
+                </div>
+            {/if}
+
+            <div class="promptActions">
+                <button class="actionBtn" on:click={copyAll}>Copy All Prompts</button>
+                {#if embPrompt.raw}
+                    <button class="actionBtn secondary" on:click={toggleRawPrompt}>
+                        {showRawPrompt ? 'Hide Raw Data' : 'Show Raw Data'}
+                    </button>
+                {/if}
+            </div>
+
+            {#if showRawPrompt && embPrompt.raw}
+                <div class="rawPrompt">
+                    <pre>{embPrompt.raw}</pre>
+                </div>
             {/if}
         </div>
-
-        <ContentNav baseUrl="/posts/" contentName={data.image?.originalName} prevId={data.adjacents?.prev?.uploadDate} nextId={data.adjacents?.next?.uploadDate} />
-        <div id="smallVisible">
-            <ReturnButton contentId={data.image?._id}/>
+    {:else if data.image.type !== 'video'}
+        <div class="promptEmpty">
+            <span>No embedded prompt data in this image.</span>
+            <button class="linkBtn" on:click={decodePrompt} disabled={isProcessing}>
+                {isProcessing ? 'Extracting…' : 'Attempt extraction'}
+            </button>
+            {#if extractionMessage}
+                <span class="inlineError">{extractionMessage}</span>
+            {/if}
         </div>
+    {/if}
 
+    <!-- Training Caption Editor -->
+    <TrainingCaptionEditor
+        imageId={data.image?._id}
+        embPromptPositive={embPrompt?.positive ?? []}
+        editable={true}
+    />
 
-        <!-- Prompt Information Panel -->
-        {#if embPrompt && (embPrompt.positive.length > 0 || embPrompt.negative.length > 0 || embPrompt.metadata.length > 0)}
-            <div class="promptPanel">
-                <div class="promptHeader">
-                    <h3>Generation Prompt</h3>
-                    <span class="sourceBadge" style="background-color: {getSourceColor(embPrompt.source)}">
-                        {getSourceLabel(embPrompt.source)}
+    <!-- ComfyUI Cleanup Controls -->
+    <CleanupControls imageId={data.image?._id} />
+
+    <!-- Export Panel -->
+    <ExportPanel
+        imageId={data.image?._id}
+        hasCaption={!!data.image?.trainingPrompt}
+    />
+
+    <!-- File footer: meta + delete (kept low and out of the way on mobile) -->
+    <footer class="fileFooter">
+        <div class="fileMeta">
+            <span class="mono">{data.image.sanitizedFilename}</span>
+            <span class="metaDot">·</span>
+            <span class="mono">{data.image._id}</span>
+            <span class="metaDot">·</span>
+            <span>{data.image.imagePath}</span>
+        </div>
+        <form method="post" action="?/delete" class="deleteForm"
+            on:submit={(e) => confirmDelete(e)}>
+            <button type="submit" class="deleteBtn">Delete image</button>
+            <input type="hidden" name="strId" value={data.image?._id}>
+            {#if data.adjacents?.next != null}
+            <input type="hidden" name="next" value="{data.adjacents.next.uploadDate}">
+            {/if}
+            {#if data.adjacents?.prev != null}
+            <input type="hidden" name="prev" value="{data.adjacents.prev.uploadDate}">
+            {/if}
+        </form>
+    </footer>
+
+    <!-- Extraction Results Modal -->
+    {#if isExtractionModalOpen && extractionResult}
+        <Modal show={isExtractionModalOpen}>
+            <h3 slot="header">Extraction Results</h3>
+            <div class="extractionPreview">
+                <div class="extractionSource">
+                    <span class="sourceBadge" style="background-color: {getSourceColor(extractionResult.source)}">
+                        {getSourceLabel(extractionResult.source)}
                     </span>
                 </div>
 
-                {#if embPrompt.positive.length > 0}
-                    <div class="promptSection">
-                        <div class="sectionHeader">
-                            <h4>Positive Prompt</h4>
-                            <button class="copyBtn" on:click={copyPositive} title="Copy positive prompt">📋</button>
-                        </div>
+                {#if extractionResult.positive.length > 0}
+                    <div class="extractionSection">
+                        <h4>Positive Prompt</h4>
                         <div class="promptTags">
-                            {#each embPrompt.positive as tag, i}
-                                <span class="tag positive">{tag}{#if i < embPrompt.positive.length - 1}{/if}</span>
+                            {#each extractionResult.positive as tag (tag)}
+                                <span class="tag positive">{tag}</span>
                             {/each}
                         </div>
                     </div>
                 {/if}
 
-                {#if embPrompt.negative.length > 0}
-                    <div class="promptSection">
-                        <div class="sectionHeader">
-                            <h4>Negative Prompt</h4>
-                            <button class="copyBtn" on:click={copyNegative} title="Copy negative prompt">📋</button>
-                        </div>
+                {#if extractionResult.negative.length > 0}
+                    <div class="extractionSection">
+                        <h4>Negative Prompt</h4>
                         <div class="promptTags">
-                            {#each embPrompt.negative as tag, i}
-                                <span class="tag negative">{tag}{#if i < embPrompt.negative.length - 1}{/if}</span>
+                            {#each extractionResult.negative as tag (tag)}
+                                <span class="tag negative">{tag}</span>
                             {/each}
                         </div>
                     </div>
                 {/if}
 
-                {#if embPrompt.metadata.length > 0}
-                    <div class="promptSection metadata">
-                        <div class="sectionHeader">
-                            <h4>Generation Settings</h4>
-                        </div>
+                {#if extractionResult.metadata.length > 0}
+                    <div class="extractionSection metadata">
+                        <h4>Generation Settings</h4>
                         <div class="metadataGrid">
-                            {#each embPrompt.metadata as meta}
+                            {#each extractionResult.metadata as meta (meta)}
                                 {@const [key, ...valueParts] = meta.split(':')}
                                 {@const value = valueParts.join(':').trim()}
                                 <div class="metaItem">
@@ -215,188 +387,76 @@ function getSourceColor(source: string): string {
                     </div>
                 {/if}
 
-                <div class="promptActions">
-                    <button class="actionBtn" on:click={copyAll}>Copy All Prompts</button>
-                    {#if embPrompt.raw}
-                        <button class="actionBtn secondary" on:click={toggleRawPrompt}>
-                            {showRawPrompt ? 'Hide Raw Data' : 'Show Raw Data'}
-                        </button>
-                    {/if}
-                </div>
-
-                {#if showRawPrompt && embPrompt.raw}
+                {#if extractionResult.raw}
                     <div class="rawPrompt">
-                        <pre>{embPrompt.raw}</pre>
+                        <h4>Raw Data</h4>
+                        <pre>{extractionResult.raw}</pre>
                     </div>
                 {/if}
-            </div>
-        {:else if data.image?.type !== 'video'}
-            <div class="promptPanel empty">
-                <p>No embedded prompt data found in this image.</p>
-                <button class="actionBtn" on:click={decodePrompt} disabled={isProcessing}>
-                    {isProcessing ? 'Extracting...' : 'Attempt Extraction'}
-                </button>
-            </div>
-        {/if}
 
-        <!-- Training Caption Editor -->
-        <TrainingCaptionEditor
-            imageId={data.image?._id}
-            embPromptPositive={embPrompt?.positive ?? []}
-            editable={true}
-        />
-
-        <!-- ComfyUI Cleanup Controls -->
-        <CleanupControls imageId={data.image?._id} />
-
-        <!-- Extraction Results Modal -->
-        {#if isExtractionModalOpen && extractionResult}
-            <Modal show={isExtractionModalOpen}>
-                <h3 slot="header">Extraction Results</h3>
-                <div class="extractionPreview">
-                    <div class="extractionSource">
-                        <span class="sourceBadge" style="background-color: {getSourceColor(extractionResult.source)}">
-                            {getSourceLabel(extractionResult.source)}
-                        </span>
-                    </div>
-
-                    {#if extractionResult.positive.length > 0}
-                        <div class="extractionSection">
-                            <h4>Positive Prompt</h4>
-                            <div class="promptTags">
-                                {#each extractionResult.positive as tag, i}
-                                    <span class="tag positive">{tag}{#if i < extractionResult.positive.length - 1}{/if}</span>
-                                {/each}
-                            </div>
-                        </div>
-                    {/if}
-
-                    {#if extractionResult.negative.length > 0}
-                        <div class="extractionSection">
-                            <h4>Negative Prompt</h4>
-                            <div class="promptTags">
-                                {#each extractionResult.negative as tag, i}
-                                    <span class="tag negative">{tag}{#if i < extractionResult.negative.length - 1}{/if}</span>
-                                {/each}
-                            </div>
-                        </div>
-                    {/if}
-
-                    {#if extractionResult.metadata.length > 0}
-                        <div class="extractionSection metadata">
-                            <h4>Generation Settings</h4>
-                            <div class="metadataGrid">
-                                {#each extractionResult.metadata as meta}
-                                    {@const [key, ...valueParts] = meta.split(':')}
-                                    {@const value = valueParts.join(':').trim()}
-                                    <div class="metaItem">
-                                        <span class="metaKey">{key}</span>
-                                        <span class="metaValue">{value}</span>
-                                    </div>
-                                {/each}
-                            </div>
-                        </div>
-                    {/if}
-
-                    {#if extractionResult.raw}
-                        <div class="rawPrompt">
-                            <h4>Raw Data</h4>
-                            <pre>{extractionResult.raw}</pre>
-                        </div>
-                    {/if}
-
-                    <div class="extractionActions">
-                        <button class="actionBtn" on:click={saveExtraction} disabled={isProcessing}>
-                            {isProcessing ? 'Saving...' : 'Save Changes'}
-                        </button>
-                        <button class="actionBtn secondary" on:click={cancelExtraction} disabled={isProcessing}>
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            </Modal>
-        {/if}
-
-        <!-- Image Info Panel -->
-        <div class="imageInfo">
-            <h3>File Information</h3>
-            <div class="infoGrid">
-                <div class="infoItem">
-                    <span class="infoLabel">Original Name</span>
-                    <span class="infoValue">{data.image?.originalName}</span>
-                </div>
-                <div class="infoItem">
-                    <span class="infoLabel">Filename</span>
-                    <span class="infoValue">{data.image?.sanitizedFilename}</span>
-                </div>
-                <div class="infoItem">
-                    <span class="infoLabel">Location</span>
-                    <span class="infoValue">{data.image?.imagePath}</span>
-                </div>
-                <div class="infoItem">
-                    <span class="infoLabel">ID</span>
-                    <span class="infoValue mono">{data.image?._id}</span>
-                </div>
-            </div>
-
-            <form method="post" action="?/delete" class="deleteForm">
-                <button type="submit" class="deleteBtn">🗑️ Delete Image</button>
-                <input type="hidden" name="strId" value="{data.image?._id}">
-                {#if data.adjacents?.next != null}
-                <input type="hidden" name="next" value="{data.adjacents.next.uploadDate}">
+                {#if modalMessage}
+                    <div class="formError">{modalMessage}</div>
                 {/if}
-                {#if data.adjacents?.prev != null}
-                <input type="hidden" name="prev" value="{data.adjacents.prev.uploadDate}">
-                {/if}
-            </form>
-        </div>
 
-        <!-- Export Panel -->
-        <ExportPanel
-            imageId={data.image?._id}
-            hasCaption={!!data.image?.trainingPrompt}
-        />
-
-        <!-- Comments Section (placeholder) -->
-        <!-- <div class="commentsSection">
-            <h3>Comments</h3>
-            <div class="commentPlaceholder">
-                <p>Comments coming soon...</p>
+                <div class="extractionActions">
+                    <button class="actionBtn" on:click={saveExtraction} disabled={isProcessing}>
+                        {isProcessing ? 'Saving…' : 'Save Changes'}
+                    </button>
+                    <button class="actionBtn secondary" on:click={cancelExtraction} disabled={isProcessing}>
+                        Cancel
+                    </button>
+                </div>
             </div>
-        </div> -->
-    </div>
+        </Modal>
+    {/if}
 </div>
 
-<style>
-    .midContainer {
-        display: grid;
-        gap: 60px;
-        height: 100%;
-        align-self: stretch;
-    }
+{:else}
+<div class="notFound">
+    <h2>Image not found</h2>
+    <p>This post doesn't exist or was deleted.</p>
+    <a class="backLink" href="/posts">← Back to posts</a>
+</div>
+{/if}
 
-    .contentArea {
+<style>
+    .postPage {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 16px;
         padding-bottom: 40px;
         font-family: 'Montserrat', sans-serif;
         color: var(--text-primary);
     }
 
-    .contentArea h3,
-    .contentArea h4 {
+    .postPage h3,
+    .postPage h4 {
         font-family: 'Montserrat', sans-serif;
     }
 
-    @media (min-width: 960px) {
-        .midContainer {
-            grid-template-columns: 200px 1fr;
-        }
-        #smallVisible {
-            display:none;
-        }
+    .postHeader {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+    }
 
+    .backLink {
+        color: var(--text-accent, var(--text-secondary));
+        text-decoration: none;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .backLink:hover {
+        text-decoration: underline;
+    }
+
+    .postName {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .imageWindow {
@@ -409,6 +469,48 @@ function getSourceColor(source: string): string {
         flex-grow: 1;
     }
 
+    /* Inline tag row */
+    .tagRow {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        min-height: 32px;
+    }
+
+    .tagAddInput {
+        width: 160px;
+    }
+
+    .tagToggle {
+        font-size: 0.8rem;
+        font-family: inherit;
+        color: var(--text-primary);
+        background: color-mix(in srgb, var(--text-secondary) 18%, transparent);
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        padding: 4px 12px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .tagToggle:hover {
+        opacity: 0.8;
+    }
+
+    .formError {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .inlineError {
+        color: #721c24;
+        font-size: 0.85rem;
+    }
+
     /* Prompt Panel Styles */
     .promptPanel {
         background-color: var(--bg-card);
@@ -418,10 +520,33 @@ function getSourceColor(source: string): string {
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     }
 
-    .promptPanel.empty {
-        text-align: center;
+    .promptEmpty {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 14px 20px;
         color: var(--text-secondary);
-        padding: 30px;
+        font-size: 0.9rem;
+    }
+
+    .linkBtn {
+        font-size: 0.85rem;
+        font-family: inherit;
+        color: var(--text-primary);
+        background: none;
+        border: none;
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .linkBtn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
     .promptHeader {
@@ -469,8 +594,10 @@ function getSourceColor(source: string): string {
         background: none;
         border: none;
         cursor: pointer;
-        font-size: 1rem;
-        opacity: 0.6;
+        font-size: 0.8rem;
+        font-family: inherit;
+        color: var(--text-secondary);
+        opacity: 0.7;
         transition: opacity 0.2s;
     }
 
@@ -512,7 +639,7 @@ function getSourceColor(source: string): string {
 
     .metadataGrid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         gap: 8px;
     }
 
@@ -533,6 +660,8 @@ function getSourceColor(source: string): string {
 
     .metaValue {
         color: var(--text-primary);
+        min-width: 0;
+        overflow-wrap: anywhere;
     }
 
     .promptActions {
@@ -590,76 +719,52 @@ function getSourceColor(source: string): string {
         word-break: break-all;
     }
 
-    /* Image Info Styles */
-    .imageInfo {
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-    }
-
-    .imageInfo h3 {
-        margin: 0 0 16px 0;
-        color: var(--text-primary);
-        font-size: 1.1rem;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 8px;
-    }
-
-    .infoGrid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 12px;
-        margin-bottom: 20px;
-    }
-
-    .infoItem {
+    /* File footer: compact meta line + delete, kept at the very bottom */
+    .fileFooter {
         display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .infoLabel {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        font-weight: 600;
-    }
-
-    .infoValue {
-        font-size: 0.9rem;
-        color: var(--text-primary);
-    }
-
-    .infoValue.mono {
-        font-family: monospace;
-        font-size: 0.8rem;
-        background-color: var(--bg-secondary);
-        padding: 4px 8px;
-        border-radius: 4px;
-    }
-
-    .deleteForm {
-        margin-top: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 8px;
         padding-top: 16px;
         border-top: 1px solid var(--border-color);
     }
 
+    .fileMeta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        min-width: 0;
+    }
+
+    .fileMeta .mono {
+        font-family: monospace;
+        font-size: 0.75rem;
+    }
+
+    .metaDot {
+        opacity: 0.5;
+    }
+
     .deleteBtn {
-        padding: 10px 20px;
-        background-color: #dc3545;
-        color: white;
-        border: none;
+        padding: 6px 14px;
+        background: none;
+        color: #dc3545;
+        border: 1px solid #dc3545;
         border-radius: 6px;
         cursor: pointer;
         font-family: inherit;
-        font-size: 0.9rem;
-        transition: opacity 0.2s;
+        font-size: 0.8rem;
+        transition: background-color 0.2s, color 0.2s;
     }
 
     .deleteBtn:hover {
-        opacity: 0.88;
+        background-color: #dc3545;
+        color: white;
     }
 
     /* Extraction Modal Preview Styles */
@@ -689,5 +794,27 @@ function getSourceColor(source: string): string {
         margin-top: 20px;
         padding-top: 16px;
         border-top: 1px solid var(--border-color);
+    }
+
+    /* 404 state */
+    .notFound {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 80px 20px;
+        text-align: center;
+        font-family: 'Montserrat', sans-serif;
+        color: var(--text-primary);
+    }
+
+    .notFound h2 {
+        margin: 0;
+        font-size: 1.4rem;
+    }
+
+    .notFound p {
+        margin: 0;
+        color: var(--text-secondary);
     }
 </style>
