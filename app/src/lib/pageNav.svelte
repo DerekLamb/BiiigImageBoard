@@ -25,7 +25,13 @@
         }
 
         const url = new URL(baseUrl, window.location.origin);
-        
+
+        // Preserve the current query string (search term, excluded tags, any
+        // filters) so navigation stays within the active search scope.
+        for (const [key, value] of new URLSearchParams(window.location.search)) {
+            url.searchParams.set(key, value);
+        }
+
         for (const [key, value] of Object.entries(queryParams)){ //curious how to set type here... TODO 
             url.searchParams.set(key, value);
         }
