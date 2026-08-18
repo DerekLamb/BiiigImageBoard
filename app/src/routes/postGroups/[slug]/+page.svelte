@@ -2,6 +2,7 @@
 import SearchBar from "$lib/searchBar.svelte";
 import TagSection from "$lib/tagSection.svelte";
 import SideBar from "$lib/sideBar.svelte";
+import BackToPrevious from "$lib/backToPrevious.svelte";
 
 /** @type {import('./$types').PageData} */ 
 export let data;
@@ -55,7 +56,7 @@ let tags = data.group?.groupTags ?? [];
         {:else}
             <div class="errorState">
                 <p>Group not found. It may have been deleted or you don't have permission to view it.</p>
-                <a href="/postGroups" class="backLink">Back to Groups</a>
+                <BackToPrevious fallback="/postGroups" label="Back to Groups" />
             </div>
         {/if}
     </div>
@@ -170,16 +171,6 @@ let tags = data.group?.groupTags ?? [];
     
     .errorState {
         background-color: #ffefef;
-    }
-    
-    .backLink {
-        display: inline-block;
-        margin-top: 10px;
-        background-color: #4a90e2;
-        color: white;
-        text-decoration: none;
-        padding: 8px 16px;
-        border-radius: 4px;
     }
     
     span {

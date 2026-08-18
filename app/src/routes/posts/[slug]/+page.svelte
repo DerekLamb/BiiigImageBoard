@@ -3,6 +3,7 @@ import Image from "$lib/image.svelte";
 import Video from "$lib/video.svelte"
 import ContentNav from "$lib/contentNav.svelte";
 import Tag from "$lib/tag.svelte";
+import BackToPrevious from "$lib/backToPrevious.svelte";
 import AutoTagInput from "$lib/autoTagInput.svelte";
 import Modal from "$lib/svelteComponents/modal.svelte";
 import TrainingCaptionEditor from "$lib/svelteComponents/trainingCaptionEditor.svelte";
@@ -182,7 +183,7 @@ function getSourceColor(source: string): string {
 <div class="postPage">
 
     <div class="postHeader">
-        <a href="/posts" class="backLink">← Posts</a>
+        <BackToPrevious fallback="/posts" label="← Posts" />
         <span class="postName">{data.image.originalName}</span>
     </div>
 
@@ -419,7 +420,7 @@ function getSourceColor(source: string): string {
 <div class="notFound">
     <h2>Image not found</h2>
     <p>This post doesn't exist or was deleted.</p>
-    <a class="backLink" href="/posts">← Back to posts</a>
+    <BackToPrevious fallback="/posts" label="← Back to posts" />
 </div>
 {/if}
 
@@ -442,17 +443,6 @@ function getSourceColor(source: string): string {
         display: flex;
         align-items: baseline;
         gap: 12px;
-    }
-
-    .backLink {
-        color: var(--text-accent, var(--text-secondary));
-        text-decoration: none;
-        font-size: 0.9rem;
-        white-space: nowrap;
-    }
-
-    .backLink:hover {
-        text-decoration: underline;
     }
 
     .postName {

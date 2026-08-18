@@ -2,7 +2,40 @@
 	import Navigation from "$lib/navigation.svelte";
 	import { theme } from "$lib/stores/themeStore";
 	import "$lib/styles/theme.css";
-	import { onMount } from "svelte";
+	import { onMount, tick } from "svelte";
+	import { beforeNavigate, afterNavigate } from "$app/navigation";
+	import { saveReturnState, loadReturnState, clearReturnState } from "$lib/stores/viewState";
+
+	// Content-browsing pages that act as "listing" pages a user can come back to.
+	const LISTING_ROOTS = new Set([
+		"/", "/posts", "/postsByDate", "/postsDynamic", "/postsSmart", "/postGroups", "/review", "/tags"
+	]);
+
+	function isListingPath(pathname) {
+		if (pathname === "/") return true;
+		const segs = pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+		return segs.length === 1 && LISTING_ROOTS.has("/" + segs[0]);
+	}
+
+	// When leaving a listing page, remember it (URL + scroll) so detail pages
+	// can return the user to exactly where they were.
+	beforeNavigate((nav) => {
+		if (!nav.from) return;
+		if (isListingPath(nav.from.url.pathname)) {
+			saveReturnState(nav.from.url.href, window.scrollY);
+		}
+	});
+
+	// When landing back on the listing we saved, restore its scroll position.
+	afterNavigate(async ({ to }) => {
+		if (!to || !isListingPath(to.url.pathname)) return;
+		const saved = loadReturnState();
+		if (saved && saved.url === to.url.href) {
+			clearReturnState();
+			await tick();
+			requestAnimationFrame(() => window.scrollTo(0, saved.scrollY));
+		}
+	});
 
 	onMount(() => {
 		theme.initialize();
