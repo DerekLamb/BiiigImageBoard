@@ -14,7 +14,7 @@ import type { EmbeddedPrompt } from '$lib/types/DocTypes';
 import type { PageData } from './$types';
 
 export let data: PageData;
-$: tags = data.image?.tags ?? [];
+$: tags = [...new Set(data.image?.tags ?? [])];
 $: embPrompt = data.image?.embPrompt;
 
 let showRawPrompt = false;
@@ -236,7 +236,7 @@ function getSourceColor(source: string): string {
                         <button class="copyBtn" on:click={copyPositive} title="Copy positive prompt">Copy</button>
                     </div>
                     <div class="promptTags">
-                        {#each embPrompt.positive as tag (tag)}
+                        {#each embPrompt.positive as tag, i (i)}
                             <span class="tag positive">{tag}</span>
                         {/each}
                     </div>
@@ -250,7 +250,7 @@ function getSourceColor(source: string): string {
                         <button class="copyBtn" on:click={copyNegative} title="Copy negative prompt">Copy</button>
                     </div>
                     <div class="promptTags">
-                        {#each embPrompt.negative as tag (tag)}
+                        {#each embPrompt.negative as tag, i (i)}
                             <span class="tag negative">{tag}</span>
                         {/each}
                     </div>
@@ -263,7 +263,7 @@ function getSourceColor(source: string): string {
                         <h4>Generation Settings</h4>
                     </div>
                     <div class="metadataGrid">
-                        {#each embPrompt.metadata as meta (meta)}
+                        {#each embPrompt.metadata as meta, i (i)}
                             {@const [key, ...valueParts] = meta.split(':')}
                             {@const value = valueParts.join(':').trim()}
                             <div class="metaItem">
@@ -357,7 +357,7 @@ function getSourceColor(source: string): string {
                     <div class="extractionSection">
                         <h4>Positive Prompt</h4>
                         <div class="promptTags">
-                            {#each extractionResult.positive as tag (tag)}
+                            {#each extractionResult.positive as tag, i (i)}
                                 <span class="tag positive">{tag}</span>
                             {/each}
                         </div>
@@ -368,7 +368,7 @@ function getSourceColor(source: string): string {
                     <div class="extractionSection">
                         <h4>Negative Prompt</h4>
                         <div class="promptTags">
-                            {#each extractionResult.negative as tag (tag)}
+                            {#each extractionResult.negative as tag, i (i)}
                                 <span class="tag negative">{tag}</span>
                             {/each}
                         </div>
@@ -379,7 +379,7 @@ function getSourceColor(source: string): string {
                     <div class="extractionSection metadata">
                         <h4>Generation Settings</h4>
                         <div class="metadataGrid">
-                            {#each extractionResult.metadata as meta (meta)}
+                            {#each extractionResult.metadata as meta, i (i)}
                                 {@const [key, ...valueParts] = meta.split(':')}
                                 {@const value = valueParts.join(':').trim()}
                                 <div class="metaItem">
