@@ -1,5 +1,6 @@
 <script lang="ts">
     import { browser } from "$app/environment"
+    import { goto } from "$app/navigation"
     import { onMount, beforeUpdate } from "svelte"
 
     export let currentPage = 1;
@@ -9,6 +10,7 @@
     export let length = 24;
     export let size = "unused?"
     export let pageText = "Page";
+    export let holdMs = 400; // how long (ms) a button must be held before its hold handler fires
 
 
     let nextPage: string | null = null;
@@ -52,6 +54,49 @@
     }
 
 
+    // Build a set of pointer handlers that only fire `target()` once the
+    // element has been held for `holdMs`. Releasing, leaving, or cancelling
+    // the pointer before the hold completes aborts it. If the hold already
+    // fired, the subsequent native click is suppressed so we don't navigate
+    // twice.
+    function hold(target: () => string | null) {
+        let timer: ReturnType<typeof setTimeout> | null = null;
+        let held = false;
+
+        function clear() {
+            if (timer !== null) {
+                clearTimeout(timer);
+                timer = null;
+            }
+        }
+
+        return {
+            onpointerdown: () => {
+                held = false;
+                clear();
+                timer = setTimeout(() => {
+                    const url = target();
+                    if (url) {
+                        held = true;
+                        goto(url);
+                    }
+                }, holdMs);
+            },
+            onpointerup: clear,
+            onpointerleave: clear,
+            onpointercancel: clear,
+            click: (e: MouseEvent) => {
+                if (held) e.preventDefault();
+            },
+        };
+    }
+
+    const firstHold = hold(() => currentPage <= 1 ? null : firstPage);
+    const prevHold  = hold(() => currentPage > 1 ? prevPage : null);
+    const nextHold  = hold(() => currentPage < totalPages ? nextPage : null);
+    const lastHold  = hold(() => currentPage >= totalPages ? null : lastPage);
+
+
     onMount(() => {
         updateUrls();
     });
@@ -64,17 +109,29 @@
 
 
 <nav class="pagination {size}" aria-label="Pagination">
-    <a href={currentPage <= 1 ? null : firstPage} class="pagination-item" aria-label="First page" aria-disabled={ currentPage <= 1}>
+    <a href={currentPage <= 1 ? null : firstPage} class="pagination-item" aria-label="First page" aria-disabled={ currentPage <= 1}
+        on:pointerdown={firstHold.onpointerdown} on:pointerup={firstHold.onpointerup}
+        on:pointerleave={firstHold.onpointerleave} on:pointercancel={firstHold.onpointercancel}
+        on:click={firstHold.click}>
         &laquo;
     </a>
-    <a href={currentPage > 1 ? prevPage : null} class="pagination-item" aria-label="Previous page" aria-disabled={ currentPage <= 1} >
+    <a href={currentPage > 1 ? prevPage : null} class="pagination-item" aria-label="Previous page" aria-disabled={ currentPage <= 1}
+        on:pointerdown={prevHold.onpointerdown} on:pointerup={prevHold.onpointerup}
+        on:pointerleave={prevHold.onpointerleave} on:pointercancel={prevHold.onpointercancel}
+        on:click={prevHold.click} >
         &lsaquo;
     </a> 
         <span class="page-nav-info">{pageText} {currentPage} / {totalPages}</span>
-    <a href={currentPage < totalPages ? nextPage : null} class="pagination-item right" aria-label="Next page" aria-disabled = { currentPage >= totalPages} >
+    <a href={currentPage < totalPages ? nextPage : null} class="pagination-item right" aria-label="Next page" aria-disabled = { currentPage >= totalPages}
+        on:pointerdown={nextHold.onpointerdown} on:pointerup={nextHold.onpointerup}
+        on:pointerleave={nextHold.onpointerleave} on:pointercancel={nextHold.onpointercancel}
+        on:click={nextHold.click}>
         &rsaquo;
     </a>
-    <a href={currentPage >= totalPages ? null : lastPage} class="pagination-item right" aria-label="Last page" aria-disabled = { currentPage >= totalPages}>
+    <a href={currentPage >= totalPages ? null : lastPage} class="pagination-item right" aria-label="Last page" aria-disabled = { currentPage >= totalPages}
+        on:pointerdown={lastHold.onpointerdown} on:pointerup={lastHold.onpointerup}
+        on:pointerleave={lastHold.onpointerleave} on:pointercancel={lastHold.onpointercancel}
+        on:click={lastHold.click}>
         &raquo;
     </a>
 </nav>

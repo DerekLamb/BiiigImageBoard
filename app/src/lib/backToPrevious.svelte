@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { loadReturnState } from '$lib/stores/viewState';
+	import { returnToUrl } from '$lib/returnTo.svelte.ts';
 
 	let {
 		fallback = '/',
@@ -10,13 +9,9 @@
 		label?: string;
 	} = $props();
 
-	let href: string = $state(fallback);
-
-	// Resolve the previously-viewed page on the client (sessionStorage isn't
-	// available during SSR). Falls back to `fallback` when there's no history.
-	$effect(() => {
-		href = browser ? loadReturnState()?.url || fallback : fallback;
-	});
+	// The return page as a reactive computation: the listing the user last
+	// left when one is known, otherwise `fallback` (also during SSR).
+	let href: string = $derived(returnToUrl(fallback));
 </script>
 
 <a href={href} class="backLink" data-sveltekit-noscroll>{label}</a>

@@ -4,7 +4,7 @@
 	import "$lib/styles/theme.css";
 	import { onMount, tick } from "svelte";
 	import { beforeNavigate, afterNavigate } from "$app/navigation";
-	import { saveReturnState, loadReturnState, clearReturnState } from "$lib/stores/viewState";
+	import { saveReturnState, getReturnState, clearReturnState } from "$lib/returnTo.svelte.ts";
 
 	// Content-browsing pages that act as "listing" pages a user can come back to.
 	const LISTING_ROOTS = new Set([
@@ -26,14 +26,15 @@
 		}
 	});
 
-	// When landing back on the listing we saved, restore its scroll position.
+	// When landing back on the listing we recorded, restore its scroll position.
 	afterNavigate(async ({ to }) => {
 		if (!to || !isListingPath(to.url.pathname)) return;
-		const saved = loadReturnState();
-		if (saved && saved.url === to.url.href) {
+		const saved = getReturnState();
+		const scrollY = saved.scrollY;
+		if (saved.url && saved.url === to.url.href) {
 			clearReturnState();
 			await tick();
-			requestAnimationFrame(() => window.scrollTo(0, saved.scrollY));
+			requestAnimationFrame(() => window.scrollTo(0, scrollY));
 		}
 	});
 
