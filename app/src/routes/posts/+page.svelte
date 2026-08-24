@@ -79,7 +79,7 @@ const imageCountChange = () => { //TODO Bug here
                 {#if image.thumbnailPath}
                     <div class = "imageBox">
                         <Image src = "/{image.thumbnailPath}"
-                        mainLink = "/posts/{image.uploadDate}"
+                        mainLink = "/posts/{image.uploadDate}?len={$imageCount}"
                         fallbackSrc = "/{image.imagePath}"
                         lazy={true}
                         alt={image.originalName}
@@ -88,7 +88,7 @@ const imageCountChange = () => { //TODO Bug here
                 {:else}
                     <div class = "imageBox">
                         <Image src = "/{image.imagePath}"
-                        mainLink = "/posts/{image.uploadDate}"
+                        mainLink = "/posts/{image.uploadDate}?len={$imageCount}"
                         lazy={true}
                         alt={image.originalName}
                          ></Image>

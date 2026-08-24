@@ -69,6 +69,17 @@ describe('BackToPrevious component', () => {
 		expect(getByRole('link', { name: '← Posts' }).getAttribute('href')).toBe(listing);
 	});
 
+	it('prefers the explicit (calculated) href over the saved state', () => {
+		saveReturnState('/posts?page=1', 0);
+		const calculated = '/posts?imageId=20260101&len=24';
+
+		const { getByRole } = render(BackToPrevious, {
+			props: { href: calculated, fallback: '/posts', label: '← Posts' },
+		});
+
+		expect(getByRole('link', { name: '← Posts' }).getAttribute('href')).toBe(calculated);
+	});
+
 	it('updates when the return page changes', async () => {
 		saveReturnState('/posts?page=2', 0);
 		const { getByRole } = render(BackToPrevious, {

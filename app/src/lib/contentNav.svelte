@@ -21,6 +21,14 @@ let nextUrl = $state("");
 function buildUrl(contentId: string) {
     if (!browser) return "";
     const url = new URL(baseUrl + contentId, window.location.origin);
+
+    // Preserve the current query string (len, search scope, any filters) so
+    // next/prev browsing stays within the active listing context and the
+    // return page can keep the user's position in the sort display.
+    for (const [key, value] of new URLSearchParams(window.location.search)) {
+        url.searchParams.set(key, value);
+    }
+
     for (const [key, value] of Object.entries(queryParams)) {
         url.searchParams.set(key, value);
     }

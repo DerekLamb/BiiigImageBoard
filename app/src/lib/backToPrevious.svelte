@@ -2,19 +2,21 @@
 	import { returnToUrl } from '$lib/returnTo.svelte.ts';
 
 	let {
+		href,
 		fallback = '/',
 		label = '← Back',
 	}: {
+		href?: string;
 		fallback?: string;
 		label?: string;
 	} = $props();
 
-	// The return page as a reactive computation: the listing the user last
-	// left when one is known, otherwise `fallback` (also during SSR).
-	let href: string = $derived(returnToUrl(fallback));
+	// An explicit (calculated) return page takes precedence when given;
+	// otherwise the reactive saved state; otherwise `fallback`.
+	let linkHref: string = $derived(href ?? returnToUrl(fallback));
 </script>
 
-<a href={href} class="backLink" data-sveltekit-noscroll>{label}</a>
+<a href={linkHref} class="backLink" data-sveltekit-noscroll>{label}</a>
 
 <style>
 	.backLink {

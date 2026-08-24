@@ -2,7 +2,7 @@ import imageController from "$lib/server/controllers/imageController";
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params, locals }) => {
+export const load: PageServerLoad = async ({ params, locals, url }) => {
     if (!locals.user) {
         console.log("no user");
         redirect(307, '/login');
@@ -25,10 +25,21 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     }
     const adjacents = await imageController.getAdjacents("uploadDate", params.slug);
 
+    // Calculated return page: /posts with this post's imageId, so the listing
+    // load computes the exact page containing the *current* post (same rules
+    // as the ?imageId= handling on the /posts page). Preserves the user's
+    // grid size so the position within the default sort display holds, no
+    // matter how the user navigated to this post (next/prev included).
+    let returnLen = parseInt(url.searchParams.get('len') as string);
+    if (isNaN(returnLen) || returnLen < 1 || returnLen > 100) {
+        returnLen = 24;
+    }
+
     return{
         status: 200,
         image: safeImage,
-        adjacents: adjacents
+        adjacents: adjacents,
+        returnPage: `/posts?imageId=${image._id}&len=${returnLen}`
     }
 }
 

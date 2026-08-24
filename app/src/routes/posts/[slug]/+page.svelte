@@ -183,7 +183,7 @@ function getSourceColor(source: string): string {
 <div class="postPage">
 
     <div class="postHeader">
-        <BackToPrevious fallback="/posts" label="← Posts" />
+        <BackToPrevious href={data.returnPage ?? '/posts'} fallback="/posts" label="← Posts" />
         <span class="postName">{data.image.originalName}</span>
     </div>
 
