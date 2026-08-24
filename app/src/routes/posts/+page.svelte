@@ -7,6 +7,7 @@ import SideBar from "$lib/sideBar.svelte";
 import SearchBar from "$lib/searchBar.svelte";
 import { page } from "$app/stores";
 import { goto } from "$app/navigation";
+import { onMount } from 'svelte';
 
 
 /** @type {import('./$types').PageData} */ 
@@ -48,6 +49,22 @@ const imageCountChange = () => { //TODO Bug here
 
 }
 
+
+// ?imageId= deep links (from the post return button) would re-anchor every
+// subsequent navigation to that image's page, because PageNav carries the
+// current query string along and the server prefers imageId. Once we've
+// landed, swap the URL to the computed page and drop imageId so normal
+// navigation works again. The page component remounts on every arrival,
+// so this runs once per deep-linked landing.
+onMount(() => {
+    const url = $page.url;
+    if (url.searchParams.has('imageId') && data.pagination) {
+        const next = new URL(url);
+        next.searchParams.set('page', data.pagination.currentPage.toString());
+        next.searchParams.delete('imageId');
+        void goto(next.toString(), { replaceState: true, keepFocus: true, noScroll: true });
+    }
+});
 
 </script>
 
