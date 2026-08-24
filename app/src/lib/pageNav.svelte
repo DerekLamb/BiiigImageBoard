@@ -22,7 +22,15 @@
         { px: 240, jump: 100 },
     ];
 
-    const tierJumps = [1, ...tiers.map(t => t.jump)];
+    // Ruler geometry: the track maps the largest tier distance onto RULER_PX.
+    // (Computed once at mount; tiers are expected to be static per usage.)
+    const RULER_PX = 160;
+    const maxTierPx = tiers[tiers.length - 1].px;
+    const rulerScale = RULER_PX / maxTierPx;
+    const rulerTicks = [
+        { px: 0, jump: 1 },
+        ...tiers.map(t => ({ px: t.px, jump: t.jump })),
+    ];
     // -------------------------------------------------------------------------
 
     let nextPage: string | null = null;
@@ -37,10 +45,10 @@
     let scrubStartY = 0;
     let scrubDrag = 0;       // px dragged in the effective direction
     let scrubJump = 1;       // current tier jump magnitude
-    let scrubTarget = 1;     // clamped target page shown in the bubble
-    let scrubMeter = 0;      // 0-100 fill of the current tier band
+    let scrubTarget = 1;     // clamped target page shown on the ruler
     let thunked = false;
     let suppressClick = false;
+    let scrubPointerId: number | null = null;
     let armTimer: ReturnType<typeof setTimeout> | null = null;
     let thunkTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -88,33 +96,29 @@
     }
 
 
-    // Fraction (0-100) through the tier band the current drag sits in.
-    function meterFor(dragPx: number): number {
-        const pts = [0, ...tiers.map(t => t.px)];
-        for (let i = 0; i < pts.length - 1; i++) {
-            if (dragPx <= pts[i + 1]) {
-                return ((dragPx - pts[i]) / (pts[i + 1] - pts[i])) * 100;
-            }
-        }
-        return 100;
-    }
-
     function startScrub(button: 'prev' | 'next', e: PointerEvent) {
         if (scrubButton) return;
+        // Stop the browser's native link-drag (the "ghost" image) and text
+        // selection; otherwise dragging an <a href> fires pointercancel and
+        // kills the scrub the instant the pointer leaves the button.
+        e.preventDefault();
         const enabled = button === 'prev' ? currentPage > 1 : currentPage < totalPages;
         if (!enabled) return;
 
         scrubButton = button;
+        scrubPointerId = e.pointerId;
         arming = true;
         armed = false;
         scrubStartY = e.clientY;
         scrubDrag = 0;
         scrubJump = 1;
-        scrubMeter = 0;
         scrubTarget = clamp(currentPage + (button === 'next' ? 1 : -1), 1, totalPages);
 
-        // Capture so the finger/mouse can roam off the button while scrubbing.
-        (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+        // Track the gesture on window so the pointer can roam anywhere;
+        // element-level capture alone is not reliable for this.
+        window.addEventListener('pointermove', onScrubMove);
+        window.addEventListener('pointerup', onScrubEnd);
+        window.addEventListener('pointercancel', onScrubCancel);
 
         armTimer = setTimeout(() => {
             if (scrubButton) {
@@ -126,7 +130,7 @@
     }
 
     function onScrubMove(e: PointerEvent) {
-        if (!armed || !scrubButton) return;
+        if (!armed || !scrubButton || e.pointerId !== scrubPointerId) return;
         e.preventDefault();
 
         // Next: drag up. Prev: drag down.
@@ -150,20 +154,32 @@
         }
 
         scrubTarget = target;
-        scrubMeter = meterFor(scrubDrag);
     }
 
     function resetScrub() {
         scrubButton = null;
+        scrubPointerId = null;
         arming = false;
         armed = false;
         scrubDrag = 0;
         scrubJump = 1;
-        scrubMeter = 0;
         scrubTarget = currentPage;
     }
 
+    function onScrubEnd(e: PointerEvent) {
+        if (e.pointerId !== scrubPointerId) return;
+        endScrub(true);
+    }
+
+    function onScrubCancel(e: PointerEvent) {
+        if (e.pointerId !== scrubPointerId) return;
+        endScrub(false);
+    }
+
     function endScrub(navigate: boolean) {
+        window.removeEventListener('pointermove', onScrubMove);
+        window.removeEventListener('pointerup', onScrubEnd);
+        window.removeEventListener('pointercancel', onScrubCancel);
         if (armTimer) {
             clearTimeout(armTimer);
             armTimer = null;
@@ -205,23 +221,23 @@
         class:armed={armed && scrubButton === 'prev'}>
         <a href={currentPage > 1 ? prevPage : null} class="pagination-item" aria-label="Previous page"
             aria-disabled={ currentPage <= 1 }
+            draggable={false}
             on:pointerdown={(e) => startScrub('prev', e)}
-            on:pointermove={onScrubMove}
-            on:pointerup={() => endScrub(true)}
-            on:pointercancel={() => endScrub(false)}
             on:click={onClickGuard}>
             &lsaquo;
         </a>
         {#if armed && scrubButton === 'prev'}
-            <div class="scrub-bubble" class:thunk={thunked} role="status">
-                <div class="scrub-delta">&minus;{scrubJump}</div>
-                <div class="scrub-tiers">
-                    {#each tierJumps as t (t)}
-                        <span class="tier" class:active={t === scrubJump}>{t}</span>
+            <div class="scrub-ruler side-left" class:thunk={thunked} aria-hidden="true">
+                <div class="ruler-track" style="height: {RULER_PX}px">
+                    {#each rulerTicks as t (t.jump)}
+                        <div class="ruler-tick" class:active={scrubJump === t.jump} style="top: {t.px * rulerScale}px">
+                            <span class="tick-label">{t.jump}</span>
+                            <span class="tick-line"></span>
+                        </div>
                     {/each}
+                    <div class="ruler-thumb" style="top: {Math.min(scrubDrag, maxTierPx) * rulerScale}px"></div>
                 </div>
-                <div class="scrub-meter"><div class="scrub-meter-fill" style="width: {scrubMeter}%"></div></div>
-                <div class="scrub-target">&rarr; Page {scrubTarget}</div>
+                <div class="ruler-target">&larr; {scrubTarget}</div>
             </div>
         {/if}
     </span>
@@ -233,23 +249,23 @@
         class:armed={armed && scrubButton === 'next'}>
         <a href={currentPage < totalPages ? nextPage : null} class="pagination-item right" aria-label="Next page"
             aria-disabled = { currentPage >= totalPages }
+            draggable={false}
             on:pointerdown={(e) => startScrub('next', e)}
-            on:pointermove={onScrubMove}
-            on:pointerup={() => endScrub(true)}
-            on:pointercancel={() => endScrub(false)}
             on:click={onClickGuard}>
             &rsaquo;
         </a>
         {#if armed && scrubButton === 'next'}
-            <div class="scrub-bubble" class:thunk={thunked} role="status">
-                <div class="scrub-delta">+{scrubJump}</div>
-                <div class="scrub-tiers">
-                    {#each tierJumps as t (t)}
-                        <span class="tier" class:active={t === scrubJump}>{t}</span>
+            <div class="scrub-ruler side-right" class:thunk={thunked} aria-hidden="true">
+                <div class="ruler-track" style="height: {RULER_PX}px">
+                    {#each rulerTicks as t (t.jump)}
+                        <div class="ruler-tick" class:active={scrubJump === t.jump} style="top: {t.px * rulerScale}px">
+                            <span class="tick-label">{t.jump}</span>
+                            <span class="tick-line"></span>
+                        </div>
                     {/each}
+                    <div class="ruler-thumb" style="top: {Math.min(scrubDrag, maxTierPx) * rulerScale}px"></div>
                 </div>
-                <div class="scrub-meter"><div class="scrub-meter-fill" style="width: {scrubMeter}%"></div></div>
-                <div class="scrub-target">&rarr; Page {scrubTarget}</div>
+                <div class="ruler-target">&rarr; {scrubTarget}</div>
             </div>
         {/if}
     </span>
@@ -349,6 +365,7 @@
     .scrub-wrap .pagination-item {
         margin: 0;
         touch-action: none; /* don't let the browser scroll mid-scrub */
+        user-select: none;
     }
 
     /* Arming glow: outline grows outward and brightens over holdMs,
@@ -381,6 +398,19 @@
         animation: none;
     }
 
+    /* State-held look: the button stays visibly pressed for the whole
+       gesture, no matter where the captured pointer has wandered. */
+    .scrub-wrap .pagination-item {
+        transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+    }
+
+    .scrub-wrap.arming .pagination-item,
+    .scrub-wrap.armed .pagination-item {
+        background: #e3f0ea;
+        color: #2d5a4c;
+        transform: scale(1.06);
+    }
+
     @keyframes holdGrow {
         0% {
             transform: scale(0.92);
@@ -407,98 +437,107 @@
         }
     }
 
-    /* Floating selection bubble */
-    .scrub-bubble {
+    /* Unfurling notched ruler: appears beside the button once armed. */
+    .scrub-ruler {
         position: absolute;
-        bottom: calc(100% + 14px);
-        left: 50%;
-        transform: translateX(-50%);
+        top: -10px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 3px;
+        gap: 6px;
         background: #2d2d2d;
-        color: #fff;
-        padding: 8px 12px;
-        border-radius: 10px;
-        min-width: 96px;
+        padding: 10px 8px 8px;
+        border-radius: 12px;
         pointer-events: none;
         z-index: 10;
-        animation: bubbleIn 120ms ease-out;
+        transform-origin: top center;
+        animation: rulerUnfurl 140ms ease-out;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     }
 
-    .scrub-bubble::after {
-        content: '';
+    .scrub-ruler.side-right { left: calc(100% + 10px); }
+    .scrub-ruler.side-left  { right: calc(100% + 10px); }
+
+    @keyframes rulerUnfurl {
+        from { opacity: 0; transform: scaleY(0.5); }
+        to   { opacity: 1; transform: scaleY(1); }
+    }
+
+    .ruler-track {
+        position: relative;
+        width: 40px;
+    }
+
+    .ruler-tick {
         position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        border: 6px solid transparent;
-        border-top-color: #2d2d2d;
-    }
-
-    @keyframes bubbleIn {
-        from { opacity: 0; transform: translateX(-50%) translateY(4px); }
-        to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-
-    .scrub-delta {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 1.4rem;
-        font-weight: 700;
-        line-height: 1;
-    }
-
-    .scrub-tiers {
+        left: 0;
+        right: 0;
         display: flex;
+        align-items: center;
         gap: 4px;
+        transform: translateY(-50%);
     }
 
-    .tier {
-        font-size: 0.65rem;
+    .tick-label {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.6rem;
         line-height: 1;
-        padding: 2px 5px;
-        border-radius: 4px;
-        background: #4a4a4a;
-        opacity: 0.6;
-        transition: transform 80ms ease, opacity 80ms ease, background 80ms ease;
+        color: #9a9a9a;
+        width: 16px;
+        text-align: right;
+        transition: transform 80ms ease, color 80ms ease;
     }
 
-    .tier.active {
+    .tick-line {
+        flex: 1;
+        height: 2px;
+        background: #555;
+        border-radius: 1px;
+        transition: background 80ms ease, height 80ms ease;
+    }
+
+    .ruler-tick.active .tick-line {
         background: #7bb7a2;
-        color: #1c1c1c;
-        opacity: 1;
-        transform: scale(1.2);
-    }
-
-    .scrub-meter {
-        width: 100%;
         height: 3px;
-        border-radius: 2px;
-        background: #4a4a4a;
-        overflow: hidden;
     }
 
-    .scrub-meter-fill {
-        height: 100%;
+    .ruler-tick.active .tick-label {
+        color: #a8e6cf;
+        font-weight: 700;
+        transform: scale(1.25);
+    }
+
+    .ruler-thumb {
+        position: absolute;
+        left: -4px;
+        right: -4px;
+        height: 5px;
+        border-radius: 3px;
         background: #7bb7a2;
-        transition: width 40ms linear;
+        box-shadow: 0 0 8px 2px rgba(123, 183, 162, 0.8);
+        transform: translateY(-50%);
+        transition: top 30ms linear;
     }
 
-    .scrub-target {
-        font-size: 0.75rem;
+    .ruler-target {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.7rem;
         color: #a8d5c6;
+        background: rgba(123, 183, 162, 0.15);
+        padding: 2px 7px;
+        border-radius: 5px;
+        white-space: nowrap;
     }
 
-    /* Boundary thunk: the bubble shudders when the target clamps */
-    .scrub-bubble.thunk {
-        animation: thunk 160ms ease;
+    /* Boundary thunk: the ruler shudders when the target clamps */
+    .scrub-ruler.thunk {
+        animation: rulerThunk 160ms ease;
     }
 
-    @keyframes thunk {
-        0%, 100% { transform: translateX(-50%); }
-        30% { transform: translateX(calc(-50% - 5px)) rotate(-2deg); }
-        60% { transform: translateX(calc(-50% + 4px)) rotate(2deg); }
+    @keyframes rulerThunk {
+        0%, 100% { transform: translateX(0); }
+        30% { transform: translateX(-4px) rotate(-1deg); }
+        60% { transform: translateX(3px) rotate(1deg); }
     }
 
 </style>
