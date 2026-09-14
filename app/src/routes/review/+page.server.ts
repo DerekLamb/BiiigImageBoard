@@ -6,70 +6,70 @@ import type { PageServerLoad } from './$types';
 const PAGE_SIZE = 200;
 
 export const load: PageServerLoad = async ({ url, locals }) => {
-    if (!locals.user) {
-        redirect(307, '/login');
-    }
+	if (!locals.user) {
+		redirect(307, '/login');
+	}
 
-    const searchParams = url.searchParams;
-    const startId = searchParams.get('start') || '';
-    const searchTerm = searchParams.get('search') || '';
-    const notag = searchParams.get('notag') || '';
+	const searchParams = url.searchParams;
+	const startId = searchParams.get('start') || '';
+	const searchTerm = searchParams.get('search') || '';
+	const notag = searchParams.get('notag') || '';
 
-    let filter: any = {};
-    if (searchTerm) {
-        filter.tags = { $all: [searchTerm] };
-    }
-    if (notag) {
-        if (filter.tags) {
-            filter.tags = {
-                $all: [searchTerm],
-                $not: { $in: [notag] }
-            };
-        } else {
-            filter.tags = { $not: { $in: [notag] } };
-        }
-    }
+	let filter: any = {};
+	if (searchTerm) {
+		filter.tags = { $all: [searchTerm] };
+	}
+	if (notag) {
+		if (filter.tags) {
+			filter.tags = {
+				$all: [searchTerm],
+				$not: { $in: [notag] }
+			};
+		} else {
+			filter.tags = { $not: { $in: [notag] } };
+		}
+	}
 
-    const totalImages = await ImageModel.countFilteredImages(filter);
+	const totalImages = await ImageModel.countFilteredImages(filter);
 
-    const page = 0;
-    const images = await ImageModel.findImages(filter, PAGE_SIZE, 0, { uploadDate: -1 });
+	const page = 0;
+	const images = await ImageModel.findImages(filter, PAGE_SIZE, 0, { uploadDate: -1 });
 
-    let startIndex = 0;
-    if (startId) {
-        const idx = images.findIndex(img => img.uploadDate === startId || img._id === startId);
-        if (idx >= 0) startIndex = idx;
-    }
+	let startIndex = 0;
+	if (startId) {
+		const idx = images.findIndex((img) => img.uploadDate === startId || img._id === startId);
+		if (idx >= 0) startIndex = idx;
+	}
 
-    return {
-        images,
-        startIndex,
-        searchTerm,
-        notag,
-        page,
-        totalImages,
-        pageSize: PAGE_SIZE
-    };
+	return {
+		images,
+		startIndex,
+		searchTerm,
+		notag,
+		page,
+		totalImages,
+		pageSize: PAGE_SIZE
+	};
 };
 
 export const actions = {
-    delete: async ({ request, locals }) => {
-        if (!locals.user) {
-            redirect(307, '/login');
-        }
+	delete: async ({ request, locals }) => {
+		if (!locals.user) {
+			redirect(307, '/login');
+		}
 
-        const data = await request.formData();
-        const imageId = data.get('imageId') as string;
+		const data = await request.formData();
+		const imageId = data.get('imageId') as string;
 
-        if (!imageId) {
-            return { success: false, error: 'Missing imageId' };
-        }
+		if (!imageId) {
+			return { success: false, error: 'Missing imageId' };
+		}
 
-        const image = await imageController.getImage(imageId);
-        if (!image) {
-            return { success: false, error: 'Image not found' };
-        }
+		const image = await imageController.getImage(imageId);
+		if (!image) {
+			return { success: false, error: 'Image not found' };
+		}
 
-        return await imageController.deleteImage(image);
-    }
+		return await imageController.deleteImage(image);
+	}
 };

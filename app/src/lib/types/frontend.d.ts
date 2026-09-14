@@ -1,3 +1,1 @@
-
-
-export type viewModeType = 'select' | 'browse' | 'groupDetail'
+export type viewModeType = 'select' | 'browse' | 'groupDetail';

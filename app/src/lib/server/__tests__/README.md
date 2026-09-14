@@ -27,16 +27,16 @@ A test file follows this simple pattern:
 import { describe, it, expect } from 'vitest';
 
 describe('YourFunctionName', () => {
-  it('should do something', () => {
-    // 1. Setup (prepare test data)
-    const input = 'hello';
-    
-    // 2. Execute (call the function)
-    const result = yourFunction(input);
-    
-    // 3. Assert (check if result is correct)
-    expect(result).toBe('HELLO');
-  });
+	it('should do something', () => {
+		// 1. Setup (prepare test data)
+		const input = 'hello';
+
+		// 2. Execute (call the function)
+		const result = yourFunction(input);
+
+		// 3. Assert (check if result is correct)
+		expect(result).toBe('HELLO');
+	});
 });
 ```
 
@@ -58,10 +58,11 @@ describe('YourFunctionName', () => {
 4. Write your test cases
 
 Example:
+
 ```typescript
 // myFunction.ts
 export function add(a: number, b: number) {
-  return a + b;
+	return a + b;
 }
 
 // myFunction.test.ts
@@ -69,13 +70,13 @@ import { describe, it, expect } from 'vitest';
 import { add } from './myFunction';
 
 describe('add', () => {
-  it('should add two numbers', () => {
-    expect(add(2, 3)).toBe(5);
-  });
-  
-  it('should handle negative numbers', () => {
-    expect(add(-1, -2)).toBe(-3);
-  });
+	it('should add two numbers', () => {
+		expect(add(2, 3)).toBe(5);
+	});
+
+	it('should handle negative numbers', () => {
+		expect(add(-1, -2)).toBe(-3);
+	});
 });
 ```
 

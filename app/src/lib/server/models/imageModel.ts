@@ -1,148 +1,167 @@
-import { ObjectId, type Sort, } from "mongodb";
-import { type BaseImage, type AppImage } from "$lib/types/DocTypes";
-import { imageCollection } from "$lib/db.server"
-import { createMongoCollection } from "../collectionLayer";
+import { ObjectId, type Sort } from 'mongodb';
+import { type BaseImage, type AppImage } from '$lib/types/DocTypes';
+import { imageCollection } from '$lib/db.server';
+import { createMongoCollection } from '../collectionLayer';
 
-const imageColl = createMongoCollection(imageCollection)
+const imageColl = createMongoCollection(imageCollection);
 
-interface ImageDoc extends BaseImage { // 
-    _id: ObjectId;
+interface ImageDoc extends BaseImage {
+	//
+	_id: ObjectId;
 }
 
 export interface AppImageData extends BaseImage {
-    _id: string,
+	_id: string;
 }
 
 export const ImageModel = {
-    async findImages( filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 } ) {
-        const documents = await imageColl.findPage(filter, limit, skip, sort);
-        return documents as AppImageData[];
-    },
+	async findImages(filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 }) {
+		const documents = await imageColl.findPage(filter, limit, skip, sort);
+		return documents as AppImageData[];
+	},
 
-    async getImageById( id: string ) {
-        const document = await imageColl.findOne({_id: id}) as AppImageData;
-        return document ;
-    },
+	async getImageById(id: string) {
+		const document = (await imageColl.findOne({ _id: id })) as AppImageData;
+		return document;
+	},
 
-    async getImageByTimestamp( timestamp: string ) {
-        const document = await imageColl.findOne({ uploadDate: timestamp }) as AppImageData;
-        return document;
-    },
+	async getImageByTimestamp(timestamp: string) {
+		const document = (await imageColl.findOne({ uploadDate: timestamp })) as AppImageData;
+		return document;
+	},
 
-    async addImage( imageData: AppImageData ) {
-        const results = await imageColl.insertOne( imageData ); 
-        return { 
-            success: results.acknowledged === true,
-            id: results.insertedId?.toString(),
-            
-        }
-    },
+	async addImage(imageData: AppImageData) {
+		const results = await imageColl.insertOne(imageData);
+		return {
+			success: results.acknowledged === true,
+			id: results.insertedId?.toString()
+		};
+	},
 
-    async updateImage <ImageProp extends keyof AppImageData> ( id: string, prop: ImageProp, value: AppImageData[ImageProp] ) {
-        let updates = { $set: { [prop]: value }} 
-        const results = await imageColl.updateOne({ _id: id }, updates ); 
+	async updateImage<ImageProp extends keyof AppImageData>(
+		id: string,
+		prop: ImageProp,
+		value: AppImageData[ImageProp]
+	) {
+		let updates = { $set: { [prop]: value } };
+		const results = await imageColl.updateOne({ _id: id }, updates);
 
-        return {
-            success: results !== null,
-            document: results,
-            modified: results !== null && results[prop] === value
-        }
-    },
+		return {
+			success: results !== null,
+			document: results,
+			modified: results !== null && results[prop] === value
+		};
+	},
 
-    async replaceImage(imageData: AppImageData) {
-        const document = imageData;
-        const results =  await imageColl.replaceOne({_id: document._id}, document );
+	async replaceImage(imageData: AppImageData) {
+		const document = imageData;
+		const results = await imageColl.replaceOne({ _id: document._id }, document);
 
-        return {
-            success: results.acknowledged === true,
-            id: results.upsertedId?.toString(),
-            count: results.upsertedCount,
-        }
-    },
+		return {
+			success: results.acknowledged === true,
+			id: results.upsertedId?.toString(),
+			count: results.upsertedCount
+		};
+	},
 
-    async deleteImage(id: string) {
-        const results = await imageColl.deleteOne({ _id: id });
+	async deleteImage(id: string) {
+		const results = await imageColl.deleteOne({ _id: id });
 
-        return {
-            success: results.acknowledged === true,
-            id: id,
-            count: results.deletedCount
-        }
-    },
+		return {
+			success: results.acknowledged === true,
+			id: id,
+			count: results.deletedCount
+		};
+	},
 
-    async countAllImages() {
-        return await imageColl.estimateDocumentCount();
-    },
+	async countAllImages() {
+		return await imageColl.estimateDocumentCount();
+	},
 
-    async countFilteredImages(countFilter = {}){
-        return await imageColl.countDocuments(countFilter);
-    },
+	async countFilteredImages(countFilter = {}) {
+		return await imageColl.countDocuments(countFilter);
+	},
 
-    async uniqueHash(id: string){
-        return await imageColl.idExists(id)
-    },
+	async uniqueHash(id: string) {
+		return await imageColl.idExists(id);
+	},
 
-    async getAdjacents(key: keyof AppImageData, value: string | string[] | string [][],) { // CAUTION, this requires an index on the used key field for results to be consistent and performant
-        const nextFilter = { [key]: { $lt: value } };
-        const prevFilter = { [key]: { $gt: value } };
-        
-        const prev = await imageColl.findOne(
-            prevFilter, 
-            { sort: { [key]: 1 } }) as AppImageData;
+	async getAdjacents(key: keyof AppImageData, value: string | string[] | string[][]) {
+		// CAUTION, this requires an index on the used key field for results to be consistent and performant
+		const nextFilter = { [key]: { $lt: value } };
+		const prevFilter = { [key]: { $gt: value } };
 
-        const prevImage = prev ?? null;
+		const prev = (await imageColl.findOne(prevFilter, { sort: { [key]: 1 } })) as AppImageData;
 
-        const next = await imageColl.findOne(
-            nextFilter, 
-            { sort: { [key]: -1 } }) as AppImageData;
+		const prevImage = prev ?? null;
 
-        const nextImage = next ?? null;
-        return { prev: prevImage, next: nextImage};
-        },
+		const next = (await imageColl.findOne(nextFilter, { sort: { [key]: -1 } })) as AppImageData;
 
-    async repairImageDoc(id: string) {
-        return 0; //todo later
-        // obj = {currName = "", oldNames = [] }
-        // if properties.map( in oldNames, change to newName. Break on err if multiple found )
-                    
-    },
+		const nextImage = next ?? null;
+		return { prev: prevImage, next: nextImage };
+	},
 
-    async updateManyImages(imageIds: string[], updates: Partial<AppImage>) {
-        const updatePromises = imageIds.map(id =>
-            imageCollection.updateOne(
-                { $or: [{ _id: new ObjectId(id) }, { _id: id }] },
-                { $set: updates }
-            )
-        );
-        await Promise.all(updatePromises);
-        return { success: true, count: imageIds.length };
-    },
+	async repairImageDoc(id: string) {
+		return 0; //todo later
+		// obj = {currName = "", oldNames = [] }
+		// if properties.map( in oldNames, change to newName. Break on err if multiple found )
+	},
 
-    async deleteManyImages(imageIds: string[]) {
-        const deletePromises = imageIds.map(id =>
-            imageCollection.deleteOne(
-                { $or: [{ _id: new ObjectId(id) }, { _id: id }] }
-            )
-        );
-        const results = await Promise.all(deletePromises);
-        const deletedCount = results.reduce((sum, r) => sum + (r.deletedCount || 0), 0);
-        return { success: deletedCount === imageIds.length, deleted: deletedCount };
-    },
+	async updateManyImages(imageIds: string[], updates: Partial<AppImage>) {
+		const updatePromises = imageIds.map((id) =>
+			imageCollection.updateOne(
+				{ $or: [{ _id: new ObjectId(id) }, { _id: id }] },
+				{ $set: updates }
+			)
+		);
+		await Promise.all(updatePromises);
+		return { success: true, count: imageIds.length };
+	},
 
-    /** Get lightweight hash records for dedup scanning, with optional filter */
-    async getAllHashes(filter: any = {}): Promise<Pick<AppImageData, '_id' | 'dhash' | 'uploadDate' | 'thumbnailPath' | 'originalName' | 'imagePath'>[]> {
-        const results = await imageColl.find(filter, {
-            projection: { _id: 1, dhash: 1, uploadDate: 1, thumbnailPath: 1, originalName: 1, imagePath: 1 }
-        });
-        return results as Pick<AppImageData, '_id' | 'dhash' | 'uploadDate' | 'thumbnailPath' | 'originalName' | 'imagePath'>[];
-    },
+	async deleteManyImages(imageIds: string[]) {
+		const deletePromises = imageIds.map((id) =>
+			imageCollection.deleteOne({ $or: [{ _id: new ObjectId(id) }, { _id: id }] })
+		);
+		const results = await Promise.all(deletePromises);
+		const deletedCount = results.reduce((sum, r) => sum + (r.deletedCount || 0), 0);
+		return { success: deletedCount === imageIds.length, deleted: deletedCount };
+	},
 
-    /** Get multiple images by their IDs */
-    async getImagesByIds(ids: string[]): Promise<AppImageData[]> {
-        const objectIds = ids.map(id => {
-            try { return new ObjectId(id); } catch { return id; }
-        });
-        const results = await imageCollection.find({ _id: { $in: [...objectIds, ...ids] } }).toArray();
-        return results as AppImageData[];
-    }
-}
+	/** Get lightweight hash records for dedup scanning, with optional filter */
+	async getAllHashes(
+		filter: any = {}
+	): Promise<
+		Pick<
+			AppImageData,
+			'_id' | 'dhash' | 'uploadDate' | 'thumbnailPath' | 'originalName' | 'imagePath'
+		>[]
+	> {
+		const results = await imageColl.find(filter, {
+			projection: {
+				_id: 1,
+				dhash: 1,
+				uploadDate: 1,
+				thumbnailPath: 1,
+				originalName: 1,
+				imagePath: 1
+			}
+		});
+		return results as Pick<
+			AppImageData,
+			'_id' | 'dhash' | 'uploadDate' | 'thumbnailPath' | 'originalName' | 'imagePath'
+		>[];
+	},
+
+	/** Get multiple images by their IDs */
+	async getImagesByIds(ids: string[]): Promise<AppImageData[]> {
+		const objectIds = ids.map((id) => {
+			try {
+				return new ObjectId(id);
+			} catch {
+				return id;
+			}
+		});
+		const results = await imageCollection.find({ _id: { $in: [...objectIds, ...ids] } }).toArray();
+		return results as AppImageData[];
+	}
+};

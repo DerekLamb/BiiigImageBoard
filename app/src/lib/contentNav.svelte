@@ -1,80 +1,83 @@
-<script lang='ts'>
-import { browser } from "$app/environment";
+<script lang="ts">
+	import { browser } from '$app/environment';
 
-    let {
-        prevId = "",
-        nextId = "",
-        contentName = "",
-        baseUrl = "/",
-        queryParams = {},
-        }: {
-        prevId?: string;
-        nextId?: string;
-        contentName?: string;
-        baseUrl?: string;
-        queryParams?: Record<string, string>;
-    } = $props();
+	let {
+		prevId = '',
+		nextId = '',
+		contentName = '',
+		baseUrl = '/',
+		queryParams = {}
+	}: {
+		prevId?: string;
+		nextId?: string;
+		contentName?: string;
+		baseUrl?: string;
+		queryParams?: Record<string, string>;
+	} = $props();
 
-let prevUrl = $state("");
-let nextUrl = $state("");
+	let prevUrl = $state('');
+	let nextUrl = $state('');
 
-function buildUrl(contentId: string) {
-    if (!browser) return "";
-    const url = new URL(baseUrl + contentId, window.location.origin);
+	function buildUrl(contentId: string) {
+		if (!browser) return '';
+		const url = new URL(baseUrl + contentId, window.location.origin);
 
-    // Preserve the current query string (len, search scope, any filters) so
-    // next/prev browsing stays within the active listing context and the
-    // return page can keep the user's position in the sort display.
-    for (const [key, value] of new URLSearchParams(window.location.search)) {
-        url.searchParams.set(key, value);
-    }
+		// Preserve the current query string (len, search scope, any filters) so
+		// next/prev browsing stays within the active listing context and the
+		// return page can keep the user's position in the sort display.
+		for (const [key, value] of new URLSearchParams(window.location.search)) {
+			url.searchParams.set(key, value);
+		}
 
-    for (const [key, value] of Object.entries(queryParams)) {
-        url.searchParams.set(key, value);
-    }
-    return url.toString();
-}
+		for (const [key, value] of Object.entries(queryParams)) {
+			url.searchParams.set(key, value);
+		}
+		return url.toString();
+	}
 
-$effect(() => {
-    prevUrl = buildUrl(prevId);
-    nextUrl = buildUrl(nextId);
-});
+	$effect(() => {
+		prevUrl = buildUrl(prevId);
+		nextUrl = buildUrl(nextId);
+	});
 </script>
 
 <div class="pagination">
-    <a href="{prevId ? prevUrl : null}" class="pagination-item" id="prev" data-sveltekit-noscroll>&lt&lt&lt</a>
-    <span id="contentName">{contentName}</span>
-    <a href="{nextId ? nextUrl : null}" class="pagination-item right" id ="next" data-sveltekit-noscroll>&gt&gt&gt</a>
+	<a href={prevId ? prevUrl : null} class="pagination-item" id="prev" data-sveltekit-noscroll
+		>&lt&lt&lt</a
+	>
+	<span id="contentName">{contentName}</span>
+	<a href={nextId ? nextUrl : null} class="pagination-item right" id="next" data-sveltekit-noscroll
+		>&gt&gt&gt</a
+	>
 </div>
 
 <style>
-    .pagination{
-        margin: 12px 0px;
-        width: 100%;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-    }
+	.pagination {
+		margin: 12px 0px;
+		width: 100%;
+		display: flex;
+		justify-content: space-around;
+		align-items: center;
+	}
 
-    .pagination-item{
-        width: 100%;
-        font-size: 2rem;
-        text-decoration: none;
-        margin: .2em;
-        color: #808080;
-    }
+	.pagination-item {
+		width: 100%;
+		font-size: 2rem;
+		text-decoration: none;
+		margin: 0.2em;
+		color: #808080;
+	}
 
-    .right {
-        text-align: right;
-    }
+	.right {
+		text-align: right;
+	}
 
-    span{
-        font-family: 'Montserrat', sans-serif;
-        font-size: 20px;
-        margin: 5px 10px;
-        color: #5b5b5b;
-        width: 100%;
-        text-align: center;
-    }
-
+	span {
+		font-family: 'Montserrat', sans-serif;
+		font-size: 20px;
+		margin: 5px 10px;
+		color: #5b5b5b;
+		width: 100%;
+		text-align: center;
+	}
 </style>

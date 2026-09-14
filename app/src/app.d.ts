@@ -4,9 +4,7 @@
 
 declare global {
 	declare namespace App {
-		interface fileMetadata {
-			
-		}
+		interface fileMetadata {}
 		// interface Error {}
 		interface Locals {
 			user?: User;

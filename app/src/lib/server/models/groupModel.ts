@@ -1,120 +1,124 @@
 import { ObjectId, type Sort } from 'mongodb';
-import { imageCollection, groupCollection, } from '$lib/db.server'
+import { imageCollection, groupCollection } from '$lib/db.server';
 import type { AppGroup, GroupDoc, ImageDoc } from '$lib/types/DocTypes';
-import { databaseDocUtil as dbUtil} from "$lib/server/utility/dbUtil";
-import { createMongoCollection  } from '$lib/server/collectionLayer';
+import { databaseDocUtil as dbUtil } from '$lib/server/utility/dbUtil';
+import { createMongoCollection } from '$lib/server/collectionLayer';
 
 const groupColl = createMongoCollection(groupCollection);
 const imageColl = createMongoCollection(imageCollection);
 
-export const GroupModel = { 
-    async findGroups(filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 }) {
-        const documents = await groupColl.findPage(filter, limit, skip, sort);
-        return documents as AppGroup[];
-    },
+export const GroupModel = {
+	async findGroups(filter = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 }) {
+		const documents = await groupColl.findPage(filter, limit, skip, sort);
+		return documents as AppGroup[];
+	},
 
-    async getGroupById(id: string) {
-        const document = await groupColl.findOne({ _id:id }) as AppGroup;
-        return document;
-    },
+	async getGroupById(id: string) {
+		const document = (await groupColl.findOne({ _id: id })) as AppGroup;
+		return document;
+	},
 
-    async getGroupByName(name: string) {
-        const document = await groupColl.findOne({ name: name })
-        return document
-    },
+	async getGroupByName(name: string) {
+		const document = await groupColl.findOne({ name: name });
+		return document;
+	},
 
-    async getAllGroups() {
-        const documents = await groupColl.find();
-        return documents
-    },
+	async getAllGroups() {
+		const documents = await groupColl.find();
+		return documents;
+	},
 
-    async createGroup(groupData: Partial<AppGroup>) {
-        const results = await groupColl.insertOne(groupData); 
-        return {
-            success: results.acknowledged === true,
-            id: results.insertedId?.toString(),
-        }
-    },
+	async createGroup(groupData: Partial<AppGroup>) {
+		const results = await groupColl.insertOne(groupData);
+		return {
+			success: results.acknowledged === true,
+			id: results.insertedId?.toString()
+		};
+	},
 
-    async addImageToGroup(groupId: string, imageId: string) {
-        const parentGroup = await GroupModel.getGroupById(groupId);
-        const childImages = await imageColl.find({ _id: { $in: parentGroup.children.map(e => e) } });
+	async addImageToGroup(groupId: string, imageId: string) {
+		const parentGroup = await GroupModel.getGroupById(groupId);
+		const childImages = await imageColl.find({ _id: { $in: parentGroup.children.map((e) => e) } });
 
-        const latestDate = childImages.reduce((latest, image) => image.uploadDate > latest ? image.uploadDate : latest, "0");
+		const latestDate = childImages.reduce(
+			(latest, image) => (image.uploadDate > latest ? image.uploadDate : latest),
+			'0'
+		);
 
-        const results = await groupColl.updateOne(
-            { _id: groupId },
-            {
-                $set: { uploadDate: latestDate },
-                $push: { children: imageId }
-            }
-        );
+		const results = await groupColl.updateOne(
+			{ _id: groupId },
+			{
+				$set: { uploadDate: latestDate },
+				$push: { children: imageId }
+			}
+		);
 
-        return {
-            success: results !== null,
-            document: results,
-        };
-    },
+		return {
+			success: results !== null,
+			document: results
+		};
+	},
 
-    async updateGroup(id: string, updates: Partial<AppGroup>) { // Needs more attention
-        const results =  await groupColl.updateOne({ _id: id }, { $set: updates });
+	async updateGroup(id: string, updates: Partial<AppGroup>) {
+		// Needs more attention
+		const results = await groupColl.updateOne({ _id: id }, { $set: updates });
 
-        return { 
-            success: results !== null,
-            document: results,
-        }
-    },
+		return {
+			success: results !== null,
+			document: results
+		};
+	},
 
-    async updateGroupThumbnail(groupId: string) {
-        const group = await GroupModel.getGroupById(groupId);
-        
-        if (!group || !group.children || group.children.length === 0) {
-            return {
-                success: false,
-                message: "Group has no children images"
-            };
-        }
+	async updateGroupThumbnail(groupId: string) {
+		const group = await GroupModel.getGroupById(groupId);
 
-        let childIDs = group.children.map( id => new ObjectId( id ))
+		if (!group || !group.children || group.children.length === 0) {
+			return {
+				success: false,
+				message: 'Group has no children images'
+			};
+		}
 
-        let childImageDocs = await imageCollection.find({_id: { $in: childIDs } }).toArray();
+		let childIDs = group.children.map((id) => new ObjectId(id));
 
-        childImageDocs = childImageDocs.slice(0,3)
-        
-        let childThumbnails = childImageDocs.map( a => a.thumbnailPath)
+		let childImageDocs = await imageCollection.find({ _id: { $in: childIDs } }).toArray();
 
-        
-        if (childThumbnails.length === 0) { // may convert to try catch, could be 
-            return {
-                success: false,
-                message: "No group child thumbnails found"
-            };
-        }
+		childImageDocs = childImageDocs.slice(0, 3);
 
-        // Update the group's thumbnailPath
-        const results = await groupColl.updateOne(
-            { _id: new ObjectId(groupId) },
-            { $set: { thumbnailPaths: childThumbnails } }
-        );
+		let childThumbnails = childImageDocs.map((a) => a.thumbnailPath);
 
-        return {
-            success: results !== null,
-            thumbnails: childThumbnails,
-            document: results
-        };
-    },
+		if (childThumbnails.length === 0) {
+			// may convert to try catch, could be
+			return {
+				success: false,
+				message: 'No group child thumbnails found'
+			};
+		}
 
-    async deleteGroup(id: string) {
-        const results = await groupColl.deleteOne({ _id: id });
+		// Update the group's thumbnailPath
+		const results = await groupColl.updateOne(
+			{ _id: new ObjectId(groupId) },
+			{ $set: { thumbnailPaths: childThumbnails } }
+		);
 
-        return {
-            success: results.acknowledged === true,
-            id: id,
-            count: results.deletedCount
-        }
-    },
+		return {
+			success: results !== null,
+			thumbnails: childThumbnails,
+			document: results
+		};
+	},
 
-    async getGroupCount() {
-        return await groupColl.countDocuments({});
-    },
-}
+	async deleteGroup(id: string) {
+		const results = await groupColl.deleteOne({ _id: id });
+
+		return {
+			success: results.acknowledged === true,
+			id: id,
+			count: results.deletedCount
+		};
+	},
+
+	async getGroupCount() {
+		return await groupColl.countDocuments({});
+	}
+};

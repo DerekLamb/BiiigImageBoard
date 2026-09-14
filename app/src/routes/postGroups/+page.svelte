@@ -4,7 +4,7 @@
 	import SearchBar from '$lib/searchBar.svelte';
 	import Image from '$lib/image.svelte';
 	import { groupCount } from '$lib/stores/searchStore';
-    import type { PageData } from './$types'
+	import type { PageData } from './$types';
 	/** @type {import('./$types').PageData} */
 
 	interface ServerData {

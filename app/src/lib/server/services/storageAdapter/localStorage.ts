@@ -1,56 +1,55 @@
-import fs from "fs/promises"
-import type { FileOperationResult } from "$lib/types/services";
-import type { storageAdapter } from "./types";
+import fs from 'fs/promises';
+import type { FileOperationResult } from '$lib/types/services';
+import type { storageAdapter } from './types';
 
 class LocalStorage implements storageAdapter {
+	readFile(filePath: string): Promise<Buffer> {
+		const file = fs.readFile(filePath);
 
-    readFile(filePath: string): Promise<Buffer> {
-         const file= fs.readFile(filePath);
+		return file;
+	}
 
-         return file;
-    }
+	async writeFile(filePath: string, data: Uint8Array): Promise<FileOperationResult> {
+		try {
+			if (!data) {
+				return {
+					success: false,
+					message: 'file data is empty'
+				};
+			}
 
-    async writeFile(filePath: string, data: Uint8Array): Promise<FileOperationResult> {
-        try {
-            if(!data){
-                return {
-                    success: false,
-                    message: 'file data is empty',
-                }
-            }
-                
-            await fs.writeFile(filePath, data);
-            return {
-                success: true,
-                message: `file saved to ${filePath}`,
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: `Error saving file: FilePath: ${filePath} Error: ${error}`
-            }
-        }
-    }
+			await fs.writeFile(filePath, data);
+			return {
+				success: true,
+				message: `file saved to ${filePath}`
+			};
+		} catch (error) {
+			return {
+				success: false,
+				message: `Error saving file: FilePath: ${filePath} Error: ${error}`
+			};
+		}
+	}
 
-    async deleteFile(fileName: string): Promise<FileOperationResult> {
-        try{
-            const results = fs.unlink(fileName)
+	async deleteFile(fileName: string): Promise<FileOperationResult> {
+		try {
+			const results = fs.unlink(fileName);
 
-            return {
-                success: true
-            }
-        } catch (error) {
-            return {
-                success: false
-            }
-        }
-    }
+			return {
+				success: true
+			};
+		} catch (error) {
+			return {
+				success: false
+			};
+		}
+	}
 
-    listFiles(path: string): Promise<string[]> {
-        const results = fs.readdir(path)
+	listFiles(path: string): Promise<string[]> {
+		const results = fs.readdir(path);
 
-        return results
-    }
+		return results;
+	}
 }
 
-export const localStorage = new LocalStorage()
+export const localStorage = new LocalStorage();

@@ -1,93 +1,94 @@
-<script lang=ts>
-    import AutoTagInput from "./autoTagInput.svelte";
-    import Tag from "./tag.svelte";
-    import { onMount } from 'svelte';
+<script lang="ts">
+	import AutoTagInput from './autoTagInput.svelte';
+	import Tag from './tag.svelte';
+	import { onMount } from 'svelte';
 
-    export let imageTags: string[];
-    export let imageID = '';
-    export let editable = true;
+	export let imageTags: string[];
+	export let imageID = '';
+	export let editable = true;
 
-    let autoTags = ["test","test", "test"];
-    let editing = false;
+	let autoTags = ['test', 'test', 'test'];
+	let editing = false;
 
-    onMount(() => {
-        fetchTags();
-    });
+	onMount(() => {
+		fetchTags();
+	});
 
+	async function fetchTags() {
+		try {
+			const response = await fetch(`/api/tags`);
 
-    async function fetchTags() {
-        try {
-            const response = await fetch(`/api/tags`);
+			if (!response.ok) {
+				throw new Error(`HTTP error: Status ${response.status}`);
+			}
 
-            if (!response.ok) {
-                throw new Error(`HTTP error: Status ${response.status}`)
-            }
+			const data = await response.json();
+			autoTags = data;
+			//console.log(autoTags);
+		} catch (error) {
+			console.error('Error fetching tags:', error);
+		}
+	}
 
-            const data = await response.json();
-            autoTags = data;
-            //console.log(autoTags);
-        } catch (error) {
-            console.error('Error fetching tags:', error);
-        }
-    }
+	function handleMessage(event: CustomEvent) {
+		console.log(event.detail);
+		const newTag = event.detail.tag.toLowerCase().trim().replace(/ /g, '_');
+		if (newTag !== '') {
+			imageTags = imageTags ? [...imageTags, newTag] : [newTag];
+			updateServerTags();
+		}
+	}
 
+	function handleDeleteTag(event: CustomEvent) {
+		imageTags = imageTags.filter((tag) => tag !== event.detail.deletedTag);
+		updateServerTags();
+	}
 
-    function handleMessage(event:CustomEvent) {
-        console.log(event.detail);
-        const newTag = event.detail.tag.toLowerCase().trim().replace(/ /g,"_");;
-        if (newTag !== "") {
-            imageTags = imageTags ? [...imageTags, newTag] : [newTag];
-            updateServerTags();
-            }
-    }
+	async function updateServerTags() {
+		try {
+			const response = await fetch(`/api/tags`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ tags: imageTags, imageID: imageID })
+			});
 
-    function handleDeleteTag(event:CustomEvent){ 
-        imageTags = imageTags.filter((tag) => tag !== event.detail.deletedTag);
-        updateServerTags()
-    }
-
-    async function updateServerTags() {
-        try {
-            const response = await fetch(`/api/tags`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tags : imageTags , imageID: imageID})
-                });
-
-            if (!response.ok) {
-                throw new Error('Failed to send data to the server');
-                }
-            
-        } catch (error) {
-        console.error(error);
-        }
-    }
-
+			if (!response.ok) {
+				throw new Error('Failed to send data to the server');
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
 </script>
-    <div class="TagSection">
-        <h3>Tags</h3>
-            <div class="tagsContainer">
-                <ul>
-                    {#if imageTags}
-                        {#each imageTags as tag }
-                            <Tag tag = {tag} edit = {editing} onDelete={(tag) => handleDeleteTag(tag)} ></Tag>
-                        {/each}
-                    {:else}
-                        <p>Blank</p>
-                    {/if}        
-                </ul>
-                {#if editing}
-                <div class="inputContainer">
-                    <AutoTagInput autocompleteTags={autoTags} on:tag = {handleMessage} />
-                </div>
-                {/if}
-            </div>
-        
-        {#if editable}   
-            <button on:click = {() => {editing = !editing;}}>Edit</button>
-        {/if}
 
-        <!-- {#if embPrompt}
+<div class="TagSection">
+	<h3>Tags</h3>
+	<div class="tagsContainer">
+		<ul>
+			{#if imageTags}
+				{#each imageTags as tag}
+					<Tag {tag} edit={editing} onDelete={(tag) => handleDeleteTag(tag)}></Tag>
+				{/each}
+			{:else}
+				<p>Blank</p>
+			{/if}
+		</ul>
+		{#if editing}
+			<div class="inputContainer">
+				<AutoTagInput autocompleteTags={autoTags} on:tag={handleMessage} />
+			</div>
+		{/if}
+	</div>
+
+	{#if editable}
+		<button
+			on:click={() => {
+				editing = !editing;
+			}}>Edit</button
+		>
+	{/if}
+
+	<!-- {#if embPrompt}
             <h3>Embedded Prompt</h3>
             <div class="tagsContainer">
                 <ul>
@@ -97,57 +98,54 @@
                 </ul>
             </div>
         {/if} -->
-    </div>
-    
+</div>
+
 <style>
+	.TagSection {
+		background-color: var(--bg-card);
+		border-radius: 15px;
+		padding: 8px;
+		width: 230px;
+		transition: background-color 0.3s ease;
+	}
 
-    .TagSection{
-        background-color: var(--bg-card);
-        border-radius: 15px;
-        padding: 8px;
-        width: 230px;
-        transition: background-color 0.3s ease;
-    }
+	.TagSection h3 {
+		font-family: 'Montserrat', sans-serif;
+		margin: 0.2rem;
+		text-align: center;
+		color: var(--text-primary);
+	}
 
-    .TagSection h3{
-        font-family: 'Montserrat', sans-serif;
-        margin:.2rem;
-        text-align:center;
-        color: var(--text-primary);
-    }
+	ul {
+		width: 100%;
+		list-style-type: none;
+		padding: 0;
+		margin: 0;
+	}
 
-    ul{
-        width: 100%;
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-    }
+	.tagsContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+	}
 
-    .tagsContainer{
-        display:flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .inputContainer{
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    
+	.inputContainer {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
 
-    button{
-        font-size:16px;
-        font-family: 'Montserrat', sans-serif;
-        color: var(--button-text);
-        background: var(--button-primary);
-        outline: none;
-        border: none;
-        border-radius: 6px;
-        width:200px;
-        margin: 0 20px 0 10px;
-        transition: background-color 0.3s ease;
-    }
-    
+	button {
+		font-size: 16px;
+		font-family: 'Montserrat', sans-serif;
+		color: var(--button-text);
+		background: var(--button-primary);
+		outline: none;
+		border: none;
+		border-radius: 6px;
+		width: 200px;
+		margin: 0 20px 0 10px;
+		transition: background-color 0.3s ease;
+	}
 </style>

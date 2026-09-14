@@ -9,7 +9,7 @@ import {
 	saveReturnState,
 	clearReturnState,
 	getReturnState,
-	returnToUrl,
+	returnToUrl
 } from '$lib/returnTo.svelte.ts';
 
 beforeEach(() => {
@@ -52,7 +52,7 @@ describe('returnTo module (calculated return page)', () => {
 describe('BackToPrevious component', () => {
 	it('renders the fallback when no return page is known', () => {
 		const { getByRole } = render(BackToPrevious, {
-			props: { fallback: '/posts', label: '← Posts' },
+			props: { fallback: '/posts', label: '← Posts' }
 		});
 
 		expect(getByRole('link', { name: '← Posts' }).getAttribute('href')).toBe('/posts');
@@ -63,7 +63,7 @@ describe('BackToPrevious component', () => {
 		saveReturnState(listing, 480);
 
 		const { getByRole } = render(BackToPrevious, {
-			props: { fallback: '/posts', label: '← Posts' },
+			props: { fallback: '/posts', label: '← Posts' }
 		});
 
 		expect(getByRole('link', { name: '← Posts' }).getAttribute('href')).toBe(listing);
@@ -74,7 +74,7 @@ describe('BackToPrevious component', () => {
 		const calculated = '/posts?imageId=20260101&len=24';
 
 		const { getByRole } = render(BackToPrevious, {
-			props: { href: calculated, fallback: '/posts', label: '← Posts' },
+			props: { href: calculated, fallback: '/posts', label: '← Posts' }
 		});
 
 		expect(getByRole('link', { name: '← Posts' }).getAttribute('href')).toBe(calculated);
@@ -83,13 +83,11 @@ describe('BackToPrevious component', () => {
 	it('updates when the return page changes', async () => {
 		saveReturnState('/posts?page=2', 0);
 		const { getByRole } = render(BackToPrevious, {
-			props: { fallback: '/posts', label: '← Posts' },
+			props: { fallback: '/posts', label: '← Posts' }
 		});
 
 		saveReturnState('/postGroups?page=1', 0);
 		await tick();
-		expect(getByRole('link', { name: '← Posts' }).getAttribute('href')).toBe(
-			'/postGroups?page=1'
-		);
+		expect(getByRole('link', { name: '← Posts' }).getAttribute('href')).toBe('/postGroups?page=1');
 	});
 });

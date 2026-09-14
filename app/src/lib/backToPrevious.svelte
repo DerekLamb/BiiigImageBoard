@@ -4,7 +4,7 @@
 	let {
 		href,
 		fallback = '/',
-		label = '← Back',
+		label = '← Back'
 	}: {
 		href?: string;
 		fallback?: string;

@@ -1,63 +1,62 @@
-
-
 interface HoldClickOptions {
-    holdTime?: number,
-    onHold?: Function,
-    onClick?: Function
+	holdTime?: number;
+	onHold?: Function;
+	onClick?: Function;
 }
 
-export function holdClick(node: HTMLElement, { holdTime = 1000, onHold , onClick }: HoldClickOptions = {}) {
-    let pressTimer: ReturnType<typeof setTimeout> | null = null
-    let isHoldTriggered = false;
+export function holdClick(
+	node: HTMLElement,
+	{ holdTime = 1000, onHold, onClick }: HoldClickOptions = {}
+) {
+	let pressTimer: ReturnType<typeof setTimeout> | null = null;
+	let isHoldTriggered = false;
 
+	function handlePointerDown(event: PointerEvent) {
+		isHoldTriggered = false;
+		pressTimer = setTimeout(() => {
+			isHoldTriggered = true;
+			onHold?.(event);
+		}, holdTime);
+	}
 
-    function handlePointerDown (event: PointerEvent) {
-        isHoldTriggered = false;
-        pressTimer = setTimeout(() => {
-            isHoldTriggered = true;
-            onHold?.(event);
-        }, holdTime);
-    }
+	function handlePointerUp(event: PointerEvent) {
+		if (pressTimer) {
+			clearTimeout(pressTimer);
+			pressTimer = null;
+		}
 
-    function handlePointerUp(event: PointerEvent) {
-        if (pressTimer) {
-            clearTimeout(pressTimer);
-            pressTimer = null;
-        }
-        
-        if (!isHoldTriggered) {
-            onClick?.(event);
-        }
-    }
-        
-    function handlePointerLeave() {
-        if (pressTimer) {
-            clearTimeout(pressTimer);
-            pressTimer = null;
-        }
-    }
+		if (!isHoldTriggered) {
+			onClick?.(event);
+		}
+	}
 
-    function handleClick(event: Event) {
-        if(isHoldTriggered){
-            event?.preventDefault()
-            event?.stopPropagation();
-        }
+	function handlePointerLeave() {
+		if (pressTimer) {
+			clearTimeout(pressTimer);
+			pressTimer = null;
+		}
+	}
 
-        isHoldTriggered = false;
-    }
+	function handleClick(event: Event) {
+		if (isHoldTriggered) {
+			event?.preventDefault();
+			event?.stopPropagation();
+		}
 
-    node.addEventListener('pointerdown', handlePointerDown);
-    node.addEventListener('pointerup', handlePointerUp);
-    node.addEventListener('pointerleave', handlePointerLeave);
-    node.addEventListener('click', handleClick, { capture: true });
+		isHoldTriggered = false;
+	}
 
-     return {
-        destroy() {
-            node.removeEventListener('pointerdown', handlePointerDown);
-            node.removeEventListener('pointerup', handlePointerUp);
-            node.removeEventListener('pointerleave', handlePointerLeave);
-            node.removeEventListener('click', handleClick, { capture: true });
-        }
-    };
+	node.addEventListener('pointerdown', handlePointerDown);
+	node.addEventListener('pointerup', handlePointerUp);
+	node.addEventListener('pointerleave', handlePointerLeave);
+	node.addEventListener('click', handleClick, { capture: true });
 
+	return {
+		destroy() {
+			node.removeEventListener('pointerdown', handlePointerDown);
+			node.removeEventListener('pointerup', handlePointerUp);
+			node.removeEventListener('pointerleave', handlePointerLeave);
+			node.removeEventListener('click', handleClick, { capture: true });
+		}
+	};
 }

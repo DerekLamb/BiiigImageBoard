@@ -1,6 +1,6 @@
 # Backend Testing with Vitest
 
-This directory contains unit tests for the backend models used in the BiiigImageBoard application. 
+This directory contains unit tests for the backend models used in the BiiigImageBoard application.
 
 ## Testing Strategy
 
@@ -19,16 +19,19 @@ We use Vitest as our testing framework with the following approach:
 ## Running Tests
 
 Run all tests:
+
 ```bash
 npm test
 ```
 
 Run a specific test file:
+
 ```bash
 npx vitest run src/lib/server/models/__tests__/imageModel.test.ts
 ```
 
 Run tests with coverage reporting:
+
 ```bash
 npm run test:coverage
 ```
@@ -53,12 +56,12 @@ const mockInsertOne = vi.fn();
 
 // Mock the module
 vi.mock('../yourModule', () => ({
-  YourModule: {
-    someMethod: vi.fn(async () => {
-      return mockFindOne();
-    }),
-    // other methods...
-  }
+	YourModule: {
+		someMethod: vi.fn(async () => {
+			return mockFindOne();
+		})
+		// other methods...
+	}
 }));
 
 // Import the mocked module
@@ -71,26 +74,28 @@ Organize tests using `describe` blocks and test cases using `it`:
 
 ```typescript
 describe('YourModule', () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-  });
+	beforeEach(() => {
+		vi.resetAllMocks();
+	});
 
-  describe('someMethod', () => {
-    it('should do something specific', async () => {
-      // Setup
-      const mockData = { /* test data */ };
-      mockFindOne.mockResolvedValue(mockData);
+	describe('someMethod', () => {
+		it('should do something specific', async () => {
+			// Setup
+			const mockData = {
+				/* test data */
+			};
+			mockFindOne.mockResolvedValue(mockData);
 
-      // Execute
-      const result = await YourModule.someMethod();
+			// Execute
+			const result = await YourModule.someMethod();
 
-      // Assert
-      expect(mockFindOne).toHaveBeenCalled();
-      expect(result).toEqual(mockData);
-    });
+			// Assert
+			expect(mockFindOne).toHaveBeenCalled();
+			expect(result).toEqual(mockData);
+		});
 
-    // More test cases...
-  });
+		// More test cases...
+	});
 });
 ```
 

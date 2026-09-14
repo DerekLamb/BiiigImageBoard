@@ -1,23 +1,20 @@
 <script>
-    import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
 
-    let tagList = [];
+	let tagList = [];
 
-    onMount(() => {
-        fetch('/api/tags')
-            .then(res => res.json())
-            .then(data => {
-                tagList = data;
-            });
-    });
+	onMount(() => {
+		fetch('/api/tags')
+			.then((res) => res.json())
+			.then((data) => {
+				tagList = data;
+			});
+	});
 
-    // $: document.title = `#${tagList}`;
-
+	// $: document.title = `#${tagList}`;
 </script>
 
 <div>Tags Here</div>
 
-
 <style>
-    
 </style>

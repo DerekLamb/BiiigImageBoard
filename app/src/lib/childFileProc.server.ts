@@ -1,21 +1,21 @@
 const { spawn } = require('child_process');
 
 const child = spawn('node', ['procFiles.ts'], {
-    detached: false
+	detached: false
 });
 
-child.on('exit', function(code: any, signal: any){
-    console.log('child process exited with code ${code} and signal ${signal}');
+child.on('exit', function (code: any, signal: any) {
+	console.log('child process exited with code ${code} and signal ${signal}');
 });
 
 child.on('error', (err: Error) => {
-    console.error(`child process error: ${err}`);
+	console.error(`child process error: ${err}`);
 });
 
 child.stdout.on('data', (data: Buffer) => {
-    console.log(`stdout: ${data.toString()}`);
+	console.log(`stdout: ${data.toString()}`);
 });
 
 child.stderr.on('data', (data: Buffer) => {
-    console.error(`stderr: ${data.toString()}`);
+	console.error(`stderr: ${data.toString()}`);
 });

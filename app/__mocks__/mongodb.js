@@ -5,9 +5,9 @@ export const ObjectId = vi.fn((id) => id);
 
 // Mock MongoDB Client
 export const MongoClient = vi.fn().mockImplementation(() => ({
-  db: vi.fn().mockReturnThis(),
-  connect: vi.fn().mockResolvedValue({}),
-  collection: vi.fn().mockReturnValue({})
+	db: vi.fn().mockReturnThis(),
+	connect: vi.fn().mockResolvedValue({}),
+	collection: vi.fn().mockReturnValue({})
 }));
 
 // Mock MongoDB Collection

@@ -12,7 +12,7 @@ import { browser } from '$app/environment';
  */
 const returnState = $state<{ url: string | null; scrollY: number }>({
 	url: null,
-	scrollY: 0,
+	scrollY: 0
 });
 
 export function saveReturnState(url: string, scrollY: number): void {

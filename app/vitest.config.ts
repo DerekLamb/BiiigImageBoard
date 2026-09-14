@@ -26,7 +26,7 @@ export default defineConfig({
 	plugins: [sveltekit()],
 	resolve: {
 		conditions: ['browser'],
-		alias: [{ find: sveltePattern, customResolver: (id) => svelteClientAlias(id) }],
+		alias: [{ find: sveltePattern, customResolver: (id) => svelteClientAlias(id) }]
 	},
 	test: {
 		environment: 'jsdom',
@@ -35,8 +35,8 @@ export default defineConfig({
 			optimizer: {
 				// process through Vite with browser semantics so svelte resolves
 				// to its client build and the alias above applies
-				web: { include: ['svelte', '@testing-library/svelte', '@testing-library/svelte-core'] },
-			},
-		},
-	},
+				web: { include: ['svelte', '@testing-library/svelte', '@testing-library/svelte-core'] }
+			}
+		}
+	}
 });

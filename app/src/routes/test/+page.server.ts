@@ -1,62 +1,61 @@
 import { page } from '$app/stores';
 import { db } from '$lib/db.server';
 
-
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url }) => {
-    const { searchParams } = url;
-    const pageNum = parseInt(searchParams.get('page') || '1');
-    const currPage = Math.max(pageNum, 1);
-    const lengthNum = parseInt(searchParams.get('len') || '50');
+	const { searchParams } = url;
+	const pageNum = parseInt(searchParams.get('page') || '1');
+	const currPage = Math.max(pageNum, 1);
+	const lengthNum = parseInt(searchParams.get('len') || '50');
 
+	// Extract the 'tag' query parameter as an array of strings
+	const tags = searchParams.getAll('tag');
 
-        // Extract the 'tag' query parameter as an array of strings
-        const tags = searchParams.getAll('tag');
+	// Extract the 'notag' query parameter as a string
+	const notag = searchParams.get('notag');
 
-        // Extract the 'notag' query parameter as a string
-        const notag = searchParams.get('notag');
+	const pageLength = lengthNum || 30;
+	const startInd = (currPage - 1) * pageLength;
 
+	interface Filter {
+		tags?: { $all: string[] } | { $not: { $in: string[] } };
+	}
 
-    const pageLength = lengthNum || 30;
-    const startInd = (currPage - 1) * pageLength;
+	// Create a filter object to pass to the MongoDB 'find' method
+	let filter: Filter = {};
+	if (tags.length > 0) {
+		filter.tags = { $all: tags };
+	}
+	if (notag) {
+		filter.tags = { $not: { $in: [notag] } };
+	}
 
-    interface Filter {
-        tags?: { $all: string[]} | { $not: {$in: string[] } };
-      }
+	const images = await db
+		.collection('testimages')
+		.find(filter)
+		.sort({ genName: -1 })
+		.skip(startInd)
+		.limit(pageLength)
+		.toArray();
 
-        // Create a filter object to pass to the MongoDB 'find' method
-        let filter:Filter = {};
-        if (tags.length > 0) {
-            filter.tags = { $all: tags };
-        }
-        if (notag) {
-            filter.tags = { $not: { $in: [notag] } };
-        }
+	const numPages = Math.ceil(
+		(await db.collection('testimages').estimatedDocumentCount()) / pageLength
+	);
 
-    const images = await db.collection('testimages')
-        .find(filter)
-        .sort({ genName:-1 })
-        .skip(startInd)
-        .limit(pageLength)
-        .toArray();
+	const rawImages = images.map(({ name, fsName, genName, imagePath, tags }) => ({
+		name,
+		fsName,
+		genName,
+		imagePath,
+		tags
+	}));
 
-    const numPages = Math.ceil(await db.collection('testimages').estimatedDocumentCount() / pageLength);
-    
-    const rawImages = images.map(({ name, fsName, genName, imagePath, tags}) => ({
-        name,
-        fsName,
-        genName,
-        imagePath,
-        tags
-    }))
-
-
-    return{
-        status: 200,
-        images: rawImages,
-        pageNum: numPages,
-        currPage: currPage,
-        lengthNum: lengthNum
-    }
+	return {
+		status: 200,
+		images: rawImages,
+		pageNum: numPages,
+		currPage: currPage,
+		lengthNum: lengthNum
+	};
 }) satisfies PageServerLoad;

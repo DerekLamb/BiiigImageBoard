@@ -4,8 +4,8 @@ import { chromium } from 'playwright';
 const base = 'https://localhost:5173';
 const browser = await chromium.launch();
 const ctx = await browser.newContext({
-  viewport: { width: 1280, height: 800 },
-  ignoreHTTPSErrors: true,
+	viewport: { width: 1280, height: 800 },
+	ignoreHTTPSErrors: true
 });
 const page = await ctx.newPage();
 const errors = [];
@@ -21,7 +21,11 @@ console.log('after login URL:', page.url());
 
 // 2. Upload page with files
 await page.goto(base + '/upload', { waitUntil: 'networkidle' });
-await page.setInputFiles('input[type=file]', ['/tmp/testimg1.jpg', '/tmp/testimg2.jpg', '/tmp/testimg3.jpg']);
+await page.setInputFiles('input[type=file]', [
+	'/tmp/testimg1.jpg',
+	'/tmp/testimg2.jpg',
+	'/tmp/testimg3.jpg'
+]);
 await page.waitForTimeout(1500);
 await page.screenshot({ path: '/tmp/shot-upload-queue.png', fullPage: true });
 console.log('saved upload queue shot');
@@ -41,26 +45,26 @@ console.log('saved posts grid shot:', page.url());
 // 5. First post detail
 const firstLink = await page.$('a[href^="/posts/"]');
 if (firstLink) {
-  await firstLink.click();
-  await page.waitForLoadState('networkidle').catch(() => {});
-  await page.waitForTimeout(2500);
-  console.log('detail URL:', page.url());
-  await page.screenshot({ path: '/tmp/shot-post-detail.png', fullPage: true });
+	await firstLink.click();
+	await page.waitForLoadState('networkidle').catch(() => {});
+	await page.waitForTimeout(2500);
+	console.log('detail URL:', page.url());
+	await page.screenshot({ path: '/tmp/shot-post-detail.png', fullPage: true });
 } else {
-  console.log('no post links found on /posts');
+	console.log('no post links found on /posts');
 }
 
 // 6. Dark theme detail (moon toggle in nav)
 const toggle = await page.$('nav button, .nav button, [class*=theme] button');
 if (toggle) {
-  await toggle.click();
-  await page.waitForTimeout(800);
-  await page.screenshot({ path: '/tmp/shot-post-detail-dark.png', fullPage: true });
-  console.log('saved dark shot');
+	await toggle.click();
+	await page.waitForTimeout(800);
+	await page.screenshot({ path: '/tmp/shot-post-detail-dark.png', fullPage: true });
+	console.log('saved dark shot');
 }
 
 if (errors.length) {
-  console.log('--- browser errors ---');
-  errors.slice(0, 20).forEach((e) => console.log(e));
+	console.log('--- browser errors ---');
+	errors.slice(0, 20).forEach((e) => console.log(e));
 }
 await browser.close();

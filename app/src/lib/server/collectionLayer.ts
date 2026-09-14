@@ -1,139 +1,137 @@
-import { Collection, type Document, type Filter, type FindOptions, type Sort } from "mongodb";
-import { databaseDocUtil as dbUtil } from "$lib/server/utility/dbUtil";
+import { Collection, type Document, type Filter, type FindOptions, type Sort } from 'mongodb';
+import { databaseDocUtil as dbUtil } from '$lib/server/utility/dbUtil';
 
 export const createMongoCollection = (collection: Collection) => {
-    return {
-        async find(query: Filter<any> = {}, options?: { projection?: Record<string, any> }) {
-            try {
-                const mongoQuery = dbUtil.convertStringToId(query);
-                let cursor = collection.find(mongoQuery);
-                if (options?.projection) {
-                    cursor = cursor.project(options.projection);
-                }
-                const docs = await cursor.toArray();
-                return docs.map(dbUtil.convertIdToString);
-            } catch (error: any) {
-                throw new Error(`Find operation failed: ${error.message}`);
-            }
-        },
+	return {
+		async find(query: Filter<any> = {}, options?: { projection?: Record<string, any> }) {
+			try {
+				const mongoQuery = dbUtil.convertStringToId(query);
+				let cursor = collection.find(mongoQuery);
+				if (options?.projection) {
+					cursor = cursor.project(options.projection);
+				}
+				const docs = await cursor.toArray();
+				return docs.map(dbUtil.convertIdToString);
+			} catch (error: any) {
+				throw new Error(`Find operation failed: ${error.message}`);
+			}
+		},
 
-        async findPage(query: Filter<any> = {}, limit = 10, skip = 0, sort: Sort = {uploadDate: -1}) {
-            try {
-                const mongoQuery = dbUtil.convertStringToId(query);
-                const result = await collection.find(mongoQuery)
-                    .sort(sort)
-                    .skip(skip)
-                    .limit(limit)
-                    .toArray();
-                return result.map(dbUtil.convertIdToString);
-            } catch (error: any) {
-                throw new Error(`FindPage operation failed: ${error.message}`);
-            }
-        },
+		async findPage(query: Filter<any> = {}, limit = 10, skip = 0, sort: Sort = { uploadDate: -1 }) {
+			try {
+				const mongoQuery = dbUtil.convertStringToId(query);
+				const result = await collection
+					.find(mongoQuery)
+					.sort(sort)
+					.skip(skip)
+					.limit(limit)
+					.toArray();
+				return result.map(dbUtil.convertIdToString);
+			} catch (error: any) {
+				throw new Error(`FindPage operation failed: ${error.message}`);
+			}
+		},
 
-        async findOne(query = {}, options: FindOptions = {}) {
-            try {
-                
-                const mongoQuery = dbUtil.convertStringToId(query);
-                const result = await collection.findOne(mongoQuery, options);
+		async findOne(query = {}, options: FindOptions = {}) {
+			try {
+				const mongoQuery = dbUtil.convertStringToId(query);
+				const result = await collection.findOne(mongoQuery, options);
 
-                if (!result) {
-                    return null;
-                }
-                
-                return dbUtil.convertIdToString(result);
-            } catch (error: any) {
-                throw new Error(`FindOne operation failed: ${error.message}`);
-            }
-        }, 
-        
-        async insertOne(document: Document) {
-            if (!document) {
-                throw new Error("InsertOne operation failed: Document is required");
-            }
-                const mongoDoc = dbUtil.convertStringToId(document);
-                const result = await collection.insertOne(mongoDoc);
-                return result
-        },
+				if (!result) {
+					return null;
+				}
 
-        async updateOne(query: Filter<any> = {}, update: any | { $set: any }) {
-            if (Object.keys(query).length === 0) {
-                throw new Error("Unsafe updateOne operation: Empty query");
-            }
+				return dbUtil.convertIdToString(result);
+			} catch (error: any) {
+				throw new Error(`FindOne operation failed: ${error.message}`);
+			}
+		},
 
-            try {
-                const mongoQuery = dbUtil.convertStringToId(query);
-                const updateDoc = update.$set ? update : { $set: update };
+		async insertOne(document: Document) {
+			if (!document) {
+				throw new Error('InsertOne operation failed: Document is required');
+			}
+			const mongoDoc = dbUtil.convertStringToId(document);
+			const result = await collection.insertOne(mongoDoc);
+			return result;
+		},
 
-                const result = await collection.findOneAndUpdate(
-                    mongoQuery,
-                    updateDoc,
-                    { returnDocument: 'after' }
-                );
+		async updateOne(query: Filter<any> = {}, update: any | { $set: any }) {
+			if (Object.keys(query).length === 0) {
+				throw new Error('Unsafe updateOne operation: Empty query');
+			}
 
-                if (!result) {
-                    return null;
-                }
+			try {
+				const mongoQuery = dbUtil.convertStringToId(query);
+				const updateDoc = update.$set ? update : { $set: update };
 
-                return dbUtil.convertIdToString(result);
-            } catch (error: any) {
-                throw new Error(`UpdateOne operation failed: ${error.message}`);
-            }
-        },
+				const result = await collection.findOneAndUpdate(mongoQuery, updateDoc, {
+					returnDocument: 'after'
+				});
 
-        async replaceOne(query: Filter<any> = {}, newDocument: Document) {
-            if (Object.keys(query).length === 0) {
-                throw new Error("Unsafe replaceOne operation: Empty query");
-            }
+				if (!result) {
+					return null;
+				}
 
-            if (!newDocument) {
-                throw new Error("ReplaceOne operation failed: New document is required");
-            }
+				return dbUtil.convertIdToString(result);
+			} catch (error: any) {
+				throw new Error(`UpdateOne operation failed: ${error.message}`);
+			}
+		},
 
-            try {
-                const mongoQuery = dbUtil.convertStringToId(query);
-                const mongoDoc = dbUtil.convertStringToId(newDocument);
+		async replaceOne(query: Filter<any> = {}, newDocument: Document) {
+			if (Object.keys(query).length === 0) {
+				throw new Error('Unsafe replaceOne operation: Empty query');
+			}
 
-                const result = await collection.replaceOne(mongoQuery, mongoDoc);
-                return result;
-            } catch (error: any) {
-                throw new Error(`ReplaceOne operation failed: ${error.message}`);
-            }
-        },
+			if (!newDocument) {
+				throw new Error('ReplaceOne operation failed: New document is required');
+			}
 
-        async deleteOne(query: Filter<any> = {}) {
-            if (Object.keys(query).length === 0) {
-                throw new Error("Unsafe deleteOne operation: Empty query");
-            }
+			try {
+				const mongoQuery = dbUtil.convertStringToId(query);
+				const mongoDoc = dbUtil.convertStringToId(newDocument);
 
-            try {
-                const mongoQuery = dbUtil.convertStringToId(query);
-                const result = await collection.deleteOne(mongoQuery);
-                return result;
-            } catch (error: any) {
-                throw new Error(`DeleteOne operation failed: ${error.message}`);
-            }
-        },
+				const result = await collection.replaceOne(mongoQuery, mongoDoc);
+				return result;
+			} catch (error: any) {
+				throw new Error(`ReplaceOne operation failed: ${error.message}`);
+			}
+		},
 
-        async estimateDocumentCount() {
-            try {
-                return await collection.estimatedDocumentCount();
-            } catch (error: any) {
-                throw new Error(`EstimateDocumentCount operation failed: ${error.message}`);
-            }
-        },
+		async deleteOne(query: Filter<any> = {}) {
+			if (Object.keys(query).length === 0) {
+				throw new Error('Unsafe deleteOne operation: Empty query');
+			}
 
-        async countDocuments(filter: Filter<any> = {}) {
-            try {
-                return await collection.countDocuments(filter);
-            } catch (error: any) {
-                throw new Error(`Document Count operation failed: ${error.message}`);
-            }
-        },
+			try {
+				const mongoQuery = dbUtil.convertStringToId(query);
+				const result = await collection.deleteOne(mongoQuery);
+				return result;
+			} catch (error: any) {
+				throw new Error(`DeleteOne operation failed: ${error.message}`);
+			}
+		},
 
-        async idExists(id: string) {
-            const bsonId = dbUtil.convertStringToId({ _id: id });
-            return await collection.countDocuments(bsonId, { limit: 1 });
-        },
-    };
-}
+		async estimateDocumentCount() {
+			try {
+				return await collection.estimatedDocumentCount();
+			} catch (error: any) {
+				throw new Error(`EstimateDocumentCount operation failed: ${error.message}`);
+			}
+		},
+
+		async countDocuments(filter: Filter<any> = {}) {
+			try {
+				return await collection.countDocuments(filter);
+			} catch (error: any) {
+				throw new Error(`Document Count operation failed: ${error.message}`);
+			}
+		},
+
+		async idExists(id: string) {
+			const bsonId = dbUtil.convertStringToId({ _id: id });
+			return await collection.countDocuments(bsonId, { limit: 1 });
+		}
+	};
+};

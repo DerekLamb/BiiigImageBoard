@@ -1,23 +1,23 @@
 <script lang="ts">
-let detailText = "Test Message Here ";
-let dialogBox = null;
-export let show: boolean;
-
-
+	let detailText = 'Test Message Here ';
+	let dialogBox = null;
+	export let show: boolean;
 </script>
- 
-<dialog bind:this = {dialogBox} 
-    on:close={() => (show = false)}
-    on:click|self={() => dialogBox.close()}>
-    <div class="modal-content">
-        <span class="close" on:click={() => show = false}>&times;</span>
-        <p>{detailText}</p>
-        <slot name="header" />
-        <hr />
-        <slot />
-        <hr />
-        <button on:click={() => dialog.close()}>Close</button>
-    </div>
+
+<dialog
+	bind:this={dialogBox}
+	on:close={() => (show = false)}
+	on:click|self={() => dialogBox.close()}
+>
+	<div class="modal-content">
+		<span class="close" on:click={() => (show = false)}>&times;</span>
+		<p>{detailText}</p>
+		<slot name="header" />
+		<hr />
+		<slot />
+		<hr />
+		<button on:click={() => dialog.close()}>Close</button>
+	</div>
 </dialog>
 
 <style>
