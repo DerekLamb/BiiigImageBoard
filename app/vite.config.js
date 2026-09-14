@@ -1,20 +1,19 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import basicSsl from '@vitejs/plugin-basic-ssl'
+import basicSsl from '@vitejs/plugin-basic-ssl';
+import { defineConfig } from 'vitest/config';
 
-/** @type {import('vite').UserConfig} */
-
-const config = {
+export default defineConfig({
 	plugins: [
 		sveltekit(),
 		basicSsl({
 			name: 'test',
 			domains: ['localhost'],
-			certDir:'./testCert'
+			certDir: './testCert'
 		})
 	],
 	server: {
 		host: true,
-		proxy:{}, //unsure why but needed for dev https
+		proxy: {} // unsure why but needed for dev https
 	},
 	test: {
 		globals: true,
@@ -24,9 +23,5 @@ const config = {
 			reporter: ['text', 'json', 'html'],
 			include: ['src/lib/server/models/**/*.ts']
 		}
-	},
-};
-
-
-
-export default config;
+	}
+});
