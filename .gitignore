@@ -27,6 +27,10 @@ vite.config.js
 /mongodb/
 /nginx/
 
+# Dev harness runtime artifacts (keep scripts + agents tracked)
+dev/harness/.run/
+dev/harness/shots/
+
 # Docker
 docker-compose.yml
 docker-compose.yml

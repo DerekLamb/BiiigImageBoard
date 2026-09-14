@@ -1,0 +1,19 @@
+{
+  "name": "posts-and-detail",
+  "baseUrl": "https://localhost:5173",
+  "viewport": { "width": 1440, "height": 900 },
+  "theme": "dark",
+  "steps": [
+    { "goto": "/posts", "screenshot": "posts-grid", "fullPage": true, "text": true },
+    {
+      "conditional": "a[href^='/posts/']",
+      "steps": [
+        { "click": "a[href^='/posts/']" },
+        { "wait": 1500 },
+        { "screenshot": "post-detail", "fullPage": true },
+        { "snapshot": true }
+      ]
+    },
+    { "goto": "/review", "screenshot": "review", "fullPage": true }
+  ]
+}
