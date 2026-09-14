@@ -31,6 +31,9 @@ vite.config.js
 dev/harness/.run/
 dev/harness/shots/
 
+# Project pi subagent config (kept out of commits for now)
+.pi/
+
 # Docker
 docker-compose.yml
 docker-compose.yml
