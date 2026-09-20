@@ -1,0 +1,65 @@
+{
+  "name": "Management Status Check",
+  "steps": [
+    {
+      "name": "Go to /review",
+      "route": "/review"
+    },
+    {
+      "name": "Screenshot /review",
+      "screenshot": {
+        "fullPage": true,
+        "path": "review.png"
+      }
+    },
+    {
+      "name": "Text content of /review",
+      "text": "body"
+    },
+    {
+      "name": "ARIA snapshot of /review",
+      "snapshot": "accessibility"
+    },
+    {
+      "name": "Go to /posts",
+      "route": "/posts"
+    },
+    {
+      "name": "Screenshot /posts",
+      "screenshot": {
+        "fullPage": true,
+        "path": "posts.png"
+      }
+    },
+    {
+      "name": "Go to /postsDynamic",
+      "route": "/postsDynamic"
+    },
+    {
+      "name": "Screenshot /postsDynamic",
+      "screenshot": {
+        "fullPage": true,
+        "path": "postsDynamic.png"
+      }
+    },
+    {
+      "name": "Text content of /postsDynamic",
+      "text": "body"
+    },
+    {
+      "name": "ARIA snapshot of /postsDynamic",
+      "snapshot": "accessibility"
+    },
+    {
+      "name": "Go to /postGroups",
+      "route": "/postGroups"
+    },
+    {
+      "name": "Screenshot /postGroups",
+      "screenshot": {
+        "fullPage": true,
+        "path": "postGroups.png"
+      }
+    }
+  ]
+}

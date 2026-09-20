@@ -1,0 +1,23 @@
+{
+  "name": "seed-uploads",
+  "viewport": { "width": 1440, "height": 900 },
+  "theme": "dark",
+  "steps": [
+    { "goto": "/upload" },
+    {
+      "setFiles": [
+        "input[type=file]",
+        [
+          "/home/deer/Desktop/BiiigImageBoard/app/images/1786767519495.jpg",
+          "/home/deer/Desktop/BiiigImageBoard/app/images/1787543909874.png",
+          "/home/deer/Desktop/BiiigImageBoard/app/images/1786769137922.jpg",
+          "/home/deer/Desktop/BiiigImageBoard/app/images/1787543920199.png",
+          "/home/deer/Desktop/BiiigImageBoard/app/images/1786768978074.jpg"
+        ]
+      ]
+    },
+    { "wait": 1500, "screenshot": "seed-queue" },
+    { "click": "text=Upload All" },
+    { "wait": 12000, "screenshot": "seed-after-upload" }
+  ]
+}

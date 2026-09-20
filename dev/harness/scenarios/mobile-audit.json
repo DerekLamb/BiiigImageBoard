@@ -1,0 +1,26 @@
+{
+  "name": "mobile-audit",
+  "viewport": { "width": 390, "height": 844 },
+  "theme": "dark",
+  "outDir": "dev/harness/shots-mobile",
+  "steps": [
+    { "route": "/", "screenshot": "m01-home" },
+    { "route": "/posts", "screenshot": "m02-posts" },
+    { "route": "/postsByDate", "screenshot": "m03-postsByDate" },
+    { "route": "/postGroups", "screenshot": "m04-postGroups" },
+    { "route": "/review", "screenshot": "m05-review" },
+    { "route": "/tags", "screenshot": "m06-tags" },
+    { "route": "/upload", "screenshot": "m07-upload" },
+    { "route": "/config", "screenshot": "m08-config" },
+    { "route": "/login", "screenshot": "m09-login" },
+    {
+      "conditional": "a[href^='/posts/']",
+      "steps": [
+        { "goto": "/posts" },
+        { "click": "a[href^='/posts/']" },
+        { "waitFor": "main", "wait": 1200 },
+        { "screenshot": "m10-post-detail" }
+      ]
+    }
+  ]
+}

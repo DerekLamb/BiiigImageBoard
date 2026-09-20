@@ -1,0 +1,13 @@
+{
+  "name": "post-detail-capture",
+  "viewport": { "width": 390, "height": 844 },
+  "theme": "dark",
+  "outDir": "dev/harness/shots-mobile",
+  "steps": [
+    { "goto": "/posts" },
+    { "waitFor": "a[href^='/posts/']", "timeout": 20000 },
+    { "click": "a[href^='/posts/']" },
+    { "waitFor": "main", "wait": 1500 },
+    { "screenshot": "m10-post-detail", "fullPage": true }
+  ]
+}
