@@ -169,6 +169,19 @@
 		font-weight: 700;
 	}
 
+	/* A3: at <=960px the full-cell overlay becomes a corner pill so the 4th
+	   thumbnail stays visible behind it (base rule above keeps >960px). */
+	@media (max-width: 960px) {
+		.overflow-count {
+			inset: auto;
+			right: 6px;
+			bottom: 6px;
+			padding: 4px 10px;
+			border-radius: 999px;
+			font-size: 0.8rem;
+		}
+	}
+
 	.single-thumb {
 		width: 100%;
 		height: 100%;

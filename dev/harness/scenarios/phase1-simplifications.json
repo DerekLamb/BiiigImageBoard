@@ -1,0 +1,32 @@
+{
+	"name": "phase1-simplifications",
+	"viewport": { "width": 390, "height": 844 },
+	"theme": "dark",
+	"outDir": "dev/harness/shots-mobile",
+	"steps": [
+		{ "route": "/posts" },
+		{ "fill": ["#searchQueryInput", "test"] },
+		{ "press": ["#searchQueryInput", "Enter"] },
+		{ "wait": 1500 },
+		{ "eval": "window.location.pathname + window.location.search", "label": "B4-search-from-posts" },
+		{ "route": "/" },
+		{ "fill": ["#searchQueryInput", "home"] },
+		{ "press": ["#searchQueryInput", "Enter"] },
+		{ "wait": 1500 },
+		{ "eval": "window.location.pathname + window.location.search", "label": "B4-search-from-home" },
+		{ "route": "/tags", "screenshot": "p1s-tags" },
+		{
+			"eval": "(function(){var h=document.querySelector('.flexContainer h1');var r=h.getBoundingClientRect();return JSON.stringify({top:Math.round(r.top),left:Math.round(r.left),text:h.textContent});})()",
+			"label": "B6-tags-h1-390"
+		},
+		{ "route": "/review", "screenshot": "p1s-review" },
+		{ "route": "/signUp", "screenshot": "p1s-signup-logged-in" },
+		{ "click": "main button" },
+		{ "wait": 800 },
+		{
+			"eval": "(function(){return JSON.stringify({inputs:document.querySelectorAll('main input').length,hasUsername:!!document.querySelector('#username'),labels:[].map.call(document.querySelectorAll('main label'),function(l){return l.textContent.trim();})});})()",
+			"label": "B3-signup-fields"
+		},
+		{ "screenshot": "p1s-signup-form" }
+	]
+}

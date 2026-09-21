@@ -40,4 +40,26 @@
 		font-family: 'Orbitron', sans-serif;
 		color: #ffecef;
 	}
+
+	@media (max-width: 768px) {
+		.midContainer {
+			height: auto;
+			min-height: 50vh;
+		}
+		.Home {
+			width: 100%;
+			max-width: 100%;
+			height: auto;
+			min-height: 380px;
+			background-color: var(--bg-accent);
+		}
+		.Home * {
+			margin: 0;
+		}
+		.Home h3 {
+			font-size: clamp(28px, 9vw, 44px);
+			margin: 40px 16px 32px;
+			color: var(--text-primary);
+		}
+	}
 </style>

@@ -1,8 +1,25 @@
-<script>
+<script lang="ts">
 	import SlideMenu from '$lib/svelteComponents/slideMenu.svelte';
 	import { theme } from '$lib/stores/themeStore';
+	import { page } from '$app/state';
 
-	let menuOpen = false;
+	const NAV_LINKS = [
+		{ href: '/posts', label: 'Posts' },
+		{ href: '/postsByDate', label: 'By Date' },
+		{ href: '/review', label: 'Review' },
+		{ href: '/tags', label: 'Tags' },
+		{ href: '/upload', label: 'Upload' },
+		{ href: '/', label: 'Home' },
+		{ href: '/login', label: 'Login' }
+	];
+
+	let menuOpen = $state(false);
+
+	let currentPath = $derived(page.url.pathname);
+
+	function isActive(href: string) {
+		return currentPath === href || currentPath.startsWith(href + '/');
+	}
 
 	function toggleMenu() {
 		menuOpen = !menuOpen;
@@ -15,40 +32,52 @@
 
 <!-- Regular Navbar -->
 <div class="navContainer">
+	<a class="mobileBrand" href="/">b..d</a>
 	<div class="navbar">
-		<a href="/posts">Posts</a>
-		<a href="/postsByDate">By Date</a>
-		<a href="/review">Review</a>
-		<a href="/tags">Tags</a>
-		<a href="/upload">Upload</a>
-		<a href="/">Home</a>
-		<a href="/login">Login</a>
-		<button class="theme-toggle" on:click={toggleTheme} title="Toggle theme">
+		{#each NAV_LINKS as link}
+			<a
+				href={link.href}
+				class:active={isActive(link.href)}
+				aria-current={isActive(link.href) ? 'page' : undefined}
+			>
+				{link.label}
+			</a>
+		{/each}
+		<button class="theme-toggle" onclick={toggleTheme} title="Toggle theme">
 			<span class="icon">🌙</span>
 		</button>
 	</div>
+	<button
+		class="menu-button"
+		class:open={menuOpen}
+		aria-label="Menu"
+		aria-expanded={menuOpen}
+		onclick={toggleMenu}
+	>
+		<i></i>
+		<i></i>
+		<i></i>
+	</button>
 </div>
-
-<!-- Menu Button for Mobile -->
-<button class="menu-button" class:open={menuOpen} on:click={toggleMenu}>
-	<i></i>
-	<i></i>
-	<i></i>
-</button>
 
 <!-- Off-Canvas Menu for Mobile -->
 
 {#key menuOpen}
 	<SlideMenu {menuOpen}>
-		<li><a href="/posts" on:click={toggleMenu}>Posts</a></li>
-		<li><a href="/postsByDate" on:click={toggleMenu}>By Date</a></li>
-		<li><a href="/review" on:click={toggleMenu}>Review</a></li>
-		<li><a href="/tags" on:click={toggleMenu}>Tags</a></li>
-		<li><a href="/upload" on:click={toggleMenu}>Upload</a></li>
-		<li><a href="/" on:click={toggleMenu}>Home</a></li>
-		<li><a href="/login" on:click={toggleMenu}>Login</a></li>
+		{#each NAV_LINKS as link}
+			<li>
+				<a
+					href={link.href}
+					class:active={isActive(link.href)}
+					aria-current={isActive(link.href) ? 'page' : undefined}
+					onclick={toggleMenu}
+				>
+					{link.label}
+				</a>
+			</li>
+		{/each}
 		<li class="theme-row">
-			<button class="theme-toggle" on:click={toggleTheme} title="Toggle theme" aria-label="Toggle theme">
+			<button class="theme-toggle" onclick={toggleTheme} title="Toggle theme" aria-label="Toggle theme">
 				<span class="icon">🌙</span>
 			</button>
 		</li>
@@ -56,7 +85,7 @@
 {/key}
 
 <style>
-	@media (min-width: 600px) {
+	@media (min-width: 769px) {
 		.navbar {
 			display: flex;
 		}
@@ -66,25 +95,55 @@
 		}
 
 		.menu-button {
+			display: none;
+		}
+
+		.mobileBrand {
 			display: none;
 		}
 	}
 
 	@media (max-width: 768px) {
-		.menu-button {
-			display: block;
-		}
 		.navbar {
 			display: none;
 		}
 
+		.mobileBrand {
+			display: inline;
+		}
+
+		.menu-button {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+
 		.navContainer {
-			display: none;
+			display: flex;
+			position: sticky;
+			top: 0;
+			z-index: 1000;
+			align-items: center;
+			height: calc(48px + env(safe-area-inset-top, 0px));
+			box-sizing: border-box;
+			padding: 0 12px;
+			padding-top: env(safe-area-inset-top, 0px);
+			background-color: var(--bg-secondary);
+			border-bottom: 1px solid var(--border-color);
 		}
 	}
 	.navContainer {
 		justify-content: space-between;
 		padding: 1rem;
+	}
+
+	.mobileBrand {
+		margin: 0;
+		font-family: 'Orbitron', sans-serif;
+		font-weight: 600;
+		font-size: 1.25rem;
+		color: var(--text-accent);
+		text-decoration: none;
 	}
 
 	.navbar {
@@ -143,6 +202,11 @@
 		color: var(--nav-text);
 	}
 
+	a.active {
+		color: var(--text-accent);
+		font-weight: 600;
+	}
+
 	@keyframes blinkFade {
 		0% {
 			color: var(--text-blink);
@@ -153,18 +217,14 @@
 	}
 
 	.menu-button {
-		position: fixed;
 		cursor: pointer;
+		width: 44px;
+		height: 44px;
 		padding: 10px;
-		height: 50px;
-		width: 50px;
-		right: 30px;
-		bottom: 30px;
+		box-sizing: border-box;
+		flex-shrink: 0;
 		border-radius: 50%;
-		transform: translateX(-50%);
-		transform: translateY(-50%);
 		background-color: var(--button-bg);
-		z-index: 1000;
 		border: none;
 	}
 

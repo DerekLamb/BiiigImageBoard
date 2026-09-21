@@ -1,14 +1,5 @@
 <script lang="ts">
 	import { improvSearch } from '$lib/stores/searchStore';
-
-	function onSubmit(e: SubmitEvent) {
-		e.preventDefault;
-
-		const formData = new FormData(e.target as HTMLFormElement);
-		const data = Object.fromEntries(new FormData(e.target as HTMLFormElement));
-
-		console.log(data);
-	}
 </script>
 
 <form action="/posts">

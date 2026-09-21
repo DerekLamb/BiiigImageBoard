@@ -27,6 +27,17 @@
 		margin-bottom: 10px;
 	}
 
+	/* B6: at <=768px the layout hides .logo (the only top spacing) and zeroes
+	   .boxContainer/.flexContainer margins, so this h1 lands at the viewport's
+	   top-left corner (after-shots m06-tags.png / m14-tags.png). Inset it to
+	   match .tag-grid's 20px padding (this file, .tag-grid rule). */
+	@media (max-width: 768px) {
+		h1 {
+			margin-top: 20px;
+			margin-left: 20px;
+		}
+	}
+
 	.tag-grid {
 		display: flex;
 		flex-wrap: wrap;

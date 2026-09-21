@@ -6,7 +6,6 @@
 	let password = $state('');
 	let name = $state('');
 	let isLoading = $state(false);
-	let username = $state('');
 
 	async function handleSignUp(event: Event) {
 		event.preventDefault();
@@ -41,11 +40,6 @@
 				<div class="field">
 					<label for="name">Name </label>
 					<input id="name" type="text" bind:value={name} placeholder="Your Name" />
-				</div>
-
-				<div class="field">
-					<label for="name">Username (Optional)</label>
-					<input id="username" type="text" bind:value={username} placeholder="Your Username" />
 				</div>
 
 				<div class="field">

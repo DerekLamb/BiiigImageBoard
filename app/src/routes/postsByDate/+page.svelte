@@ -66,6 +66,16 @@
 	</SideBar>
 
 	<div class="content-area">
+		<div class="mobile-filter-row">
+			<label class="threshold-label" for="threshold-select-mobile">Event gap:</label>
+			<select id="threshold-select-mobile" bind:value={selectedThreshold} onchange={applyThreshold}>
+				{#each thresholdOptions as opt}
+					<option value={opt.value}>{opt.label}</option>
+				{/each}
+			</select>
+			<span class="event-stats">{data.totalEvents} events from {data.totalImagesScanned} images</span>
+		</div>
+
 		<PageNav {baseUrl} {currentPage} totalPages={1} />
 
 		<ContentGrid documents={data.events ?? []} mode="browse" minSize={220} />
@@ -136,5 +146,30 @@
 		text-align: center;
 		padding: 20px;
 		color: #888;
+	}
+
+	.mobile-filter-row {
+		display: none;
+	}
+	@media (max-width: 960px) {
+		.mobile-filter-row {
+			display: flex;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 8px;
+			padding: 10px 0;
+		}
+		.mobile-filter-row select {
+			padding: 6px 8px;
+			border-radius: 6px;
+			border: 1px solid var(--border-color);
+			background: var(--bg-input);
+			color: var(--text-primary);
+			font-family: 'Montserrat', sans-serif;
+			font-size: 0.9rem;
+		}
+		.mobile-filter-row .event-stats {
+			margin: 0;
+		}
 	}
 </style>

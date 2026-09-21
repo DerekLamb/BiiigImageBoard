@@ -70,12 +70,6 @@
 		<TagSection imageTags={[]} editable={false} />
 	</SideBar>
 	<div class="imageBrowser">
-		<PageNav
-			currentPage={data.pagination.currentPage}
-			totalPages={data.pagination.pageCount}
-			{baseUrl}
-			length={$imageCount}
-		/>
 		<a href="/review" class="reviewLink">Review</a>
 		<span>
 			Size:
@@ -95,7 +89,7 @@
 		</span>
 		<div
 			class="imageGrid"
-			style="grid-template-columns: repeat(auto-fit, minmax({$improvImageSize}px, 1fr)"
+			style="grid-template-columns: repeat(auto-fit, minmax(min(42vw, {$improvImageSize}px), 1fr))"
 		>
 			{#if data.images}
 				{#each data.images as image}
@@ -127,6 +121,7 @@
 			currentPage={data.pagination.currentPage}
 			totalPages={data.pagination.pageCount}
 			{baseUrl}
+			length={$imageCount}
 		/>
 	</div>
 	<div class="footerSpacer"></div>
@@ -212,5 +207,24 @@
 
 	select:hover {
 		border-color: var(--text-accent, #7bafd4);
+	}
+
+	/* A6: single-row toolbar at <=768px (Review + SIZE + LENGTH) */
+	@media (max-width: 768px) {
+		.reviewLink {
+			font-size: 14px;
+			padding: 3px 10px;
+			margin: 5px 6px 5px 0;
+		}
+		span {
+			font-size: 0.7rem;
+			margin: 5px 6px 5px 0;
+			white-space: nowrap;
+		}
+		select {
+			font-size: 0.8rem;
+			padding: 4px 6px;
+			margin-right: 8px;
+		}
 	}
 </style>

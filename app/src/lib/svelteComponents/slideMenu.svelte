@@ -11,7 +11,7 @@
 </div>
 
 <style>
-	@media (min-width: 600px) {
+	@media (min-width: 769px) {
 		.menu-container {
 			display: none;
 		}

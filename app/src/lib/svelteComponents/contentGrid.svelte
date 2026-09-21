@@ -62,7 +62,7 @@
 <div
 	class="content-grid"
 	class:group-mode={groupMode}
-	style="grid-template-columns: repeat(auto-fit, minmax({minSize}px, 1fr)"
+	style="grid-template-columns: repeat(auto-fit, minmax(min(42vw, {minSize}px), 1fr))"
 >
 	{#each documents as doc (doc._id)}
 		{#if isUploadEvent(doc)}

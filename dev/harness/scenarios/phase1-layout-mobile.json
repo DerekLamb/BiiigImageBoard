@@ -1,0 +1,52 @@
+{
+	"name": "phase1-layout-mobile",
+	"viewport": { "width": 390, "height": 844 },
+	"theme": "dark",
+	"outDir": "dev/harness/shots-mobile",
+	"steps": [
+		{ "route": "/", "screenshot": "p1-home" },
+		{
+			"eval": "(function(){var h=document.querySelector('.Home');if(!h)return JSON.stringify({err:'no .Home'});var r=h.getBoundingClientRect();var cs=getComputedStyle(h);var t=document.querySelector('.Home h3');var tc=getComputedStyle(t);var lines=Math.round(t.getBoundingClientRect().height/Math.max(parseFloat(tc.fontSize),1));return JSON.stringify({homeW:Math.round(r.width),homeH:Math.round(r.height),bg:cs.backgroundColor,title:tc.color,titleSize:parseFloat(tc.fontSize).toFixed(1),lines:lines});})()",
+			"label": "A4-hero-390"
+		},
+		{ "route": "/posts", "screenshot": "p1-posts" },
+		{
+			"eval": "(function(){var g=document.querySelector('div.imageBrowser > .imageGrid');if(!g)return JSON.stringify({err:'no grid'});var t=getComputedStyle(g).gridTemplateColumns.split(' ');return JSON.stringify({cols:t.length,tracks:t.map(function(x){return Math.round(parseFloat(x));}),gridW:Math.round(g.getBoundingClientRect().width)});})()",
+			"label": "A2-grid-390"
+		},
+		{
+			"eval": "(function(){var n=document.querySelectorAll('nav.pagination');var info=document.querySelector('nav.pagination .page-nav-info');return JSON.stringify({bars:n.length,info:info?info.textContent.trim():null});})()",
+			"label": "A5-bars-390"
+		},
+		{
+			"eval": "(function(){var r=document.querySelector('.reviewLink').getBoundingClientRect();var sels=[].map.call(document.querySelectorAll('.imageBrowser select'),function(s){return Math.round(s.getBoundingClientRect().top);});return JSON.stringify({reviewTop:Math.round(r.top),selectTops:sels,reviewH:Math.round(r.height)});})()",
+			"label": "A6-toolbar-390"
+		},
+		{
+			"eval": "(function(){var n=document.querySelector('nav.pagination');return JSON.stringify({scrubWrap:!!document.querySelector('.scrub-wrap'),ruler:!!document.querySelector('.scrub-ruler'),holdMs:n.style.getPropertyValue('--hold-ms'),aria:[].map.call(n.querySelectorAll('a'),function(a){return a.getAttribute('aria-label');}),btnW:Math.round(n.querySelector('.pagination-item').getBoundingClientRect().width)});})()",
+			"label": "B7-scrub-gone-390"
+		},
+		{ "route": "/posts", "screenshot": "p1-posts-full", "fullPage": true },
+		{ "route": "/postsByDate", "screenshot": "p1-postsByDate" },
+		{
+			"eval": "(function(){var row=document.querySelector('.mobile-filter-row');var sb=document.querySelector('.sideBar');var sel=document.querySelector('#threshold-select-mobile');var stats=row?row.querySelector('.event-stats'):null;var badge=document.querySelector('.overflow-count');var cell=badge?badge.parentElement:null;var out={rowDisplay:row?getComputedStyle(row).display:'missing',sideBarDisplay:sb?getComputedStyle(sb).display:'missing',options:sel?sel.options.length:0,stats:stats?stats.textContent.trim():null};if(badge&&cell){var b=badge.getBoundingClientRect();var c=cell.getBoundingClientRect();out.badgeH=Math.round(b.height);out.cellH=Math.round(c.height);out.badgeRightGap=Math.round(c.right-b.right);}return JSON.stringify(out);})()",
+			"label": "A3-filter-badge-390"
+		},
+		{ "conditional": "a.event-card-link", "steps": [
+			{ "click": "a.event-card-link" },
+			{ "waitFor": ".event-header-bar", "wait": 1500 },
+			{ "screenshot": "p1-event" },
+			{ "eval": "(function(){return JSON.stringify({bars:document.querySelectorAll('nav.pagination').length});})()", "label": "A5-event-390" }
+		] },
+		{ "route": "/postsSmart", "screenshot": "p1-postsSmart" },
+		{
+			"eval": "(function(){var g=document.querySelector('div.imageBrowser > .imageGrid');var out={bars:document.querySelectorAll('nav.pagination').length};if(g){var t=getComputedStyle(g).gridTemplateColumns.split(' ');out.cols=t.length;out.gridW=Math.round(g.getBoundingClientRect().width);}return JSON.stringify(out);})()",
+			"label": "A2-A5-postsSmart-390"
+		},
+		{ "route": "/postsDynamic", "screenshot": "p1-postsDynamic" },
+		{
+			"eval": "(function(){var g=document.querySelector('.content-grid');var out={bars:document.querySelectorAll('nav.pagination').length};if(g){var t=getComputedStyle(g).gridTemplateColumns.split(' ');out.cols=t.length;out.gridW=Math.round(g.getBoundingClientRect().width);}return JSON.stringify(out);})()",
+			"label": "A2-A5-postsDynamic-390"
+		}
+	]
+}

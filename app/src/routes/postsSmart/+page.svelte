@@ -160,12 +160,6 @@
 		<TagSection imageTags={[]} editable={false} />
 	</SideBar>
 	<div class="imageBrowser">
-		<PageNav
-			currentPage={data.pagination.currentPage}
-			totalPages={data.pagination.pageCount}
-			{baseUrl}
-			length={$imageCount}
-		/>
 		<span>
 			Size:
 			<select bind:value={$improvImageSize}>
@@ -200,7 +194,7 @@
 
 		<div
 			class="imageGrid"
-			style="grid-template-columns: repeat(auto-fit, minmax({$improvImageSize}px, 1fr)"
+			style="grid-template-columns: repeat(auto-fit, minmax(min(42vw, {$improvImageSize}px), 1fr))"
 			use:holdClick={{ onHold: () => toggleSelectMode() }}
 		>
 			{#if data.images}
@@ -302,6 +296,7 @@
 			currentPage={data.pagination.currentPage}
 			totalPages={data.pagination.pageCount}
 			{baseUrl}
+			length={$imageCount}
 		/>
 	</div>
 	<div class="footerSpacer"></div>

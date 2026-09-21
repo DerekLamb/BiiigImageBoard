@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { ImageModel } from '$lib/server/models/imageModel';
+import { buildReviewFilter, REVIEW_PAGE_SIZE } from '$lib/server/reviewFilter';
 import type { RequestHandler } from './$types';
-
-const PAGE_SIZE = 200;
 
 export const GET: RequestHandler = async ({ url, locals }) => {
 	if (!locals.user) {
@@ -13,23 +12,10 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	const notag = url.searchParams.get('notag') || '';
 	const page = parseInt(url.searchParams.get('page') || '0', 10);
 
-	let filter: any = {};
-	if (searchTerm) {
-		filter.tags = { $all: [searchTerm] };
-	}
-	if (notag) {
-		if (filter.tags) {
-			filter.tags = {
-				$all: [searchTerm],
-				$not: { $in: [notag] }
-			};
-		} else {
-			filter.tags = { $not: { $in: [notag] } };
-		}
-	}
+	const filter = buildReviewFilter(searchTerm, notag);
 
-	const skip = page * PAGE_SIZE;
-	const images = await ImageModel.findImages(filter, PAGE_SIZE, skip, { uploadDate: -1 });
+	const skip = page * REVIEW_PAGE_SIZE;
+	const images = await ImageModel.findImages(filter, REVIEW_PAGE_SIZE, skip, { uploadDate: -1 });
 
 	return json({ images, page });
 };

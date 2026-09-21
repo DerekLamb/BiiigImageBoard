@@ -293,8 +293,6 @@
 	</SideBar>
 
 	<div class="imageContainer">
-		<PageNav baseUrl={browseDir} currentPage={data.currPage} totalPages={data.pageNum} />
-
 		<ControlBar mode={viewMode} {groupMode} {selectionCount} />
 
 		<ContentGrid

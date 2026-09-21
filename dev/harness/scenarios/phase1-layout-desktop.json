@@ -1,0 +1,33 @@
+{
+	"name": "phase1-layout-desktop",
+	"viewport": { "width": 1440, "height": 900 },
+	"theme": "dark",
+	"outDir": "dev/harness/shots",
+	"steps": [
+		{ "route": "/posts", "screenshot": "p1d-posts" },
+		{
+			"eval": "(function(){var g=document.querySelector('div.imageBrowser > .imageGrid');var t=getComputedStyle(g).gridTemplateColumns.split(' ');var nav=document.querySelector('.navbar');var active=nav?nav.querySelector('a[aria-current=\"page\"]'):null;var bar=document.querySelector('.navContainer');return JSON.stringify({tracks:t.map(function(x){return parseFloat(x).toFixed(3);}),cols:t.length,bars:document.querySelectorAll('nav.pagination').length,navPos:getComputedStyle(bar).position,active:active?active.textContent:null,brand:getComputedStyle(document.querySelector('.mobileBrand')).display,menu:getComputedStyle(document.querySelector('.menu-button')).display});})()",
+			"label": "A2-A5-nav-1440"
+		},
+		{ "route": "/", "screenshot": "p1d-home" },
+		{
+			"eval": "(function(){var h=document.querySelector('.Home');var r=h.getBoundingClientRect();var cs=getComputedStyle(h);var t=document.querySelector('.Home h3');var a=document.querySelector('.navbar a[aria-current=\"page\"]');return JSON.stringify({homeW:Math.round(r.width),homeH:Math.round(r.height),bg:cs.backgroundColor,titleSize:getComputedStyle(t).fontSize,active:a?a.textContent:null});})()",
+			"label": "A4-hero-1440"
+		},
+		{ "route": "/postsByDate", "screenshot": "p1d-postsByDate" },
+		{
+			"eval": "(function(){var row=document.querySelector('.mobile-filter-row');var sb=document.querySelector('.sideBar');var badge=document.querySelector('.overflow-count');var cell=badge?badge.parentElement:null;var out={rowDisplay:row?getComputedStyle(row).display:'missing',sideBar:sb?getComputedStyle(sb).display:'missing'};if(badge&&cell){var b=badge.getBoundingClientRect();var c=cell.getBoundingClientRect();out.badgeW=Math.round(b.width);out.cellW=Math.round(c.width);}return JSON.stringify(out);})()",
+			"label": "A3-desktop"
+		},
+		{ "conditional": "a.event-card-link", "steps": [
+			{ "click": "a.event-card-link" },
+			{ "waitFor": ".event-header-bar", "wait": 1500 },
+			{ "screenshot": "p1d-event" },
+			{ "eval": "(function(){var g=document.querySelector('div.imageBrowser > .imageGrid');var out={bars:document.querySelectorAll('nav.pagination').length};if(g){out.cols=getComputedStyle(g).gridTemplateColumns.split(' ').length;}return JSON.stringify(out);})()", "label": "A5-event-1440" }
+		] },
+		{ "route": "/postsSmart", "screenshot": "p1d-postsSmart" },
+		{ "eval": "JSON.stringify({bars:document.querySelectorAll('nav.pagination').length})", "label": "A5-postsSmart-1440" },
+		{ "route": "/postsDynamic", "screenshot": "p1d-postsDynamic" },
+		{ "eval": "JSON.stringify({bars:document.querySelectorAll('nav.pagination').length})", "label": "A5-postsDynamic-1440" }
+	]
+}

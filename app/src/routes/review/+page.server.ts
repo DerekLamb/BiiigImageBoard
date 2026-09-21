@@ -1,9 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import { ImageModel } from '$lib/server/models/imageModel';
-import imageController from '$lib/server/controllers/imageController';
+import { buildReviewFilter, REVIEW_PAGE_SIZE } from '$lib/server/reviewFilter';
 import type { PageServerLoad } from './$types';
-
-const PAGE_SIZE = 200;
 
 export const load: PageServerLoad = async ({ url, locals }) => {
 	if (!locals.user) {
@@ -15,25 +13,12 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	const searchTerm = searchParams.get('search') || '';
 	const notag = searchParams.get('notag') || '';
 
-	let filter: any = {};
-	if (searchTerm) {
-		filter.tags = { $all: [searchTerm] };
-	}
-	if (notag) {
-		if (filter.tags) {
-			filter.tags = {
-				$all: [searchTerm],
-				$not: { $in: [notag] }
-			};
-		} else {
-			filter.tags = { $not: { $in: [notag] } };
-		}
-	}
+	const filter = buildReviewFilter(searchTerm, notag);
 
 	const totalImages = await ImageModel.countFilteredImages(filter);
 
 	const page = 0;
-	const images = await ImageModel.findImages(filter, PAGE_SIZE, 0, { uploadDate: -1 });
+	const images = await ImageModel.findImages(filter, REVIEW_PAGE_SIZE, 0, { uploadDate: -1 });
 
 	let startIndex = 0;
 	if (startId) {
@@ -48,28 +33,6 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		notag,
 		page,
 		totalImages,
-		pageSize: PAGE_SIZE
+		pageSize: REVIEW_PAGE_SIZE
 	};
-};
-
-export const actions = {
-	delete: async ({ request, locals }) => {
-		if (!locals.user) {
-			redirect(307, '/login');
-		}
-
-		const data = await request.formData();
-		const imageId = data.get('imageId') as string;
-
-		if (!imageId) {
-			return { success: false, error: 'Missing imageId' };
-		}
-
-		const image = await imageController.getImage(imageId);
-		if (!image) {
-			return { success: false, error: 'Image not found' };
-		}
-
-		return await imageController.deleteImage(image);
-	}
 };

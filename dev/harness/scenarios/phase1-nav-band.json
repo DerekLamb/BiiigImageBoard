@@ -1,0 +1,17 @@
+{
+	"name": "phase1-nav-band",
+	"viewport": { "width": 700, "height": 900 },
+	"theme": "dark",
+	"outDir": "dev/harness/shots-mobile",
+	"steps": [
+		{ "route": "/posts", "screenshot": "p1nav-band-700-posts" },
+		{
+			"eval": "(function(){var brand=document.querySelector('.mobileBrand');var mb=document.querySelector('.menu-button');var nav=document.querySelector('.navbar');var bar=document.querySelector('.navContainer');return JSON.stringify({brand:getComputedStyle(brand).display,menu:getComputedStyle(mb).display,menuPos:getComputedStyle(mb).position,navbar:getComputedStyle(nav).display,barSticky:getComputedStyle(bar).position});})()",
+			"label": "A1-band-700"
+		},
+		{ "click": ".menu-button" },
+		{ "waitFor": ".menu-container.open" },
+		{ "eval": "getComputedStyle(document.querySelector('.menu-container')).display", "label": "band-menu-display" },
+		{ "screenshot": "p1nav-band-700-menu" }
+	]
+}

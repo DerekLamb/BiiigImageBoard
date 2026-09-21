@@ -185,13 +185,6 @@
 			</div>
 		{/if}
 
-		<PageNav
-			currentPage={data.pagination.currentPage}
-			totalPages={data.pagination.pageCount}
-			{baseUrl}
-			length={$imageCount}
-		/>
-
 		<div class="controls-row">
 			<button class="select-mode-btn" on:click={toggleSelectMode}>
 				{showSelect ? 'Exit Selection' : 'Select Images'}
@@ -233,7 +226,7 @@
 
 		<div
 			class="imageGrid"
-			style="grid-template-columns: repeat(auto-fit, minmax({$improvImageSize}px, 1fr)"
+			style="grid-template-columns: repeat(auto-fit, minmax(min(42vw, {$improvImageSize}px), 1fr))"
 		>
 			{#if data.images}
 				{#each data.images as image}
@@ -269,6 +262,7 @@
 			currentPage={data.pagination.currentPage}
 			totalPages={data.pagination.pageCount}
 			{baseUrl}
+			length={$imageCount}
 		/>
 	</div>
 
