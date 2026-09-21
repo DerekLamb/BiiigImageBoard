@@ -3,7 +3,7 @@
 	import { theme } from '$lib/stores/themeStore';
 
 	export let data;
-	export let currentUser = data.username;
+	export let currentUser = data.user?.email;
 
 	// Processing state
 	let isProcessing = false;

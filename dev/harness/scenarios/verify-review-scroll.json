@@ -1,0 +1,9 @@
+
+{
+  "viewport": { "width": 390, "height": 844 },
+  "colorScheme": "dark",
+  "steps": [
+    { "route": "/review" },
+    { "eval": "document.documentElement.scrollWidth <= innerWidth", "name": "horizontalScrollCheck" }
+  ]
+}

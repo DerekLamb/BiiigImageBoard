@@ -47,6 +47,11 @@
 		<li><a href="/upload" on:click={toggleMenu}>Upload</a></li>
 		<li><a href="/" on:click={toggleMenu}>Home</a></li>
 		<li><a href="/login" on:click={toggleMenu}>Login</a></li>
+		<li class="theme-row">
+			<button class="theme-toggle" on:click={toggleTheme} title="Toggle theme" aria-label="Toggle theme">
+				<span class="icon">🌙</span>
+			</button>
+		</li>
 	</SlideMenu>
 {/key}
 

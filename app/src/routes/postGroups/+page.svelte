@@ -4,6 +4,7 @@
 	import SearchBar from '$lib/searchBar.svelte';
 	import Image from '$lib/image.svelte';
 	import { groupCount } from '$lib/stores/searchStore';
+	import { page } from '$app/state';
 	import type { PageData } from './$types';
 	/** @type {import('./$types').PageData} */
 
@@ -27,14 +28,14 @@
 	const sizes = [100, 110, 150, 200, 300];
 	const numImages = [24, 32, 48, 60, 72, 84, 96];
 
-	const pathname = $derived(new URL(window.location.href).pathname);
+	const pathname = $derived(page.url.pathname);
 	const numImageParam = $derived($groupCount === 24 ? '' : `&len=${$groupCount}`);
 
-	const nextPage = $derived(
+	const prevPage = $derived(
 		data.currPage > 1 ? `${pathname}?page=${data.currPage - 1}${numImageParam}` : null
 	);
 
-	const prevPage = $derived(
+	const nextPage = $derived(
 		data.currPage < data.pageNum ? `${pathname}?page=${data.currPage + 1}${numImageParam}` : null
 	);
 
@@ -50,12 +51,12 @@
 	<div class="groupBrowser" style="grid-template-columns: repeat(auto-fit, minmax({110}px, 1fr)">
 		<div class="pgnumCont">
 			<div class="prevPageCont">
-				<a href={firstPage} class="pageNum">&lt&lt/</a>
-				<a href={nextPage} class="pageNum">&lt&lt&lt</a>
+				<a href={firstPage} class="pageNum">&lt;&lt;</a>
+				<a href={prevPage} class="pageNum">&lt;&lt;&lt;</a>
 			</div>
 			<div class="nextPageCont">
-				<a href={prevPage} class="pageNum">&gt&gt&gt</a>
-				<a href={lastPage} class="pageNum">\&gt&gt</a>
+				<a href={nextPage} class="pageNum">&gt;&gt;&gt;</a>
+				<a href={lastPage} class="pageNum">&gt;&gt;</a>
 			</div>
 		</div>
 		<span>

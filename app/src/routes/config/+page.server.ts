@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import ImageController from '$lib/server/controllers/imageController.js';
+import { isAdmin } from '$lib/auth';
 
 /** @type {import('./$types').Actions} */
 
@@ -8,12 +9,11 @@ export const load = async ({ locals }) => {
 		redirect(307, '/login');
 	}
 
-	if (locals.user.username !== 'admin') {
-		// handle here if no admin TODO
-		redirect(307, '/login');
+	if (!isAdmin(locals.user)) {
+		redirect(302, '/');
 	}
 	return {
-		username: locals.user.username
+		user: locals.user
 	};
 };
 
@@ -21,6 +21,10 @@ export const actions = {
 	default: async ({ locals }) => {
 		if (!locals.user) {
 			redirect(307, '/login');
+		}
+
+		if (!isAdmin(locals.user)) {
+			redirect(302, '/');
 		}
 
 		try {

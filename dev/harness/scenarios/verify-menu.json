@@ -1,0 +1,15 @@
+
+{
+  "viewport": { "width": 390, "height": 844 },
+  "colorScheme": "dark",
+  "steps": [
+    { "route": "/posts" },
+    { "click": "button.menu-button" },
+    { "waitFor": ".menu-container.open" },
+    { "screenshot": { "path": "dev/harness/shots-mobile/menu-open-dark.png", "fullPage": true } },
+    { "eval": "document.documentElement.dataset.theme", "name": "initialTheme" },
+    { "waitForSelector": ".theme-toggle-button", "state": "visible" },
+    { "click": ".theme-toggle-button" },
+    { "eval": "document.documentElement.dataset.theme", "name": "finalTheme" }
+  ]
+}

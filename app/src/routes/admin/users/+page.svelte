@@ -71,6 +71,7 @@
 
 	<div class="links">
 		<a href="/">Back to Home</a>
+		<a href="/config">Settings</a>
 	</div>
 </div>
 
@@ -144,5 +145,9 @@
 	.links {
 		margin-top: 1rem;
 		text-align: center;
+	}
+
+	.links a {
+		margin: 0 0.5rem;
 	}
 </style>

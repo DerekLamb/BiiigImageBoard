@@ -4,6 +4,8 @@
 
 Status: **design only — no code edits made in this pass.** All findings below were verified against the live code, the compiled SSR output, the dev-server log, and the harness screenshot.
 
+> **Post-approval correction (implementation pass):** `+notfound.svelte` was NOT created — it is not a SvelteKit convention. The installed @sveltejs/kit 2.66.0 manifest scanner (`src/core/sync/create_manifest_data/index.js:241,265`) only accepts `+page`/`+layout`/`+error`/`+server`. The root `+error.svelte` is **status-aware** instead (404 variant with "Back to posts", 500 variant otherwise). Additionally, SvelteKit 2.66's Svelte-5 runtime passes status via `page.status`/`page.error` from `$app/state`, not via `$props()` — the `$props()` version rendered an empty number; verified against the framework's own fallback error component. See `plans/phase0/implementation-report.md`.
+
 ---
 
 ## 1. Verified root causes

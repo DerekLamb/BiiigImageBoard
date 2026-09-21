@@ -443,4 +443,47 @@
 		color: #adb5bd !important;
 		margin-top: 12px !important;
 	}
+
+	/* Phase 0 mobile fixes — new media queries only; every desktop rule above is untouched */
+	@media (max-width: 960px) {
+		.reviewContainer {
+			flex-direction: column;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.reviewContainer {
+			min-height: 100vh;
+		}
+
+		.toolbar {
+			gap: 8px;
+		}
+
+		.toolBtn {
+			flex-shrink: 0;
+			padding: 6px 10px;
+		}
+
+		.position {
+			flex: 1 1 auto;
+			min-width: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.date {
+			display: none;
+		}
+
+		.deleteBtn {
+			margin-left: 0;
+		}
+
+		.confirmDialog {
+			box-sizing: border-box;
+			max-width: calc(100vw - 48px);
+			margin: 0 16px;
+		}
+	}
 </style>

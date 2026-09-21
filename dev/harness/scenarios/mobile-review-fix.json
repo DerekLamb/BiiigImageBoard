@@ -1,0 +1,61 @@
+{
+	"name": "mobile-review-fix",
+	"viewport": {
+		"width": 390,
+		"height": 844
+	},
+	"theme": "dark",
+	"outDir": "dev/harness/shots-mobile",
+	"steps": [
+		{
+			"goto": "/review",
+			"wait": 1500
+		},
+		{
+			"eval": "({ scrollWidth: document.documentElement.scrollWidth, bodyScrollWidth: document.body.scrollWidth, innerWidth: window.innerWidth })"
+		},
+		{
+			"eval": "(function(){ var s = { prev: 'button[title=\"Previous (Left Arrow)\"]', next: 'button[title=\"Next (Right Arrow)\"]', del: 'button[title=\"Delete (Delete key)\"]' }; var r = {}; for (var k in s) { var el = document.querySelector(s[k]); if (!el) { r[k] = null; continue; } var b = el.getBoundingClientRect(); r[k] = { left: b.left, right: b.right, top: b.top, bottom: b.bottom, h: b.height, disabled: el.disabled, inViewport: b.left >= 0 && b.right <= window.innerWidth && b.top >= 0 && b.bottom <= window.innerHeight }; } return r; })()"
+		},
+		{
+			"eval": "() => { const m = document.querySelector('.reviewMedia'); const ma = document.querySelector('.mainArea'); return m ? { mediaW: m.getBoundingClientRect().width, mediaH: m.getBoundingClientRect().height, mainContentW: ma.clientWidth } : { mediaW: 0 }; }"
+		},
+		{
+			"screenshot": "m05fix-toolbar",
+			"selector": ".toolbar"
+		},
+		{
+			"screenshot": "m05fix-viewport"
+		},
+		{
+			"click": "button[title=\"Next (Right Arrow)\"]",
+			"wait": 1000
+		},
+		{
+			"eval": "(function(){ var s = { prev: 'button[title=\"Previous (Left Arrow)\"]', next: 'button[title=\"Next (Right Arrow)\"]', del: 'button[title=\"Delete (Delete key)\"]' }; var r = {}; for (var k in s) { var el = document.querySelector(s[k]); if (!el) { r[k] = null; continue; } var b = el.getBoundingClientRect(); r[k] = { left: b.left, right: b.right, top: b.top, bottom: b.bottom, h: b.height, disabled: el.disabled, inViewport: b.left >= 0 && b.right <= window.innerWidth && b.top >= 0 && b.bottom <= window.innerHeight }; } return r; })()"
+		},
+		{
+			"screenshot": "m05fix-viewport-img2"
+		},
+		{
+			"click": "button[title=\"Delete (Delete key)\"]",
+			"wait": 400
+		},
+		{
+			"eval": "(function(){ var d = document.querySelector('.confirmDialog'); if (!d) return null; var b = d.getBoundingClientRect(); return { left: b.left, right: b.right, within: b.left >= 0 && b.right <= window.innerWidth }; })()"
+		},
+		{
+			"screenshot": "m05fix-confirm"
+		},
+		{
+			"press": [
+				"body",
+				"Escape"
+			],
+			"wait": 300
+		},
+		{
+			"eval": "!document.querySelector(\".confirmOverlay\")"
+		}
+	]
+}

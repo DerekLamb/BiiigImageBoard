@@ -1,0 +1,67 @@
+{
+	"name": "nav-ia-validation",
+	"viewport": {
+		"width": 390,
+		"height": 844
+	},
+	"theme": "dark",
+	"outDir": "dev/harness/shots-mobile",
+	"steps": [
+		{
+			"route": "/posts",
+			"screenshot": "m11-mobile-posts"
+		},
+		{
+			"click": ".menu-button"
+		},
+		{
+			"waitFor": ".menu-container.open"
+		},
+		{
+			"screenshot": "m12-slide-menu-open"
+		},
+		{
+			"eval": "document.documentElement.getAttribute('data-theme')",
+			"label": "theme-before-toggle"
+		},
+		{
+			"click": ".menu-container button.theme-toggle"
+		},
+		{
+			"wait": 400
+		},
+		{
+			"eval": "document.documentElement.getAttribute('data-theme')",
+			"label": "theme-after-toggle"
+		},
+		{
+			"screenshot": "m13-slide-menu-after-theme-toggle"
+		},
+		{
+			"route": "/tags",
+			"screenshot": "m14-tags"
+		},
+		{
+			"expect": {
+				"selector": ".flexContainer h1",
+				"text": "Tags"
+			}
+		},
+		{
+			"route": "/config",
+			"screenshot": "m15-config-admin"
+		},
+		{
+			"expect": {
+				"selector": ".flexContainer h1",
+				"text": "Settings"
+			}
+		},
+		{
+			"expect": {
+				"selector": ".user-info",
+				"text": "admin@example.com"
+			}
+		}
+	]
+}
