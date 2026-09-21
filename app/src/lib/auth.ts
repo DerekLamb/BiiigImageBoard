@@ -24,6 +24,18 @@ export const auth = betterAuth({
 	secret: env.BETTER_AUTH_SECRET,
 	baseURL: env.BETTER_AUTH_URL || 'http://localhost:3000',
 	basePath: '/api/auth',
+	// Deployment-safe origin/CSRF check: in addition to the baseURL default,
+	// trust the origin that matches the host this request was sent to.
+	// The app and its API are always served from the same origin (vite in dev,
+	// nginx in prod), so a legitimate request's Origin always equals its Host;
+	// cross-site requests (Origin != Host, e.g. login CSRF from another domain)
+	// are still rejected. This lets login work on localhost, a LAN IP during
+	// mobile dev, and the production domain without per-environment config.
+	trustedOrigins: (request) => {
+		const host = request?.headers.get('host');
+		if (!host) return [];
+		return [`https://${host}`, `http://${host}`];
+	},
 	session: {
 		cookieCache: {
 			enabled: true
