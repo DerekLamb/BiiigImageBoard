@@ -185,6 +185,15 @@
 			</div>
 		{/if}
 
+		<PageNav
+			currentPage={data.pagination.currentPage}
+			totalPages={data.pagination.pageCount}
+			{baseUrl}
+			length={$imageCount}
+			ariaLabel="Top pagination"
+			hideOnMobile
+		/>
+
 		<div class="controls-row">
 			<button class="select-mode-btn" on:click={toggleSelectMode}>
 				{showSelect ? 'Exit Selection' : 'Select Images'}
@@ -263,6 +272,7 @@
 			totalPages={data.pagination.pageCount}
 			{baseUrl}
 			length={$imageCount}
+			ariaLabel="Bottom pagination"
 		/>
 	</div>
 

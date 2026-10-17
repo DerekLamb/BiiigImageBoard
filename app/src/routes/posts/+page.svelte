@@ -70,6 +70,14 @@
 		<TagSection imageTags={[]} editable={false} />
 	</SideBar>
 	<div class="imageBrowser">
+		<PageNav
+			currentPage={data.pagination.currentPage}
+			totalPages={data.pagination.pageCount}
+			{baseUrl}
+			length={$imageCount}
+			ariaLabel="Top pagination"
+			hideOnMobile
+		/>
 		<a href="/review" class="reviewLink">Review</a>
 		<span>
 			Size:
@@ -122,6 +130,7 @@
 			totalPages={data.pagination.pageCount}
 			{baseUrl}
 			length={$imageCount}
+			ariaLabel="Bottom pagination"
 		/>
 	</div>
 	<div class="footerSpacer"></div>

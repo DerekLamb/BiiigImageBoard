@@ -10,6 +10,8 @@
 	export let length = 24;
 	export let size = 'unused?';
 	export let pageText = 'Page';
+	export let ariaLabel = 'Pagination';
+	export let hideOnMobile = false;
 
 	let nextPage: string | null = null;
 	let prevPage: string | null = null;
@@ -58,7 +60,7 @@
 	});
 </script>
 
-<nav class="pagination {size}" aria-label="Pagination">
+<nav class="pagination {size}" class:hide-mobile={hideOnMobile} aria-label={ariaLabel}>
 	<a
 		href={currentPage <= 1 ? null : firstPage}
 		class="pagination-item"
@@ -181,5 +183,14 @@
 
 	.pagination-item:focus:not(:focus-visible) {
 		outline: none;
+	}
+
+	/* When a listing renders both leading and trailing bars, the leading
+	   instance is hidden at mobile widths so one bar per page is kept
+	   (Phase 1 A5); the trailing bar stays reachable under the grid. */
+	@media (max-width: 768px) {
+		.pagination.hide-mobile {
+			display: none;
+		}
 	}
 </style>

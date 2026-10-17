@@ -3,6 +3,7 @@
 	import SideBar from '$lib/sideBar.svelte';
 	import SearchBar from '$lib/searchBar.svelte';
 	import Image from '$lib/image.svelte';
+	import PageNav from '$lib/pageNav.svelte';
 	import { groupCount } from '$lib/stores/searchStore';
 	import { page } from '$app/state';
 	import type { PageData } from './$types';
@@ -29,18 +30,6 @@
 	const numImages = [24, 32, 48, 60, 72, 84, 96];
 
 	const pathname = $derived(page.url.pathname);
-	const numImageParam = $derived($groupCount === 24 ? '' : `&len=${$groupCount}`);
-
-	const prevPage = $derived(
-		data.currPage > 1 ? `${pathname}?page=${data.currPage - 1}${numImageParam}` : null
-	);
-
-	const nextPage = $derived(
-		data.currPage < data.pageNum ? `${pathname}?page=${data.currPage + 1}${numImageParam}` : null
-	);
-
-	const firstPage = $derived(`${pathname}?page=1${numImageParam}`);
-	const lastPage = $derived(`${pathname}?page=${data.pageNum}${numImageParam}`);
 </script>
 
 <div class="midContainer">
@@ -49,16 +38,14 @@
 		<TagSection editable={false} />
 	</SideBar>
 	<div class="groupBrowser" style="grid-template-columns: repeat(auto-fit, minmax({110}px, 1fr)">
-		<div class="pgnumCont">
-			<div class="prevPageCont">
-				<a href={firstPage} class="pageNum">&lt;&lt;</a>
-				<a href={prevPage} class="pageNum">&lt;&lt;&lt;</a>
-			</div>
-			<div class="nextPageCont">
-				<a href={nextPage} class="pageNum">&gt;&gt;&gt;</a>
-				<a href={lastPage} class="pageNum">&gt;&gt;</a>
-			</div>
-		</div>
+		<PageNav
+			baseUrl={pathname}
+			currentPage={data.currPage}
+			totalPages={data.pageNum}
+			length={$groupCount}
+			ariaLabel="Top pagination"
+			hideOnMobile
+		/>
 		<span>
 			Size:
 			<select>
@@ -69,7 +56,7 @@
 		</span>
 		<span>
 			Length:
-			<select>
+			<select bind:value={$groupCount}>
 				{#each numImages as num}
 					<option value={num}>{num}</option>
 				{/each}
@@ -88,6 +75,14 @@
 				{/each}
 			{/each}
 		</div>
+
+		<PageNav
+			baseUrl={pathname}
+			currentPage={data.currPage}
+			totalPages={data.pageNum}
+			length={$groupCount}
+			ariaLabel="Bottom pagination"
+		/>
 	</div>
 	<div class="footerSpacer"></div>
 </div>

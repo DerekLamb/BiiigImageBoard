@@ -293,6 +293,14 @@
 	</SideBar>
 
 	<div class="imageContainer">
+		<PageNav
+			baseUrl={browseDir}
+			currentPage={data.currPage}
+			totalPages={data.pageNum}
+			ariaLabel="Top pagination"
+			hideOnMobile
+		/>
+
 		<ControlBar mode={viewMode} {groupMode} {selectionCount} />
 
 		<ContentGrid
@@ -304,7 +312,12 @@
 			onDrop={handleDrop}
 		/>
 
-		<PageNav baseUrl={browseDir} currentPage={data.currPage} totalPages={data.pageNum} />
+		<PageNav
+			baseUrl={browseDir}
+			currentPage={data.currPage}
+			totalPages={data.pageNum}
+			ariaLabel="Bottom pagination"
+		/>
 	</div>
 
 	<!-- Add to Group Modal -->

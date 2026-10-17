@@ -160,6 +160,14 @@
 		<TagSection imageTags={[]} editable={false} />
 	</SideBar>
 	<div class="imageBrowser">
+		<PageNav
+			currentPage={data.pagination.currentPage}
+			totalPages={data.pagination.pageCount}
+			{baseUrl}
+			length={$imageCount}
+			ariaLabel="Top pagination"
+			hideOnMobile
+		/>
 		<span>
 			Size:
 			<select bind:value={$improvImageSize}>
@@ -297,6 +305,7 @@
 			totalPages={data.pagination.pageCount}
 			{baseUrl}
 			length={$imageCount}
+			ariaLabel="Bottom pagination"
 		/>
 	</div>
 	<div class="footerSpacer"></div>
