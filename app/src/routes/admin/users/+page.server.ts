@@ -1,5 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { auth } from '$lib/auth';
+import { auth, toDbId } from '$lib/auth';
+import { db } from '$lib/db.server';
+import type { ObjectId } from 'mongodb';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -34,7 +36,10 @@ export const actions: Actions = {
 		const email = formData.get('email') as string;
 		const password = formData.get('password') as string;
 		const name = formData.get('name') as string;
-		const role = (formData.get('role') as string) || 'user';
+		// Whitelist the role here: `role` is input:false on the better-auth user
+		// schema, so it cannot travel through the sign-up payload and any other
+		// value falls back to the schema default ("user").
+		const role = formData.get('role') === 'admin' ? 'admin' : 'user';
 
 		if (!email || !password || !name) {
 			return fail(400, {
@@ -46,19 +51,13 @@ export const actions: Actions = {
 		}
 
 		try {
-			// Create the user using better-auth API
-			// We pass headers to ensure the hook sees the admin session (if needed)
-			// However, since we are calling this from the server, we might need to be careful
-			// about the hook logic.
-			// The hook checks !ctx.context.session.
-			// If we pass headers, better-auth should resolve the session.
-
+			// Create the user using the better-auth API. The admin session is
+			// forwarded so the sign-up hook can verify the caller is an admin.
 			const newUser = await auth.api.signUpEmail({
 				body: {
 					email,
 					password,
-					name,
-					role // Pass the role if your schema allows it in signUp, otherwise we update it after
+					name
 				},
 				headers: request.headers
 			});
@@ -70,6 +69,15 @@ export const actions: Actions = {
 					name,
 					role
 				});
+			}
+
+			// The role is applied server-side after creation because the user
+			// schema marks it input:false (clients cannot set it). `toDbId` mirrors
+			// the adapter's id coercion (id-like strings are stored as ObjectId).
+			if (role !== 'user') {
+				await db
+					.collection<{ _id: string | ObjectId }>('user')
+					.updateOne({ _id: toDbId(newUser.user.id) }, { $set: { role, updatedAt: new Date() } });
 			}
 
 			return {
